@@ -1,4 +1,4 @@
-<img src="docs_src/_static/logo.svg" alt="MathiPy Logo" align="right" width="220px"/>
+<img src="https://raw.githubusercontent.com/mshin77/mathipy/main/docs_src/_static/logo.svg" alt="MathiPy Logo" align="right" width="220px"/>
 
 [![PyPI version](https://img.shields.io/pypi/v/mathipy)](https://pypi.org/project/mathipy/)
 [![Python versions](https://img.shields.io/pypi/pyversions/mathipy)](https://pypi.org/project/mathipy/)
