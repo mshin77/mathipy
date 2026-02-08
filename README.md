@@ -34,4 +34,4 @@ See [Quick Start](https://mshin77.github.io/mathipy/getting-started.html) and [A
 
 ## Citation
 
-- Shin, M. (2026). *MathiPy: Multimodal item feature extraction for K-12 math assessment* (Python package version 0.1.1) [Computer software]. <https://mshin77.github.io/MathiPy>
+- Shin, M. (2026). *MathiPy: Multimodal item feature extraction for K-12 math assessment* (Python package version 0.1.1) [Computer software]. <https://github.com/mshin77/mathipy>

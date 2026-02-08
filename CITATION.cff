@@ -10,7 +10,7 @@ authors:
 version: "0.1.1"
 date-released: "2026-02-07"
 license: MIT
-url: "https://mshin77.github.io/MathiPy"
+url: "https://github.com/mshin77/mathipy"
 repository-code: "https://github.com/mshin77/mathipy"
 keywords:
   - math assessment
