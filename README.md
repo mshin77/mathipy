@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/mshin77/mathipy/main/docs_src/_static/logo.svg" alt="MathiPy Logo" align="right" width="220px"/>
+<img src="https://raw.githubusercontent.com/mshin77/mathipy/main/docs_src/_static/logo.svg" alt="mathipy Logo" align="right" width="220px"/>
 
 [![PyPI version](https://img.shields.io/pypi/v/mathipy?v=0.1.1)](https://pypi.org/project/mathipy/)
 [![Python versions](https://img.shields.io/pypi/pyversions/mathipy?v=0.1.1)](https://pypi.org/project/mathipy/)
@@ -34,4 +34,4 @@ See [Quick Start](https://mshin77.github.io/mathipy/getting-started.html) and [A
 
 ## Citation
 
-- Shin, M. (2026). *MathiPy: Multimodal item feature extraction for K-12 math assessment* (Python package version 0.1.1) [Computer software]. <https://github.com/mshin77/mathipy>
+- Shin, M. (2026). *mathipy: Multimodal item feature extraction for K-12 math assessment* (Python package version 0.1.1) [Computer software]. <https://github.com/mshin77/mathipy>

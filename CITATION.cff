@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
-title: "MathiPy: Multimodal item feature extraction for K-12 math assessment"
+title: "mathipy: Multimodal item feature extraction for K-12 math assessment"
 authors:
   - family-names: Shin
     given-names: Mikyung

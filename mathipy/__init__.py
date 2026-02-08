@@ -1,4 +1,4 @@
-"""MathiPy - Multimodal item feature extraction for K-12 math assessment."""
+"""mathipy - Multimodal item feature extraction for K-12 math assessment."""
 
 __version__ = "0.1.1"
 __author__ = "Mikyung Shin"
