@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 44" width="200" height="44">
+  <!-- Back edges (visible through transparent faces) -->
+  <line x1="20" y1="22" x2="20" y2="6" stroke="#8BA4AD" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <line x1="20" y1="22" x2="34" y2="30" stroke="#8BA4AD" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <line x1="20" y1="22" x2="6" y2="30" stroke="#8BA4AD" stroke-width="1.2" stroke-dasharray="3,2"/>
+
+  <!-- Three transparent faces -->
+  <polygon points="20,6 34,14 20,22 6,14" fill="#4DABCF" fill-opacity="0.4"/>
+  <polygon points="6,14 20,22 20,38 6,30" fill="#E76F51" fill-opacity="0.4"/>
+  <polygon points="34,14 34,30 20,38 20,22" fill="#2A9D8F" fill-opacity="0.4"/>
+
+  <!-- Outer edges (hexagon) -->
+  <polygon points="20,6 34,14 34,30 20,38 6,30 6,14" fill="none" stroke="#264653" stroke-width="1.6" stroke-linejoin="round"/>
+
+  <!-- Front edges from center -->
+  <line x1="20" y1="22" x2="34" y2="14" stroke="#264653" stroke-width="1.6"/>
+  <line x1="20" y1="22" x2="20" y2="38" stroke="#264653" stroke-width="1.6"/>
+  <line x1="20" y1="22" x2="6" y2="14" stroke="#264653" stroke-width="1.6"/>
+
+  <!-- MathiPy text -->
+  <text x="46" y="30" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="-0.5" fill="#264653">MathiPy</text>
+</svg>

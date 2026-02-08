@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mathipy"
+version = "0.1.0"
+description = "Multimodal item feature extraction for K-12 math assessment"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    {name = "Mikyung Shin", email = "mshin2@ilstu.edu"}
+]
+keywords = ["math", "assessment", "education", "readability", "k-12"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "numpy>=1.20.0",
+]
+
+[project.optional-dependencies]
+nlp = [
+    "textstat>=0.7.0",
+    "nltk>=3.8.0",
+]
+vision = [
+    "pillow>=9.0.0",
+    "opencv-python-headless>=4.5.0",
+]
+ocr = [
+    "httpx>=0.24.0",
+]
+documents = [
+    "python-docx>=0.8.0",
+    "pdfplumber>=0.7.0",
+]
+all = [
+    "mathipy[nlp,vision,ocr,documents]",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+]
+docs = [
+    "sphinx>=8.2",
+    "pydata-sphinx-theme>=0.16",
+    "myst-parser>=3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mshin77/mathipy"
+Repository = "https://github.com/mshin77/mathipy"
+Documentation = "https://mshin77.github.io/mathipy"
+Issues = "https://github.com/mshin77/mathipy/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mathipy*"]
+
+[tool.setuptools.package-data]
+mathipy = ["py.typed"]
+"mathipy.data" = ["*.csv", "*.png", "*.md"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

@@ -1,0 +1,638 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Analyzing Math Items &#8212; MathiPy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bf69dc6d" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'vignettes/naep-demo';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../api.html" />
+    <link rel="prev" title="Getting Started" href="../getting-started.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="MathiPy  documentation - Home"/>
+    <img src="../_static/logo.svg" class="logo__image only-dark pst-js-only" alt="MathiPy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Analyzing Math Items
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    Support
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mshin77/mathipy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Analyzing Math Items
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../support.html">
+    Support
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mshin77/mathipy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-sample-data">Load Sample Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-extract-text-with-ocr">Step 1: Extract Text with OCR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-readability-analysis">Step 2: Readability Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-math-content-analysis">Step 3: Math Content Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-cognitive-load-estimation">Step 4: Cognitive Load Estimation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-visual-feature-extraction">Step 5: Visual Feature Extraction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combining-features">Combining Features</a></li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Analyzing Math Items</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="analyzing-math-items">
+<h1>Analyzing Math Items<a class="headerlink" href="#analyzing-math-items" title="Link to this heading">#</a></h1>
+<p>This vignette demonstrates MathiPy’s feature extraction pipeline using released items from the National Assessment of Educational Progress (NAEP). MathiPy includes a small sample of 5 NAEP mathematics items spanning grades 4 and 8, multiple years (2017–2024), and difficulty levels.</p>
+<p>SOURCE: U.S. Department of Education, Institute of Education Sciences, National Center for Education Statistics, National Assessment of Educational Progress (NAEP), 2017, 2022, and 2024 Mathematics Assessments. Items obtained from the <a class="reference external" href="https://www.nationsreportcard.gov/nqt/">NAEP Questions Tool</a>.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o">[</span>all<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="load-sample-data">
+<h2>Load Sample Data<a class="headerlink" href="#load-sample-data" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sample_csv</span><span class="p">,</span> <span class="n">get_sample_image</span><span class="p">,</span> <span class="n">list_sample_images</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_sample_csv</span><span class="p">())</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;item_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | Grade </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;grade&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;difficulty&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M10</span> <span class="c1">#2 | Grade 4 | Easy      | Algebra</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mi">4</span><span class="n">M1</span> <span class="c1">#4  | Grade 4 | Medium    | Number Properties and Operations</span>
+<span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M13</span> <span class="c1">#2 | Grade 4 | Hard      | Measurement</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">8</span><span class="n">M1</span> <span class="c1">#2  | Grade 8 | Easy      | Geometry</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mi">8</span><span class="n">M3</span> <span class="c1">#2  | Grade 8 | Easy      | Data Analysis, Statistics, and Probability</span>
+</pre></div>
+</div>
+<p>Available sample images:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">list_sample_images</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;2017-4M1 #4.png&#39;</span><span class="p">,</span> <span class="s1">&#39;2017-8M3 #2.png&#39;</span><span class="p">,</span> <span class="s1">&#39;2022-8M1 #2.png&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;2024-4M10 #2.png&#39;</span><span class="p">,</span> <span class="s1">&#39;2024-4M13 #2.png&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-extract-text-with-ocr">
+<h2>Step 1: Extract Text with OCR<a class="headerlink" href="#step-1-extract-text-with-ocr" title="Link to this heading">#</a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code> to extract text and math expressions from item images. This requires a Gemini or OpenAI API key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
+
+<span class="n">ocr</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
+<span class="n">image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="s2">&quot;2024-4M10 #2&quot;</span><span class="p">))</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">ocr</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;full_text&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;math_expressions&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;answer_choices&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>For this example, the extracted text is:</p>
+<blockquote>
+<div><p>Dwayne is D years old. Dwayne’s sister is 3 years younger than Dwayne. Which expression represents Dwayne’s sister’s age in years? A) D+3 B) D-3 C) D×3 D) D÷3</p>
+</div></blockquote>
+</section>
+<section id="step-2-readability-analysis">
+<h2>Step 2: Readability Analysis<a class="headerlink" href="#step-2-readability-analysis" title="Link to this heading">#</a></h2>
+<p>Analyze extracted text with math-aware normalization. LaTeX and math symbols are replaced with placeholders so they don’t inflate complexity scores.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadabilityAnalyzer</span>
+
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span>
+<span class="n">texts</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;2024-4M10 #2&quot;</span><span class="p">:</span> <span class="s2">&quot;Dwayne is D years old. Dwayne sister is 3 years younger than Dwayne. &quot;</span>
+                     <span class="s2">&quot;Which expression represents Dwayne sister age in years? &quot;</span>
+                     <span class="s2">&quot;A) D+3 B) D-3 C) D*3 D) D/3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2017-4M1 #4&quot;</span><span class="p">:</span>  <span class="s2">&quot;Divide. 228 / 4 =&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2022-8M1 #2&quot;</span><span class="p">:</span>  <span class="s2">&quot;The seven points shown on the map represent towns. &quot;</span>
+                     <span class="s2">&quot;The distances, in kilometers, along roads between towns are given. &quot;</span>
+                     <span class="s2">&quot;Tamara wants to travel from her town to Brook town in the shortest distance. &quot;</span>
+                     <span class="s2">&quot;On which roads should Tamara travel? &quot;</span>
+                     <span class="s2">&quot;Select the appropriate roads to show your answer.&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: FK Grade=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;flesch_kincaid_grade&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;Reading Ease=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;flesch_reading_ease&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M10</span> <span class="c1">#2: FK Grade=1.9, Reading Ease=94.5</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mi">4</span><span class="n">M1</span> <span class="c1">#4:  FK Grade=1.3, Reading Ease=91.0</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">8</span><span class="n">M1</span> <span class="c1">#2:  FK Grade=5.9, Reading Ease=69.5</span>
+</pre></div>
+</div>
+<p>The grade 8 geometry item (2022-8M1 #2) has higher linguistic complexity — longer sentences describing a map with distances — while the grade 4 arithmetic item (2017-4M1 #4) is a minimal two-word prompt.</p>
+</section>
+<section id="step-3-math-content-analysis">
+<h2>Step 3: Math Content Analysis<a class="headerlink" href="#step-3-math-content-analysis" title="Link to this heading">#</a></h2>
+<p>Classify items by CCSSM math domain and extract math features.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MathContentAnalyzer</span>
+
+<span class="n">math_analyzer</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">math_analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">domain</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;domain_classification&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: domain=</span><span class="si">{</span><span class="n">domain</span><span class="p">[</span><span class="s1">&#39;primary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;(confidence=</span><span class="si">{</span><span class="n">domain</span><span class="p">[</span><span class="s1">&#39;confidence&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">), &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;density=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;math_density&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;terms=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;vocabulary&#39;</span><span class="p">][</span><span class="s1">&#39;math_terms&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M10</span> <span class="c1">#2: domain=algebra    (confidence=1.00), density=0.31, terms=[&#39;expression&#39;]</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mi">4</span><span class="n">M1</span> <span class="c1">#4:  domain=arithmetic (confidence=1.00), density=0.20, terms=[&#39;divide&#39;]</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">8</span><span class="n">M1</span> <span class="c1">#2:  domain=arithmetic (confidence=0.50), density=0.00, terms=[&#39;point&#39;, &#39;even&#39;]</span>
+</pre></div>
+</div>
+<p>The algebra item is correctly classified with high confidence. The geometry item (2022-8M1 #2) has low math density because its complexity is visual (a map diagram), not textual.</p>
+</section>
+<section id="step-4-cognitive-load-estimation">
+<h2>Step 4: Cognitive Load Estimation<a class="headerlink" href="#step-4-cognitive-load-estimation" title="Link to this heading">#</a></h2>
+<p>Estimate intrinsic, extraneous, and germane cognitive load components.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span>
+
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: total=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;total_cognitive_load&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;(intrinsic=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;intrinsic_cognitive_load&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;extraneous=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;extraneous_cognitive_load&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;germane=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;germane_cognitive_load&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M10</span> <span class="c1">#2: total=0.478 (intrinsic=0.621, extraneous=0.466, germane=0.300)</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mi">4</span><span class="n">M1</span> <span class="c1">#4:  total=0.391 (intrinsic=0.800, extraneous=0.138, germane=0.100)</span>
+<span class="mi">2022</span><span class="o">-</span><span class="mi">8</span><span class="n">M1</span> <span class="c1">#2:  total=0.273 (intrinsic=0.000, extraneous=0.610, germane=0.300)</span>
+</pre></div>
+</div>
+<p>The arithmetic item (2017-4M1 #4) has high intrinsic load (numbers and division) but very low extraneous load (minimal text). The geometry item has the opposite pattern — high extraneous load from lengthy instructions but no numeric elements in the text itself.</p>
+</section>
+<section id="step-5-visual-feature-extraction">
+<h2>Step 5: Visual Feature Extraction<a class="headerlink" href="#step-5-visual-feature-extraction" title="Link to this heading">#</a></h2>
+<p>Extract image complexity features from the item screenshots.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
+
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="n">image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">]))</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;dimensions&quot;</span><span class="p">]</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;complexity_score&quot;</span><span class="p">]</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;edge_metrics&quot;</span><span class="p">]</span>
+    <span class="n">shapes</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;structural_elements&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;item_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;complexity=</span><span class="si">{</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;level&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;overall&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">), &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;lines=</span><span class="si">{</span><span class="n">shapes</span><span class="p">[</span><span class="s1">&#39;line_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;shapes=</span><span class="si">{</span><span class="n">shapes</span><span class="p">[</span><span class="s1">&#39;total_shapes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M10</span> <span class="c1">#2: 520x390,  complexity=medium (0.506), lines=39, shapes=1</span>
+<span class="mi">2017</span><span class="o">-</span><span class="mi">4</span><span class="n">M1</span> <span class="c1">#4:  872x147,  complexity=medium (0.372), lines=0,  shapes=1</span>
+<span class="mi">2024</span><span class="o">-</span><span class="mi">4</span><span class="n">M13</span> <span class="c1">#2: (measurement item with visual content)</span>
+</pre></div>
+</div>
+</section>
+<section id="combining-features">
+<h2>Combining Features<a class="headerlink" href="#combining-features" title="Link to this heading">#</a></h2>
+<p>The full pipeline produces a feature vector per item that can be used for research:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sample_csv</span><span class="p">,</span> <span class="n">get_sample_image</span>
+
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_sample_csv</span><span class="p">())</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="n">image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">]))</span>
+    <span class="n">visual</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s2">&quot;item_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;grade&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;difficulty&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;difficulty&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;complexity&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;complexity_score&quot;</span><span class="p">][</span><span class="s2">&quot;overall&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;complexity_level&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;complexity_score&quot;</span><span class="p">][</span><span class="s2">&quot;level&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;lines&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;structural_elements&quot;</span><span class="p">][</span><span class="s2">&quot;line_count&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;shapes&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;structural_elements&quot;</span><span class="p">][</span><span class="s2">&quot;total_shapes&quot;</span><span class="p">],</span>
+    <span class="p">})</span>
+
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;item_id&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">16s</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;difficulty&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">6s</span><span class="si">}</span><span class="s2"> | &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;complexity=</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;complexity_level&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">6s</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;complexity&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">) | &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;lines=</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Text-based features (readability, math content, cognitive load) can be added after OCR extraction, building a complete feature table suitable for statistical analysis.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Mikyung Shin.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "MathiPy: Multimodal item feature extraction for K-12 math assessment"
+authors:
+  - family-names: Shin
+    given-names: Mikyung
+    email: mshin2@ilstu.edu
+    orcid: "https://orcid.org/0000-0001-7907-9193"
+version: "0.1.0"
+date-released: "2026-02-07"
+license: MIT
+url: "https://github.com/mshin77/mathipy"
+repository-code: "https://github.com/mshin77/mathipy"
+keywords:
+  - math assessment
+  - education
+  - readability
+  - K-12
+  - Python
