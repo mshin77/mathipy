@@ -8,6 +8,6 @@ Illinois State University
 
 ## Contact
 
-- Email: [mshin2@ilstu.edu](mailto:mshin2@ilstu.edu)
+- Email: [shin.mikyung@gmail.com](mailto:shin.mikyung@gmail.com)
 - GitHub: [github.com/mshin77](https://github.com/mshin77)
 - Homepage: [mshin77.net](https://mshin77.net/)
