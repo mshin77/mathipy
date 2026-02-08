@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
 authors = [
-    {name = "Mikyung Shin", email = "mshin2@ilstu.edu"}
+    {name = "Mikyung Shin", email = "shin.mikyung@gmail.com"}
 ]
 keywords = ["math", "assessment", "education", "readability", "k-12"]
 classifiers = [

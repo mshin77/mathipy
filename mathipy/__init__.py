@@ -2,7 +2,7 @@
 
 __version__ = "0.1.0"
 __author__ = "Mikyung Shin"
-__email__ = "mshin2@ilstu.edu"
+__email__ = "shin.mikyung@gmail.com"
 
 from mathipy.readability import ReadabilityAnalyzer
 from mathipy.math_content import MathContentAnalyzer
