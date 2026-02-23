@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/mshin77/mathipy/main/docs_src/_static/logo.svg" alt="mathipy Logo" align="right" width="220px"/>
 
-[![PyPI version](https://img.shields.io/pypi/v/mathipy?v=0.1.2)](https://pypi.org/project/mathipy/)
-[![Python versions](https://img.shields.io/pypi/pyversions/mathipy?v=0.1.2)](https://pypi.org/project/mathipy/)
+[![PyPI version](https://img.shields.io/pypi/v/mathipy)](https://pypi.org/project/mathipy/)
+[![Python versions](https://img.shields.io/pypi/pyversions/mathipy)](https://pypi.org/project/mathipy/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Multimodal item feature extraction for K-12 math assessment. Analyze readability with math-aware normalization via [textstat](https://github.com/textstat/textstat) and [NLTK](https://www.nltk.org/), classify math content by [Common Core State Standards for Mathematics](https://www.thecorestandards.org/Math/) domain, estimate cognitive load components, extract visual complexity features from images using [OpenCV](https://opencv.org/) and [Pillow](https://pillow.readthedocs.io/), and perform multimodal optical character recognition (OCR) through [Gemini](https://ai.google.dev/) and [OpenAI](https://platform.openai.com/) vision APIs.
