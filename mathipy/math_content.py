@@ -1,9 +1,11 @@
 """Mathematical content analysis and domain classification."""
 
-import re
+from __future__ import annotations
+
 import logging
+import re
 from collections import Counter
-from typing import Any, Dict, List, Set, Union
+from typing import Any
 
 from mathipy.utils import extract_numbers
 
@@ -88,11 +90,11 @@ class MathContentAnalyzer:
             },
         }
 
-        self.all_terms: Set[str] = set()
+        self.all_terms: set[str] = set()
         for terms in self.domains.values():
             self.all_terms.update(terms)
 
-    def analyze(self, text: str) -> Dict[str, Any]:
+    def analyze(self, text: str) -> dict[str, Any]:
         """Analyze math content in the given text.
 
         Args:
@@ -134,7 +136,7 @@ class MathContentAnalyzer:
             "math_density": sum(pattern_matches.values()) / word_count if word_count else 0,
         }
 
-    def _match_patterns(self, text: str) -> Dict[str, int]:
+    def _match_patterns(self, text: str) -> dict[str, int]:
         matches = {}
         for name, pattern in self.patterns.items():
             found = pattern.findall(text)
@@ -142,14 +144,14 @@ class MathContentAnalyzer:
                 matches[name] = len(found)
         return matches
 
-    def _count_symbols(self, text: str) -> Dict[str, int]:
+    def _count_symbols(self, text: str) -> dict[str, int]:
         counts = Counter()
         for char in text:
             if char in self.symbols:
                 counts[self.symbols[char]] += 1
         return dict(counts)
 
-    def _match_vocabulary(self, text: str) -> Dict[str, int]:
+    def _match_vocabulary(self, text: str) -> dict[str, int]:
         matches = {}
         for term in self.all_terms:
             count = text.count(term)
@@ -160,10 +162,10 @@ class MathContentAnalyzer:
     def _classify_domain(
         self,
         text: str,
-        patterns: Dict[str, int],
-        terms: Dict[str, int],
-    ) -> Dict[str, Any]:
-        domain_scores: Dict[str, float] = {}
+        patterns: dict[str, int],
+        terms: dict[str, int],
+    ) -> dict[str, Any]:
+        domain_scores: dict[str, float] = {}
 
         for domain, vocab in self.domains.items():
             score = 0
@@ -195,7 +197,7 @@ class MathContentAnalyzer:
             )[1:3] if len(domain_scores) > 1 else [],
         }
 
-    def _empty_analysis(self) -> Dict[str, Any]:
+    def _empty_analysis(self) -> dict[str, Any]:
         return {
             "pattern_matches": {},
             "symbol_counts": {},

@@ -1,8 +1,10 @@
 """Readability analysis for mathematical text."""
 
-import re
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, Optional
+import re
+from typing import Any
 
 from mathipy.utils import normalize_math_text
 
@@ -10,18 +12,18 @@ logger = logging.getLogger(__name__)
 
 try:
     from textstat import (
-        flesch_reading_ease,
-        flesch_kincaid_grade,
-        gunning_fog,
-        smog_index,
         automated_readability_index,
         coleman_liau_index,
-        linsear_write_formula,
         dale_chall_readability_score,
+        flesch_kincaid_grade,
+        flesch_reading_ease,
+        gunning_fog,
+        linsear_write_formula,
+        smog_index,
     )
-    TEXTSTAT_AVAILABLE = True
+    textstat_available = True
 except ImportError:
-    TEXTSTAT_AVAILABLE = False
+    textstat_available = False
     logger.warning("textstat not available - using estimation methods")
 
 
@@ -37,7 +39,7 @@ class ReadabilityAnalyzer:
     """
 
     def __init__(self):
-        self._cmu_dict: Optional[Dict] = None
+        self._cmu_dict: dict | None = None
         self._load_cmu_dict()
 
     def _load_cmu_dict(self) -> None:
@@ -52,7 +54,7 @@ class ReadabilityAnalyzer:
         except Exception as e:
             logger.debug(f"CMU dictionary not available: {e}")
 
-    def analyze(self, text: str) -> Dict[str, Any]:
+    def analyze(self, text: str) -> dict[str, Any]:
         """Compute readability metrics for the given text.
 
         Args:
@@ -70,7 +72,7 @@ class ReadabilityAnalyzer:
         word_count = len(normalized.split())
         low_confidence = word_count < 20
 
-        if TEXTSTAT_AVAILABLE:
+        if textstat_available:
             return self._compute_metrics(normalized, low_confidence)
         else:
             return self._estimate_metrics(normalized, low_confidence)
@@ -78,7 +80,7 @@ class ReadabilityAnalyzer:
     def _normalize_for_readability(self, text: str) -> str:
         return normalize_math_text(text)
 
-    def _compute_metrics(self, text: str, low_confidence: bool) -> Dict[str, Any]:
+    def _compute_metrics(self, text: str, low_confidence: bool) -> dict[str, Any]:
         try:
             fk = flesch_kincaid_grade(text)
             fog = gunning_fog(text)
@@ -100,7 +102,7 @@ class ReadabilityAnalyzer:
             logger.warning(f"Readability calculation failed: {e}")
             return self._estimate_metrics(text, True)
 
-    def _estimate_metrics(self, text: str, low_confidence: bool) -> Dict[str, Any]:
+    def _estimate_metrics(self, text: str, low_confidence: bool) -> dict[str, Any]:
         words = text.split()
         word_count = len(words)
 
@@ -129,7 +131,7 @@ class ReadabilityAnalyzer:
             "linsear_write_formula": estimated_grade,
             "dale_chall_readability": estimated_grade,
             "average_grade_level": estimated_grade,
-            "low_confidence": True,
+            "low_confidence": low_confidence,
             "estimated": True,
         }
 
@@ -158,7 +160,7 @@ class ReadabilityAnalyzer:
 
         return max(1, count)
 
-    def _empty_metrics(self) -> Dict[str, Any]:
+    def _empty_metrics(self) -> dict[str, Any]:
         return {
             "flesch_reading_ease": 50.0,
             "flesch_kincaid_grade": 8.0,
