@@ -1,23 +1,20 @@
 """Tests for mathipy.cognitive_load module."""
 
-import pytest
-
 from mathipy.cognitive_load import CognitiveLoadEstimator
 
-
-EXPECTED_KEYS = {
+expected_keys = {
     "intrinsic_cognitive_load", "extraneous_cognitive_load",
     "germane_cognitive_load", "total_cognitive_load",
     "numeric_elements", "variable_count", "operation_count",
 }
 
-SIMPLE_TEXT = "What is 3 + 4?"
-COMPLEX_TEXT = (
+simple_text = "What is 3 + 4?"
+complex_text = (
     "Given the quadratic equation 2x^2 + 5x - 3 = 0, use the quadratic formula "
     "x = (-b +/- sqrt(b^2 - 4ac)) / 2a to find both solutions for x. "
     "Show all work and simplify your final answers."
 )
-FRACTION_TEXT = "What is 3/4 + 1/2? Simplify the fraction to find the sum."
+fraction_text = "What is 3/4 + 1/2? Simplify the fraction to find the sum."
 
 
 class TestInit:
@@ -30,7 +27,7 @@ class TestEmptyInput:
     def test_empty_string(self):
         estimator = CognitiveLoadEstimator()
         result = estimator.estimate("")
-        assert set(result.keys()) == EXPECTED_KEYS
+        assert set(result.keys()) == expected_keys
         assert result["total_cognitive_load"] == 0.0
         assert result["numeric_elements"] == 0
         assert result["variable_count"] == 0
@@ -71,7 +68,7 @@ class TestExtraneousLoad:
         assert result["extraneous_cognitive_load"] <= 1.0
 
     def test_estimated_when_no_grade(self):
-        result = CognitiveLoadEstimator().estimate(COMPLEX_TEXT)
+        result = CognitiveLoadEstimator().estimate(complex_text)
         assert result["extraneous_cognitive_load"] > 0
 
 
@@ -102,7 +99,7 @@ class TestGermaneLoad:
 
 class TestTotalLoad:
     def test_weighted_formula(self):
-        result = CognitiveLoadEstimator().estimate(SIMPLE_TEXT, readability_grade=4.0, math_terms=["add"])
+        result = CognitiveLoadEstimator().estimate(simple_text, readability_grade=4.0, math_terms=["add"])
         intrinsic = result["intrinsic_cognitive_load"]
         extraneous = result["extraneous_cognitive_load"]
         germane = result["germane_cognitive_load"]
@@ -110,12 +107,12 @@ class TestTotalLoad:
         assert result["total_cognitive_load"] == expected
 
     def test_total_between_0_and_1(self):
-        result = CognitiveLoadEstimator().estimate(COMPLEX_TEXT)
+        result = CognitiveLoadEstimator().estimate(complex_text)
         assert 0 <= result["total_cognitive_load"] <= 1.0
 
     def test_complex_higher_than_simple(self):
-        simple = CognitiveLoadEstimator().estimate(SIMPLE_TEXT)
-        complex_result = CognitiveLoadEstimator().estimate(COMPLEX_TEXT)
+        simple = CognitiveLoadEstimator().estimate(simple_text)
+        complex_result = CognitiveLoadEstimator().estimate(complex_text)
         assert complex_result["total_cognitive_load"] >= simple["total_cognitive_load"]
 
 
@@ -135,13 +132,13 @@ class TestElementCounts:
 
 class TestClassBasedAPI:
     def test_estimator_estimate_method(self):
-        result = CognitiveLoadEstimator().estimate(FRACTION_TEXT)
+        result = CognitiveLoadEstimator().estimate(fraction_text)
         assert isinstance(result, dict)
-        assert set(result.keys()) == EXPECTED_KEYS
+        assert set(result.keys()) == expected_keys
 
     def test_all_optional_params(self):
         result = CognitiveLoadEstimator().estimate(
-            SIMPLE_TEXT,
+            simple_text,
             readability_grade=3.5,
             math_terms=["add", "sum"],
         )

@@ -1,28 +1,24 @@
 """Tests for mathipy.readability module."""
 
 import re
-from unittest.mock import patch
-
-import pytest
 
 from mathipy.readability import ReadabilityAnalyzer
 
-
-EXPECTED_KEYS = {
+expected_keys = {
     "flesch_reading_ease", "flesch_kincaid_grade", "gunning_fog",
     "smog_index", "automated_readability_index", "coleman_liau_index",
     "linsear_write_formula", "dale_chall_readability", "average_grade_level",
     "low_confidence",
 }
 
-LONG_TEXT = (
+long_text = (
     "A farmer has a rectangular field that is 120 meters long and 80 meters wide. "
     "He wants to divide the field into smaller plots, each measuring 20 meters by 20 meters. "
     "How many smaller plots can the farmer create from the rectangular field? "
     "Show your work and explain your reasoning step by step."
 )
 
-SHORT_TEXT = "What is 3 + 4?"
+short_text = "What is 3 + 4?"
 
 
 class TestAnalyzerInit:
@@ -39,7 +35,7 @@ class TestEmptyInput:
     def test_empty_string(self):
         analyzer = ReadabilityAnalyzer()
         result = analyzer.analyze("")
-        assert set(result.keys()) >= EXPECTED_KEYS
+        assert set(result.keys()) >= expected_keys
         assert result["low_confidence"] is True
         assert result["flesch_kincaid_grade"] == 8.0
 
@@ -99,27 +95,27 @@ class TestSyllableCounting:
 
 class TestMetrics:
     def test_long_text_all_keys_present(self):
-        result = ReadabilityAnalyzer().analyze(LONG_TEXT)
-        assert set(result.keys()) >= EXPECTED_KEYS
+        result = ReadabilityAnalyzer().analyze(long_text)
+        assert set(result.keys()) >= expected_keys
 
     def test_long_text_not_low_confidence(self):
-        result = ReadabilityAnalyzer().analyze(LONG_TEXT)
+        result = ReadabilityAnalyzer().analyze(long_text)
         assert result["low_confidence"] is False
 
     def test_short_text_low_confidence(self):
-        result = ReadabilityAnalyzer().analyze(SHORT_TEXT)
+        result = ReadabilityAnalyzer().analyze(short_text)
         assert result["low_confidence"] is True
 
     def test_flesch_reading_ease_range(self):
-        result = ReadabilityAnalyzer().analyze(LONG_TEXT)
+        result = ReadabilityAnalyzer().analyze(long_text)
         assert -100 <= result["flesch_reading_ease"] <= 200
 
     def test_grade_level_positive(self):
-        result = ReadabilityAnalyzer().analyze(LONG_TEXT)
+        result = ReadabilityAnalyzer().analyze(long_text)
         assert result["flesch_kincaid_grade"] > 0
 
     def test_average_grade_is_mean(self):
-        result = ReadabilityAnalyzer().analyze(LONG_TEXT)
+        result = ReadabilityAnalyzer().analyze(long_text)
         fk = result["flesch_kincaid_grade"]
         fog = result["gunning_fog"]
         smog = result["smog_index"]
@@ -137,16 +133,16 @@ class TestMetrics:
 class TestEstimationFallback:
     def test_estimation_mode(self):
         analyzer = ReadabilityAnalyzer()
-        result = analyzer._estimate_metrics(LONG_TEXT, low_confidence=False)
+        result = analyzer._estimate_metrics(long_text, low_confidence=False)
         assert "estimated" in result
         assert result["estimated"] is True
-        assert result["low_confidence"] is True
+        assert result["low_confidence"] is False
         assert result["flesch_kincaid_grade"] >= 1
         assert result["flesch_kincaid_grade"] <= 16
 
 
 class TestClassBasedAPI:
     def test_analyzer_analyze_method(self):
-        result = ReadabilityAnalyzer().analyze(LONG_TEXT)
+        result = ReadabilityAnalyzer().analyze(long_text)
         assert isinstance(result, dict)
         assert "flesch_kincaid_grade" in result

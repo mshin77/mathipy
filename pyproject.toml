@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mathipy"
-version = "0.1.1"
+version = "0.1.2"
 description = "Multimodal item feature extraction for K-12 math assessment"
 readme = "README.md"
 license = "MIT"
@@ -71,7 +71,6 @@ where = ["."]
 include = ["mathipy*"]
 
 [tool.setuptools.package-data]
-mathipy = ["py.typed"]
 "mathipy.data" = ["*.csv", "*.png", "*.md"]
 
 [tool.ruff]

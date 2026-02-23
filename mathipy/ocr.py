@@ -1,50 +1,39 @@
 """Multimodal OCR for extracting text and math from assessment content."""
 
-import base64
+from __future__ import annotations
+
 import io
 import json
 import logging
-import os
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
+from mathipy._api import VisionAPIClient, image_extensions, max_file_size
 from mathipy.utils import extract_math_expressions, extract_numbers, extract_variables
 
 logger = logging.getLogger(__name__)
 
 try:
-    import httpx
-    HTTPX_AVAILABLE = True
+    import httpx  # noqa: F401
+    httpx_available = True
 except ImportError:
-    HTTPX_AVAILABLE = False
+    httpx_available = False
     logger.warning("httpx not available - install with: pip install httpx")
 
 try:
     from docx import Document as DocxDocument
-    DOCX_AVAILABLE = True
+    docx_available = True
 except ImportError:
-    DOCX_AVAILABLE = False
+    docx_available = False
 
 try:
     import pdfplumber
-    PDFPLUMBER_AVAILABLE = True
+    pdfplumber_available = True
 except ImportError:
-    PDFPLUMBER_AVAILABLE = False
+    pdfplumber_available = False
 
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta"
-OPENAI_API_URL = "https://api.openai.com/v1"
-
-DEFAULT_MODELS = {
-    "gemini": "gemini-2.5-flash",
-    "openai": "gpt-4o",
-}
-
-IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
-
-MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
-
-SYSTEM_PROMPT = """You are an expert OCR system for multi-modal content extraction.
+system_prompt = """You are an expert OCR system for multi-modal content extraction.
 Extract ALL visible text from the image accurately, including:
 - Question text and instructions
 - Mathematical expressions and equations (use LaTeX notation)
@@ -79,13 +68,13 @@ Respond with a JSON object containing:
     "extraction_confidence": 0.0-1.0
 }"""
 
-USER_PROMPT = """Extract all text and mathematical content from this assessment image.
+user_prompt = """Extract all text and mathematical content from this assessment image.
 Be thorough and accurate. Include all visible text, equations, and symbols.
 If the image contains no extractable text (picture only), describe the visual content
 in detail using K-12 math vocabulary (shapes, colors, dimensions, spatial relationships).
 You must ALWAYS return meaningful content - never empty results."""
 
-DESCRIBE_SYSTEM_PROMPT = """You are an expert image description system for K-12 math education.
+describe_system_prompt = """You are an expert image description system for K-12 math education.
 Provide a concise description of the image content, focusing on:
 - Mathematical elements (equations, expressions, symbols)
 - Geometric shapes and spatial relationships
@@ -107,29 +96,12 @@ Respond with a JSON object containing:
     "extraction_confidence": 0.0-1.0
 }"""
 
-DESCRIBE_USER_PROMPT_TEMPLATE = """Describe this image in {max_words} words or fewer.
+describe_user_prompt_template = """Describe this image in {max_words} words or fewer.
 Focus on mathematical content, shapes, diagrams, and spatial relationships.
 Be concise but precise. Return the description in the JSON format specified."""
 
 
-def _load_dotenv():
-    env_path = Path(".env")
-    if env_path.exists():
-        try:
-            with open(env_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        key, value = line.split("=", 1)
-                        key = key.strip()
-                        value = value.strip().strip('"').strip("'")
-                        if key and key not in os.environ:
-                            os.environ[key] = value
-        except Exception as e:
-            logger.debug(f"Could not load .env: {e}")
-
-
-def _parse_response(response_text: str) -> Dict[str, Any]:
+def _parse_response(response_text: str) -> dict[str, Any]:
     cleaned = re.sub(r"```(?:json)?\s*", "", response_text).strip()
     json_match = re.search(r"\{[\s\S]*\}", cleaned)
     if json_match:
@@ -148,6 +120,7 @@ def _parse_response(response_text: str) -> Dict[str, Any]:
         except json.JSONDecodeError:
             pass
 
+    logger.warning("Could not parse JSON from API response; falling back to plain-text extraction")
     text = response_text.strip()
     has_extractable_text = bool(re.search(r"[a-zA-Z0-9]{3,}", text))
 
@@ -167,7 +140,7 @@ def _parse_response(response_text: str) -> Dict[str, Any]:
 
 
 
-def _extract_answer_choices(text: str) -> Dict[str, str]:
+def _extract_answer_choices(text: str) -> dict[str, str]:
     choices = {}
     choice_pattern = r"([A-E])[.)\s]+(.+?)(?=[A-E][.)\s]|$)"
     matches = re.findall(choice_pattern, text, re.MULTILINE | re.DOTALL)
@@ -176,7 +149,7 @@ def _extract_answer_choices(text: str) -> Dict[str, str]:
     return choices
 
 
-def _empty_result() -> Dict[str, Any]:
+def _empty_result() -> dict[str, Any]:
     return {
         "content_type": "text_only",
         "full_text": "",
@@ -192,7 +165,7 @@ def _empty_result() -> Dict[str, Any]:
     }
 
 
-class MultimodalOCR:
+class MultimodalOCR(VisionAPIClient):
     """Extract text and math expressions from images using vision LLMs.
 
     Supports Gemini and OpenAI providers. Accepts image files, URLs, bytes,
@@ -202,45 +175,12 @@ class MultimodalOCR:
     ``OPENAI_API_KEY`` in your ``.env`` file.
     """
 
-    def __init__(
-        self,
-        provider: str = "gemini",
-        model: Optional[str] = None,
-        api_key: Optional[str] = None,
-        timeout: int = 120,
-    ):
-        if provider not in ("gemini", "openai"):
-            raise ValueError(f"Unsupported provider: {provider}. Use 'gemini' or 'openai'.")
-
-        _load_dotenv()
-
-        self.provider = provider
-        self.model = model or DEFAULT_MODELS[provider]
-        self.timeout = timeout
-        self._api_key_override = api_key
-
-    def _resolve_api_key(self) -> str:
-        if self._api_key_override:
-            return self._api_key_override
-
-        if self.provider == "gemini":
-            key = os.getenv("GEMINI_API_KEY")
-        else:
-            key = os.getenv("OPENAI_API_KEY")
-
-        if not key:
-            env_var = "GEMINI_API_KEY" if self.provider == "gemini" else "OPENAI_API_KEY"
-            raise ValueError(
-                f"API key not found. Set {env_var} in your .env file or pass api_key parameter."
-            )
-        return key
-
     def extract(
         self,
-        source: Union[str, Path, bytes],
+        source: str | Path | bytes,
         mode: str = "full",
         max_words: int = 30,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Extract text and math content from the given source.
 
         Args:
@@ -276,42 +216,42 @@ class MultimodalOCR:
         if suffix == ".pdf":
             return self._extract_from_pdf(path, mode, max_words)
 
-        if suffix in IMAGE_EXTENSIONS:
+        if suffix in image_extensions:
             return self._extract_from_image(path, mode, max_words)
 
         return self._extract_from_image(path, mode, max_words)
 
     def _extract_from_image(
         self,
-        source: Union[str, Path, bytes],
+        source: str | Path | bytes,
         mode: str = "full",
         max_words: int = 30,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         image_b64, mime_type = self._prepare_image(source)
 
         if mode == "describe":
-            system_prompt = DESCRIBE_SYSTEM_PROMPT
-            user_prompt = DESCRIBE_USER_PROMPT_TEMPLATE.format(max_words=max_words)
+            sys_prompt = describe_system_prompt
+            usr_prompt = describe_user_prompt_template.format(max_words=max_words)
         else:
-            system_prompt = SYSTEM_PROMPT
-            user_prompt = USER_PROMPT
+            sys_prompt = system_prompt
+            usr_prompt = user_prompt
 
         if self.provider == "gemini":
             response_text = self._call_gemini(
                 image_b64, mime_type,
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
+                system_prompt=sys_prompt,
+                user_prompt=usr_prompt,
             )
         else:
             response_text = self._call_openai(
                 image_b64, mime_type,
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
+                system_prompt=sys_prompt,
+                user_prompt=usr_prompt,
             )
 
         return _parse_response(response_text)
 
-    def _extract_from_txt(self, path: Path) -> Dict[str, Any]:
+    def _extract_from_txt(self, path: Path) -> dict[str, Any]:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
 
@@ -329,18 +269,18 @@ class MultimodalOCR:
 
     def _extract_from_docx(
         self, path: Path, mode: str, max_words: int
-    ) -> Dict[str, Any]:
-        if not DOCX_AVAILABLE:
+    ) -> dict[str, Any]:
+        if not docx_available:
             raise ImportError(
                 "python-docx is required for .docx extraction. "
                 "Install with: pip install mathipy[documents]"
             )
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
-        if path.stat().st_size > MAX_FILE_SIZE:
+        if path.stat().st_size > max_file_size:
             raise ValueError(
                 f"File too large ({path.stat().st_size / 1024 / 1024:.1f} MB). "
-                f"Maximum allowed: {MAX_FILE_SIZE / 1024 / 1024:.0f} MB."
+                f"Maximum allowed: {max_file_size / 1024 / 1024:.0f} MB."
             )
 
         doc = DocxDocument(str(path))
@@ -377,22 +317,22 @@ class MultimodalOCR:
 
     def _extract_from_pdf(
         self, path: Path, mode: str, max_words: int
-    ) -> Dict[str, Any]:
-        if not PDFPLUMBER_AVAILABLE:
+    ) -> dict[str, Any]:
+        if not pdfplumber_available:
             raise ImportError(
                 "pdfplumber is required for .pdf extraction. "
                 "Install with: pip install mathipy[documents]"
             )
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
-        if path.stat().st_size > MAX_FILE_SIZE:
+        if path.stat().st_size > max_file_size:
             raise ValueError(
                 f"File too large ({path.stat().st_size / 1024 / 1024:.1f} MB). "
-                f"Maximum allowed: {MAX_FILE_SIZE / 1024 / 1024:.0f} MB."
+                f"Maximum allowed: {max_file_size / 1024 / 1024:.0f} MB."
             )
 
         all_text = []
-        all_images: List[Tuple[bytes, str]] = []
+        all_images: list[tuple[bytes, str]] = []
 
         with pdfplumber.open(str(path)) as pdf:
             for page in pdf.pages:
@@ -433,8 +373,8 @@ class MultimodalOCR:
         return result
 
     def _extract_docx_images(
-        self, doc: "DocxDocument"
-    ) -> List[Tuple[bytes, str]]:
+        self, doc: DocxDocument
+    ) -> list[tuple[bytes, str]]:
         images = []
         for rel in doc.part.rels.values():
             if "image" in rel.reltype:
@@ -447,12 +387,12 @@ class MultimodalOCR:
 
     def _process_embedded_images(
         self,
-        images: List[Tuple[bytes, str]],
+        images: list[tuple[bytes, str]],
         mode: str,
         max_words: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         results = []
-        for img_bytes, mime_type in images:
+        for img_bytes, _mime_type in images:
             try:
                 result = self._extract_from_image(img_bytes, mode, max_words)
                 results.append(result)
@@ -462,9 +402,9 @@ class MultimodalOCR:
 
     def _merge_image_results(
         self,
-        base: Dict[str, Any],
-        image_results: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        base: dict[str, Any],
+        image_results: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         base["content_type"] = "mixed"
 
         descriptions = []
@@ -507,170 +447,3 @@ class MultimodalOCR:
         )
 
         return base
-
-    def _prepare_image(self, source: Union[str, Path, bytes]) -> tuple:
-        if isinstance(source, bytes):
-            return base64.b64encode(source).decode("utf-8"), "image/jpeg"
-
-        source_str = str(source)
-
-        if source_str.startswith(("http://", "https://")):
-            return self._fetch_image_url(source_str)
-
-        path = Path(source_str)
-        if not path.exists():
-            raise FileNotFoundError(f"Image not found: {path}")
-        if not path.is_file():
-            raise ValueError(f"Expected a file, got: {path}")
-        if path.stat().st_size > MAX_FILE_SIZE:
-            raise ValueError(
-                f"File too large ({path.stat().st_size / 1024 / 1024:.1f} MB). "
-                f"Maximum allowed: {MAX_FILE_SIZE / 1024 / 1024:.0f} MB."
-            )
-
-        mime_map = {
-            ".jpg": "image/jpeg",
-            ".jpeg": "image/jpeg",
-            ".png": "image/png",
-            ".gif": "image/gif",
-            ".webp": "image/webp",
-            ".bmp": "image/bmp",
-        }
-        mime_type = mime_map.get(path.suffix.lower(), "image/jpeg")
-
-        with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8"), mime_type
-
-    def _fetch_image_url(self, url: str) -> tuple:
-        if not HTTPX_AVAILABLE:
-            raise ImportError(
-                "httpx is required for URL fetching. Install with: pip install mathipy[ocr]"
-            )
-
-        with httpx.Client(timeout=self.timeout, follow_redirects=True) as client:
-            resp = client.get(url)
-            resp.raise_for_status()
-
-        content_type = resp.headers.get("content-type", "image/jpeg")
-        mime_type = content_type.split(";")[0].strip()
-        if not mime_type.startswith("image/"):
-            mime_type = "image/jpeg"
-
-        return base64.b64encode(resp.content).decode("utf-8"), mime_type
-
-    def _call_gemini(
-        self,
-        image_b64: str,
-        mime_type: str,
-        system_prompt: str = SYSTEM_PROMPT,
-        user_prompt: str = USER_PROMPT,
-    ) -> str:
-        if not HTTPX_AVAILABLE:
-            raise ImportError(
-                "httpx is required for OCR. Install with: pip install mathipy[ocr]"
-            )
-        api_key = self._resolve_api_key()
-
-        contents = [
-            {
-                "role": "user",
-                "parts": [{"text": f"System instruction: {system_prompt}"}],
-            },
-            {
-                "role": "model",
-                "parts": [{"text": "Understood. I will follow these instructions."}],
-            },
-            {
-                "role": "user",
-                "parts": [
-                    {"text": user_prompt},
-                    {"inline_data": {"mime_type": mime_type, "data": image_b64}},
-                ],
-            },
-        ]
-
-        body = {
-            "contents": contents,
-            "generationConfig": {
-                "temperature": 0.1,
-                "maxOutputTokens": 2048,
-            },
-        }
-
-        model_path = self.model if self.model.startswith("models/") else f"models/{self.model}"
-
-        with httpx.Client(
-            base_url=GEMINI_API_URL,
-            timeout=httpx.Timeout(self.timeout),
-        ) as client:
-            response = client.post(
-                f"/{model_path}:generateContent?key={api_key}",
-                json=body,
-            )
-
-        if response.status_code != 200:
-            error_data = response.json() if response.content else {}
-            error_msg = error_data.get("error", {}).get("message", f"Status {response.status_code}")
-            raise RuntimeError(f"Gemini API error: {error_msg}")
-
-        data = response.json()
-        candidates = data.get("candidates", [])
-        if not candidates:
-            raise RuntimeError("No candidates returned from Gemini")
-
-        content_parts = candidates[0].get("content", {}).get("parts", [])
-        return "".join(p.get("text", "") for p in content_parts).strip()
-
-    def _call_openai(
-        self,
-        image_b64: str,
-        mime_type: str,
-        system_prompt: str = SYSTEM_PROMPT,
-        user_prompt: str = USER_PROMPT,
-    ) -> str:
-        if not HTTPX_AVAILABLE:
-            raise ImportError(
-                "httpx is required for OCR. Install with: pip install mathipy[ocr]"
-            )
-        api_key = self._resolve_api_key()
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": user_prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:{mime_type};base64,{image_b64}"},
-                    },
-                ],
-            },
-        ]
-
-        body = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": 0.1,
-            "max_tokens": 2048,
-        }
-
-        with httpx.Client(
-            base_url=OPENAI_API_URL,
-            timeout=httpx.Timeout(self.timeout),
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-        ) as client:
-            response = client.post("/chat/completions", json=body)
-
-        if response.status_code != 200:
-            error_data = response.json() if response.content else {}
-            error_msg = error_data.get("error", {}).get("message", f"Status {response.status_code}")
-            raise RuntimeError(f"OpenAI API error: {error_msg}")
-
-        data = response.json()
-        choice = data.get("choices", [{}])[0]
-        return choice.get("message", {}).get("content", "").strip()
-

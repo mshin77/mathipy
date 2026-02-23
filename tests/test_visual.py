@@ -1,22 +1,21 @@
 """Tests for mathipy.visual module."""
 
+import importlib.util
 import os
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
 import pytest
 
 from mathipy.visual import VisualFeatureExtractor
 
-
-DATA_DIR = Path(os.environ.get("MATHIPY_TEST_DATA", Path(__file__).resolve().parent / "data"))
-IMAGES_DIR = DATA_DIR / "images"
+data_dir = Path(os.environ.get("MATHIPY_TEST_DATA", Path(__file__).resolve().parent / "data"))
+images_dir = data_dir / "images"
 
 
 @pytest.fixture
 def sample_image_path():
-    images = sorted(IMAGES_DIR.glob("*.png"))
+    images = sorted(images_dir.glob("*.png"))
     if not images:
         pytest.skip("No PNG images found in data/images")
     return images[0]
@@ -139,9 +138,7 @@ class TestEdgeMetrics:
             assert metrics == {}
 
     def test_uniform_image_low_edges(self):
-        try:
-            import cv2
-        except ImportError:
+        if not importlib.util.find_spec("cv2"):
             pytest.skip("OpenCV not installed")
         extractor = VisualFeatureExtractor()
         uniform = np.ones((100, 100), dtype=np.uint8) * 128
@@ -149,9 +146,7 @@ class TestEdgeMetrics:
         assert metrics["edge_ratio"] < 0.01
 
     def test_real_image_has_edges(self, sample_image_path):
-        try:
-            import cv2
-        except ImportError:
+        if not importlib.util.find_spec("cv2"):
             pytest.skip("OpenCV not installed")
         result = VisualFeatureExtractor().extract(sample_image_path)
         assert result["edge_metrics"]["edge_ratio"] > 0
@@ -159,9 +154,7 @@ class TestEdgeMetrics:
 
 class TestStructuralElements:
     def test_shapes_detected(self, shapes_array):
-        try:
-            import cv2
-        except ImportError:
+        if not importlib.util.find_spec("cv2"):
             pytest.skip("OpenCV not installed")
         extractor = VisualFeatureExtractor()
         result = extractor.extract(shapes_array)
@@ -171,9 +164,7 @@ class TestStructuralElements:
         assert set(elements["shapes"].keys()) == {"triangles", "rectangles", "circles", "polygons"}
 
     def test_real_image_structure(self, sample_image_path):
-        try:
-            import cv2
-        except ImportError:
+        if not importlib.util.find_spec("cv2"):
             pytest.skip("OpenCV not installed")
         result = VisualFeatureExtractor().extract(sample_image_path)
         assert "structural_elements" in result
@@ -182,9 +173,7 @@ class TestStructuralElements:
 
 class TestFrequencyDomain:
     def test_frequency_ratios_sum_to_one(self, sample_image_path):
-        try:
-            import cv2
-        except ImportError:
+        if not importlib.util.find_spec("cv2"):
             pytest.skip("OpenCV not installed")
         result = VisualFeatureExtractor().extract(sample_image_path)
         freq = result["frequency_domain"]
@@ -192,9 +181,7 @@ class TestFrequencyDomain:
         assert abs(total - 1.0) < 0.01
 
     def test_uniform_mostly_low_freq(self):
-        try:
-            import cv2
-        except ImportError:
+        if not importlib.util.find_spec("cv2"):
             pytest.skip("OpenCV not installed")
         uniform = np.ones((100, 100, 3), dtype=np.uint8) * 128
         result = VisualFeatureExtractor().extract(uniform)
@@ -227,6 +214,60 @@ class TestComplexity:
         score = extractor._calculate_complexity(features)
         assert score["overall"] == 0.5
         assert score["level"] == "medium"
+
+
+class TestExtractFlat:
+    def test_flat_keys(self, sample_image_path):
+        result = VisualFeatureExtractor().extract_flat(sample_image_path)
+        expected = {
+            "visual_complexity_overall", "visual_complexity_level",
+            "visual_contrast", "visual_mean", "visual_edge_ratio",
+            "visual_aspect_ratio", "visual_high_freq_ratio",
+            "visual_low_freq_ratio", "visual_total_shapes",
+            "visual_line_count", "visual_circle_count",
+            "visual_width", "visual_height",
+        }
+        assert expected == set(result.keys())
+
+    def test_flat_values_populated(self, sample_image_path):
+        result = VisualFeatureExtractor().extract_flat(sample_image_path)
+        assert result["visual_width"] > 0
+        assert result["visual_complexity_level"] in ("low", "medium", "high")
+
+    def test_flat_from_array(self, white_array):
+        result = VisualFeatureExtractor().extract_flat(white_array)
+        assert result["visual_width"] == 150
+        assert result["visual_height"] == 100
+
+    def test_nonexistent_returns_none_values(self):
+        result = VisualFeatureExtractor().extract_flat("nonexistent.png")
+        assert result["visual_width"] is None
+
+
+class TestAggregateVisualFeatures:
+    def test_empty_list(self):
+        result = VisualFeatureExtractor.aggregate_visual_features([])
+        assert result["visual_complexity_overall"] is None
+
+    def test_single_flat(self, sample_image_path):
+        flat = VisualFeatureExtractor().extract_flat(sample_image_path)
+        agg = VisualFeatureExtractor.aggregate_visual_features([flat])
+        assert agg["visual_width"] == flat["visual_width"]
+
+    def test_sum_keys_summed(self):
+        f1 = {"visual_total_shapes": 3, "visual_line_count": 2, "visual_circle_count": 1,
+               "visual_width": 100, "visual_height": 50,
+               "visual_complexity_overall": 0.5, "visual_contrast": 10,
+               "visual_mean": 128, "visual_edge_ratio": 0.1,
+               "visual_aspect_ratio": 2.0, "visual_high_freq_ratio": 0.3,
+               "visual_low_freq_ratio": 0.5, "visual_complexity_level": "medium"}
+        f2 = dict(f1, visual_total_shapes=5, visual_line_count=3, visual_circle_count=2,
+                  visual_width=200, visual_height=100)
+        agg = VisualFeatureExtractor.aggregate_visual_features([f1, f2])
+        assert agg["visual_total_shapes"] == 8
+        assert agg["visual_line_count"] == 5
+        assert agg["visual_width"] == 200  # max
+        assert agg["visual_complexity_overall"] == 0.5  # mean
 
 
 class TestClassBasedAPI:

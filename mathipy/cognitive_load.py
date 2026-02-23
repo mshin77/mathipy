@@ -1,8 +1,10 @@
 """Cognitive load estimation for mathematical assessment items."""
 
-import re
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, List, Optional
+import re
+from typing import Any
 
 from mathipy.utils import extract_numbers, extract_variables
 
@@ -19,9 +21,9 @@ class CognitiveLoadEstimator:
     def estimate(
         self,
         text: str,
-        readability_grade: Optional[float] = None,
-        math_terms: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        readability_grade: float | None = None,
+        math_terms: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Estimate cognitive load for the given text.
 
         Args:
@@ -94,7 +96,7 @@ class CognitiveLoadEstimator:
         found = sum(1 for term in math_keywords if term in text_lower)
         return min(1.0, found / 10) if found else 0.3
 
-    def _empty_estimate(self) -> Dict[str, Any]:
+    def _empty_estimate(self) -> dict[str, Any]:
         return {
             "intrinsic_cognitive_load": 0.0,
             "extraneous_cognitive_load": 0.0,

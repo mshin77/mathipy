@@ -1,16 +1,13 @@
 """Tests for mathipy.math_content module."""
 
-import pytest
-
 from mathipy.math_content import MathContentAnalyzer
 
-
-ALGEBRA_TEXT = "Solve for x: 2x + 5 = 15. What is the value of x?"
-GEOMETRY_TEXT = "Find the area of a triangle with a base of 10 cm and a height of 6 cm."
-STATS_TEXT = "Calculate the mean and median of the data set: 3, 7, 8, 12, 15."
-ARITHMETIC_TEXT = "What is 24 × 6? Find the product of 24 and 6."
-FRACTIONS_TEXT = "Simplify the fraction 3/4 + 1/2 to find the sum."
-CALCULUS_TEXT = "Find d/dx of f(x) = x^3 + 2x. What is the derivative?"
+algebra_text = "Solve for x: 2x + 5 = 15. What is the value of x?"
+geometry_text = "Find the area of a triangle with a base of 10 cm and a height of 6 cm."
+stats_text = "Calculate the mean and median of the data set: 3, 7, 8, 12, 15."
+arithmetic_text = "What is 24 × 6? Find the product of 24 and 6."
+fractions_text = "Simplify the fraction 3/4 + 1/2 to find the sum."
+calculus_text = "Find d/dx of f(x) = x^3 + 2x. What is the derivative?"
 
 
 class TestInit:
@@ -118,18 +115,18 @@ class TestNumberExtraction:
 
 class TestVocabulary:
     def test_geometry_terms(self):
-        result = MathContentAnalyzer().analyze(GEOMETRY_TEXT)
+        result = MathContentAnalyzer().analyze(geometry_text)
         terms = result["vocabulary"]["math_terms"]
         assert any(t in terms for t in ["area", "triangle"])
 
     def test_statistics_terms(self):
-        result = MathContentAnalyzer().analyze(STATS_TEXT)
+        result = MathContentAnalyzer().analyze(stats_text)
         terms = result["vocabulary"]["math_terms"]
         assert "mean" in terms
         assert "median" in terms
 
     def test_term_count_positive(self):
-        result = MathContentAnalyzer().analyze(ALGEBRA_TEXT)
+        result = MathContentAnalyzer().analyze(algebra_text)
         assert result["vocabulary"]["term_count"] > 0
 
     def test_no_terms_in_plain_text(self):
@@ -139,32 +136,32 @@ class TestVocabulary:
 
 class TestDomainClassification:
     def test_algebra_domain(self):
-        result = MathContentAnalyzer().analyze(ALGEBRA_TEXT)
+        result = MathContentAnalyzer().analyze(algebra_text)
         assert result["domain_classification"]["primary"] == "algebra"
 
     def test_geometry_domain(self):
-        result = MathContentAnalyzer().analyze(GEOMETRY_TEXT)
+        result = MathContentAnalyzer().analyze(geometry_text)
         assert result["domain_classification"]["primary"] == "geometry"
 
     def test_statistics_domain(self):
-        result = MathContentAnalyzer().analyze(STATS_TEXT)
+        result = MathContentAnalyzer().analyze(stats_text)
         assert result["domain_classification"]["primary"] == "statistics"
 
     def test_arithmetic_domain(self):
-        result = MathContentAnalyzer().analyze(ARITHMETIC_TEXT)
+        result = MathContentAnalyzer().analyze(arithmetic_text)
         assert result["domain_classification"]["primary"] == "arithmetic"
 
     def test_calculus_boost(self):
-        result = MathContentAnalyzer().analyze(CALCULUS_TEXT)
+        result = MathContentAnalyzer().analyze(calculus_text)
         scores = result["domain_classification"]["scores"]
         assert scores.get("calculus", 0) > 0
 
     def test_confidence_between_0_and_1(self):
-        result = MathContentAnalyzer().analyze(ALGEBRA_TEXT)
+        result = MathContentAnalyzer().analyze(algebra_text)
         assert 0 <= result["domain_classification"]["confidence"] <= 1
 
     def test_secondary_domains_present(self):
-        result = MathContentAnalyzer().analyze(ALGEBRA_TEXT)
+        result = MathContentAnalyzer().analyze(algebra_text)
         assert isinstance(result["domain_classification"]["secondary"], list)
 
 
@@ -180,7 +177,7 @@ class TestMathDensity:
 
 class TestClassBasedAPI:
     def test_analyzer_analyze_method(self):
-        result = MathContentAnalyzer().analyze(GEOMETRY_TEXT)
+        result = MathContentAnalyzer().analyze(geometry_text)
         assert isinstance(result, dict)
         assert "domain_classification" in result
         assert "pattern_matches" in result

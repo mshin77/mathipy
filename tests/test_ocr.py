@@ -1,10 +1,9 @@
 """Tests for mathipy.ocr multi-format extraction module."""
 
+import importlib.util
 import os
-import re
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
@@ -16,13 +15,12 @@ from mathipy.ocr import (
 )
 from mathipy.utils import extract_math_expressions
 
-
-DATA_DIR = Path(os.environ.get("MATHIPY_TEST_DATA", Path(__file__).resolve().parent / "data"))
-IMAGES_DIR = DATA_DIR / "images"
+data_dir = Path(os.environ.get("MATHIPY_TEST_DATA", Path(__file__).resolve().parent / "data"))
+images_dir = data_dir / "images"
 
 
 def _has_api_key():
-    from mathipy.ocr import _load_dotenv
+    from mathipy._api import _load_dotenv
     _load_dotenv()
     return bool(os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY"))
 
@@ -32,7 +30,7 @@ needs_api = pytest.mark.skipif(not _has_api_key(), reason="No API key set")
 
 @pytest.fixture
 def sample_image_path():
-    images = sorted(IMAGES_DIR.glob("*.png"))
+    images = sorted(images_dir.glob("*.png"))
     if not images:
         pytest.skip("No PNG images found in data/images")
     return images[0]
@@ -79,9 +77,7 @@ def sample_docx_path(tmp_path):
 
 @pytest.fixture
 def sample_pdf_path(tmp_path):
-    try:
-        import pdfplumber
-    except ImportError:
+    if not importlib.util.find_spec("pdfplumber"):
         pytest.skip("pdfplumber not installed")
 
     try:
@@ -231,7 +227,7 @@ class TestExtractDocx:
 
     def test_extract_docx_missing_dep(self):
         ocr = MultimodalOCR()
-        with patch("mathipy.ocr.DOCX_AVAILABLE", False):
+        with patch("mathipy.ocr.docx_available", False):
             with pytest.raises(ImportError, match="python-docx"):
                 ocr._extract_from_docx(Path("test.docx"), "full", 30)
 
@@ -249,7 +245,7 @@ class TestExtractPdf:
 
     def test_extract_pdf_missing_dep(self):
         ocr = MultimodalOCR()
-        with patch("mathipy.ocr.PDFPLUMBER_AVAILABLE", False):
+        with patch("mathipy.ocr.pdfplumber_available", False):
             with pytest.raises(ImportError, match="pdfplumber"):
                 ocr._extract_from_pdf(Path("test.pdf"), "full", 30)
 
@@ -384,8 +380,8 @@ class TestImageAPI:
 
         assert result["content_type"] in ("text_only", "image_only", "mixed")
         has_content = (
-            bool(result.get("full_text", "").strip())
-            or bool(result.get("image_description", "").strip())
+            bool((result.get("full_text") or "").strip())
+            or bool((result.get("image_description") or "").strip())
         )
         assert has_content, "Expected non-empty full_text or image_description"
         assert 0 < result["extraction_confidence"] <= 1.0
@@ -396,8 +392,8 @@ class TestImageAPI:
         result = ocr.extract(sample_image_path, mode="describe")
 
         has_content = (
-            bool(result.get("full_text", "").strip())
-            or bool(result.get("image_description", "").strip())
+            bool((result.get("full_text") or "").strip())
+            or bool((result.get("image_description") or "").strip())
         )
         assert has_content, "Describe mode should return content"
 
