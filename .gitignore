@@ -33,7 +33,8 @@ env/
 
 .DS_Store
 Thumbs.db
-docs/.doctrees/
+docs/
+docs_src/
 
 *.log
 *.csv
