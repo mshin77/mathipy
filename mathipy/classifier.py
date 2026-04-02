@@ -94,7 +94,14 @@ class VisualModelClassifier(VisionAPIClient):
             result["model_count"] = 0
             return result
 
-        parsed = json.loads(json_match.group())
+        try:
+            parsed = json.loads(json_match.group())
+        except json.JSONDecodeError:
+            logger.warning("Invalid JSON in classify response; returning all-False")
+            result = {m: False for m in visual_models}
+            result["primary"] = "other"
+            result["model_count"] = 0
+            return result
 
         entry: dict[str, Any] = {}
         for m in visual_models:

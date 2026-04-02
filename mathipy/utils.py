@@ -7,7 +7,7 @@ from collections.abc import Sequence
 from typing import Any
 
 _number_pattern = re.compile(r"-?\d+\.?\d*")
-_variable_pattern = re.compile(r"\b[a-zA-Z]\b(?!\w)")
+_variable_pattern = re.compile(r"\b(?![Ia]\b)[a-zA-Z]\b(?!\w)")
 
 _latex_patterns = [
     re.compile(r"\$\$[\s\S]*?\$\$"),

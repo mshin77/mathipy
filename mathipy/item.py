@@ -82,7 +82,9 @@ class ItemFeatureExtractor:
 
         # cognitive load
         cl = self._cog.estimate(
-            text, readability_grade=row.get("readability_flesch_kincaid_grade")
+            text,
+            readability_grade=row.get("readability_flesch_kincaid_grade"),
+            math_terms=mc.get("vocabulary", {}).get("math_terms"),
         )
         row.update({
             "cognitive_intrinsic": cl.get("intrinsic_cognitive_load"),

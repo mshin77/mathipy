@@ -93,7 +93,7 @@ class CognitiveLoadEstimator:
             "mean", "median", "mode", "probability", "ratio", "proportion",
         }
         text_lower = text.lower()
-        found = sum(1 for term in math_keywords if term in text_lower)
+        found = sum(1 for term in math_keywords if re.search(r"\b" + re.escape(term) + r"\b", text_lower))
         return min(1.0, found / 10) if found else 0.3
 
     def _empty_estimate(self) -> dict[str, Any]:

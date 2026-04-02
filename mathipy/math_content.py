@@ -30,7 +30,7 @@ class MathContentAnalyzer:
             "subtraction": re.compile(r"\d+\s*[-−]\s*\d+"),
             "multiplication": re.compile(r"\d+\s*[×*·]\s*\d+"),
             "division": re.compile(r"\d+\s*[÷/]\s*\d+"),
-            "variable": re.compile(r"\b[a-zA-Z]\b(?!\w)"),
+            "variable": re.compile(r"\b(?![Ia]\b)[a-zA-Z]\b(?!\w)"),
             "equation": re.compile(r"[^=]+=\s*[^=]+"),
             "inequality": re.compile(r"[^<>=]+\s*[<>≤≥]\s*[^<>=]+"),
             "exponent": re.compile(r"\w+\^[\w\d{}]+|\w+\*\*[\w\d{}]+"),
@@ -154,7 +154,7 @@ class MathContentAnalyzer:
     def _match_vocabulary(self, text: str) -> dict[str, int]:
         matches = {}
         for term in self.all_terms:
-            count = text.count(term)
+            count = len(re.findall(r"\b" + re.escape(term) + r"\b", text, re.IGNORECASE))
             if count > 0:
                 matches[term] = count
         return matches
