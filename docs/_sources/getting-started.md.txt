@@ -65,8 +65,8 @@ from mathipy import CognitiveLoadEstimator
 estimator = CognitiveLoadEstimator()
 result = estimator.estimate("Solve 2x + 5 = 15 for x")
 
-print(f"Total load: {result['total_cognitive_load']:.2f}")
-print(f"Intrinsic: {result['intrinsic_cognitive_load']:.2f}")
+print(f"Element density: {result['element_density']:.2f}")
+print(f"Operations: {result['operation_count']}")
 ```
 
 ### Visual Feature Extraction
@@ -77,8 +77,8 @@ from mathipy import VisualFeatureExtractor
 extractor = VisualFeatureExtractor()
 features = extractor.extract("math_problem.png")
 
-print(f"Complexity: {features['complexity_score']['level']}")
-print(f"Shapes found: {features['structural_elements']['shapes']}")
+print(f"Edge ratio: {features['complexity_score']['edge_ratio']:.3f}")
+print(f"Shapes found: {features['structural_elements']['total_shapes']}")
 ```
 
 ### Multimodal OCR

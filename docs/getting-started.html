@@ -444,8 +444,8 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 <span class="n">estimator</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="s2">&quot;Solve 2x + 5 = 15 for x&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total load: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;total_cognitive_load&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Intrinsic: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;intrinsic_cognitive_load&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Element density: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;element_density&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Operations: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;operation_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -456,8 +456,8 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 <span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
 <span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;math_problem.png&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Complexity: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;complexity_score&#39;</span><span class="p">][</span><span class="s1">&#39;level&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shapes found: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;structural_elements&#39;</span><span class="p">][</span><span class="s1">&#39;shapes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Edge ratio: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;complexity_score&#39;</span><span class="p">][</span><span class="s1">&#39;edge_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shapes found: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;structural_elements&#39;</span><span class="p">][</span><span class="s1">&#39;total_shapes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

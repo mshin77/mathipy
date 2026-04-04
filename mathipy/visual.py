@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -122,7 +121,6 @@ class VisualFeatureExtractor:
 
     # -- flat-key mapping used by extract_flat / aggregate_visual_features --
     vis_map = {
-        "visual_complexity_overall": ("complexity_score", "overall"),
         "visual_contrast": ("pixel_statistics", "contrast"),
         "visual_mean": ("pixel_statistics", "mean"),
         "visual_edge_ratio": ("edge_metrics", "edge_ratio"),
@@ -142,7 +140,6 @@ class VisualFeatureExtractor:
         """Extract visual features and return a flat ``visual_*`` dict.
 
         Keys match the column names used in NAEP feature extraction:
-        ``visual_complexity_overall``, ``visual_complexity_level``,
         ``visual_contrast``, ``visual_mean``, ``visual_edge_ratio``,
         ``visual_aspect_ratio``, ``visual_high_freq_ratio``,
         ``visual_low_freq_ratio``, ``visual_total_shapes``,
@@ -154,7 +151,6 @@ class VisualFeatureExtractor:
         for key, path in self.vis_map.items():
             default = 0 if key in self.vis_sum_keys else None
             flat[key] = safe_get(nested, *path, default=default)
-        flat["visual_complexity_level"] = safe_get(nested, "complexity_score", "level")
         return flat
 
     @classmethod
@@ -163,25 +159,18 @@ class VisualFeatureExtractor:
     ) -> dict[str, Any]:
         """Aggregate multiple ``extract_flat`` dicts into one item-level dict.
 
-        Strategy: mean for continuous metrics, sum for counts, max for dimensions,
-        mode for complexity level.
+        Strategy: mean for continuous metrics, sum for counts, max for dimensions.
         """
         if not flat_list:
-            result = {k: None for k in cls.vis_map}
-            result["visual_complexity_level"] = None
-            return result
+            return {k: None for k in cls.vis_map}
 
         collected = {k: [] for k in cls.vis_map}
-        levels: list[str] = []
 
         for flat in flat_list:
             for k in cls.vis_map:
                 v = flat.get(k)
                 if v is not None:
                     collected[k].append(v)
-            lvl = flat.get("visual_complexity_level")
-            if lvl:
-                levels.append(lvl)
 
         agg: dict[str, Any] = {}
         for k, vals in collected.items():
@@ -193,9 +182,6 @@ class VisualFeatureExtractor:
                 agg[k] = max(vals)
             else:
                 agg[k] = sum(vals) / len(vals)
-        agg["visual_complexity_level"] = (
-            Counter(levels).most_common(1)[0][0] if levels else None
-        )
         return agg
 
     def _load_image(self, source: str | Path | np.ndarray) -> np.ndarray | None:
@@ -359,33 +345,15 @@ class VisualFeatureExtractor:
         }
 
     def _calculate_complexity(self, features: dict[str, Any]) -> dict[str, Any]:
-        scores = []
-
+        """Return raw complexity components — no scaling or composite weights."""
         edge = features.get("edge_metrics", {})
-        if edge:
-            edge_score = min(1.0, edge.get("edge_ratio", 0) * 10)
-            scores.append(edge_score)
-
         struct = features.get("structural_elements", {})
-        if struct:
-            shape_score = min(1.0, struct.get("total_shapes", 0) / 20)
-            scores.append(shape_score)
-
         freq = features.get("frequency_domain", {})
-        if freq:
-            high_freq = freq.get("high_freq_ratio", 0)
-            scores.append(min(1.0, high_freq * 2))
-
-        overall = sum(scores) / len(scores) if scores else 0.5
 
         return {
-            "overall": overall,
-            "level": "low" if overall < 0.3 else "medium" if overall < 0.6 else "high",
-            "component_scores": {
-                "edge": scores[0] if len(scores) > 0 else 0,
-                "shape": scores[1] if len(scores) > 1 else 0,
-                "frequency": scores[2] if len(scores) > 2 else 0,
-            },
+            "edge_ratio": edge.get("edge_ratio", 0),
+            "total_shapes": struct.get("total_shapes", 0),
+            "high_freq_ratio": freq.get("high_freq_ratio", 0),
         }
 
     def _empty_features(self) -> dict[str, Any]:
@@ -395,5 +363,5 @@ class VisualFeatureExtractor:
             "edge_metrics": {},
             "structural_elements": {},
             "frequency_domain": {},
-            "complexity_score": {"overall": 0, "level": "unknown", "component_scores": {}},
+            "complexity_score": {"edge_ratio": 0, "total_shapes": 0, "high_freq_ratio": 0},
         }

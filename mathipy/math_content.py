@@ -174,14 +174,15 @@ class MathContentAnalyzer:
                     score += terms[term]
             domain_scores[domain] = score
 
+        # Pattern presence adds 1 to the matching domain (binary signal, no arbitrary boost).
         if patterns.get("derivative") or patterns.get("integral"):
-            domain_scores["calculus"] = domain_scores.get("calculus", 0) + 5
+            domain_scores["calculus"] = domain_scores.get("calculus", 0) + 1
 
         if patterns.get("fraction"):
-            domain_scores["fractions"] = domain_scores.get("fractions", 0) + 3
+            domain_scores["fractions"] = domain_scores.get("fractions", 0) + 1
 
         if patterns.get("equation") or patterns.get("variable"):
-            domain_scores["algebra"] = domain_scores.get("algebra", 0) + 2
+            domain_scores["algebra"] = domain_scores.get("algebra", 0) + 1
 
         primary = max(domain_scores, key=domain_scores.get) if domain_scores else "unknown"
         total = sum(domain_scores.values()) or 1

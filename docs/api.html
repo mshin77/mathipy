@@ -337,6 +337,21 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multimodalocr"><code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-classification">Visual Model Classification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualmodelclassifier"><code class="docutils literal notranslate"><span class="pre">VisualModelClassifier</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-groups"><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-info"><code class="docutils literal notranslate"><span class="pre">visual_model_info</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#item-level-extraction">Item-Level Extraction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#itemfeatureextractor"><code class="docutils literal notranslate"><span class="pre">ItemFeatureExtractor</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utilities">Utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#safe-get"><code class="docutils literal notranslate"><span class="pre">safe_get</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-interrater-reliability"><code class="docutils literal notranslate"><span class="pre">compute_interrater_reliability</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample Data</a></li>
 </ul>
   </nav></div>
@@ -476,19 +491,21 @@
 </div>
 <p>Returns a dictionary with:</p>
 <dl class="simple myst">
-<dt>intrinsic_cognitive_load</dt><dd><p>Load from inherent item complexity (0–1)</p>
-</dd>
-<dt>extraneous_cognitive_load</dt><dd><p>Load from presentation/language (0–1)</p>
-</dd>
-<dt>germane_cognitive_load</dt><dd><p>Load from schema building (0–1)</p>
-</dd>
-<dt>total_cognitive_load</dt><dd><p>Weighted total (0–1)</p>
-</dd>
 <dt>numeric_elements</dt><dd><p>Count of numbers in text</p>
 </dd>
 <dt>variable_count</dt><dd><p>Count of single-letter variables</p>
 </dd>
-<dt>operation_count</dt><dd><p>Count of math operations</p>
+<dt>operation_count</dt><dd><p>Count of math operations (+, -, *, /, ^, =, &lt;, &gt;)</p>
+</dd>
+<dt>word_count</dt><dd><p>Total words in text</p>
+</dd>
+<dt>sentence_count</dt><dd><p>Total sentences in text</p>
+</dd>
+<dt>math_term_count</dt><dd><p>Count of CCSSM-aligned math keywords</p>
+</dd>
+<dt>element_density</dt><dd><p>Ratio of (numeric elements + variables) to word count</p>
+</dd>
+<dt>avg_sentence_length</dt><dd><p>Average words per sentence</p>
 </dd>
 </dl>
 </section>
@@ -517,7 +534,7 @@
 </dd>
 <dt>frequency_domain</dt><dd><p>Low/mid/high frequency energy ratios</p>
 </dd>
-<dt>complexity_score</dt><dd><p>Overall score (0–1) and level (low/medium/high)</p>
+<dt>complexity_score</dt><dd><p>Summary with edge_ratio, total_shapes, and high_freq_ratio</p>
 </dd>
 </dl>
 </section>
@@ -560,6 +577,88 @@
 <dt>extraction_confidence</dt><dd><p>Confidence score (0–1)</p>
 </dd>
 </dl>
+</section>
+</section>
+<section id="visual-model-classification">
+<h2>Visual Model Classification<a class="headerlink" href="#visual-model-classification" title="Link to this heading">#</a></h2>
+<section id="visualmodelclassifier">
+<h3><code class="docutils literal notranslate"><span class="pre">VisualModelClassifier</span></code><a class="headerlink" href="#visualmodelclassifier" title="Link to this heading">#</a></h3>
+<p>Classify which of the 20 visual model types appear in an assessment image.</p>
+<p>Requires: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mathipy[ocr]</span></code> and a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualModelClassifier</span>
+
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<dl class="simple myst">
+<dt>provider</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;gemini&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;openai&quot;</span></code></p>
+</dd>
+<dt>model</dt><dd><p>Model name (defaults to <code class="docutils literal notranslate"><span class="pre">gemini-2.5-flash</span></code> or <code class="docutils literal notranslate"><span class="pre">gpt-4o</span></code>)</p>
+</dd>
+<dt>api_key</dt><dd><p>API key (or set via <code class="docutils literal notranslate"><span class="pre">.env</span></code> file)</p>
+</dd>
+</dl>
+<p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;primary&quot;</span></code> (str), and <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int).</p>
+</section>
+<section id="visual-model-groups">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code><a class="headerlink" href="#visual-model-groups" title="Link to this heading">#</a></h3>
+<p>Dictionary mapping each of the 20 visual model types to a broader category.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_groups</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_groups</span><span class="p">[</span><span class="s2">&quot;number_line&quot;</span><span class="p">])</span>  <span class="c1"># &quot;number_quantity&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="visual-model-info">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_model_info</span></code><a class="headerlink" href="#visual-model-info" title="Link to this heading">#</a></h3>
+<p>List of tuples with <code class="docutils literal notranslate"><span class="pre">(model_name,</span> <span class="pre">group,</span> <span class="pre">CCSSM_domains,</span> <span class="pre">grade_band)</span></code> for each visual model type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_info</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">domains</span><span class="p">,</span> <span class="n">grades</span> <span class="ow">in</span> <span class="n">visual_model_info</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">domains</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">grades</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="item-level-extraction">
+<h2>Item-Level Extraction<a class="headerlink" href="#item-level-extraction" title="Link to this heading">#</a></h2>
+<section id="itemfeatureextractor">
+<h3><code class="docutils literal notranslate"><span class="pre">ItemFeatureExtractor</span></code><a class="headerlink" href="#itemfeatureextractor" title="Link to this heading">#</a></h3>
+<p>Run all four analyzers (readability, math content, cognitive load, visual) and return a flat prefixed dictionary.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ItemFeatureExtractor</span>
+
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">ItemFeatureExtractor</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Solve for x: 2x + 5 = 15&quot;</span><span class="p">,</span>
+    <span class="n">image_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Returns a flat dict with <code class="docutils literal notranslate"><span class="pre">readability_*</span></code>, <code class="docutils literal notranslate"><span class="pre">math_*</span></code>, <code class="docutils literal notranslate"><span class="pre">cognitive_*</span></code>, and <code class="docutils literal notranslate"><span class="pre">visual_*</span></code> keys.</p>
+</section>
+</section>
+<section id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">#</a></h2>
+<section id="safe-get">
+<h3><code class="docutils literal notranslate"><span class="pre">safe_get</span></code><a class="headerlink" href="#safe-get" title="Link to this heading">#</a></h3>
+<p>Retrieve a nested value from a dict, returning a default on any miss.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_get</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">}}}</span>
+<span class="n">safe_get</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">)</span>          <span class="c1"># 42</span>
+<span class="n">safe_get</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>    <span class="c1"># 0</span>
+</pre></div>
+</div>
+</section>
+<section id="compute-interrater-reliability">
+<h3><code class="docutils literal notranslate"><span class="pre">compute_interrater_reliability</span></code><a class="headerlink" href="#compute-interrater-reliability" title="Link to this heading">#</a></h3>
+<p>Compute agreement and Cohen’s kappa between two raters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_interrater_reliability</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">compute_interrater_reliability</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>  <span class="c1"># {&quot;agreement&quot;: 0.75, &quot;kappa&quot;: 0.58, &quot;n&quot;: 4}</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="sample-data">

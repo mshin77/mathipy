@@ -172,7 +172,7 @@ class MultimodalOCR(VisionAPIClient):
     PDFs, DOCX, and text files.
 
     Requires ``pip install mathipy[ocr]`` and a ``GEMINI_API_KEY`` or
-    ``OPENAI_API_KEY`` in your ``.env`` file.
+    ``OPENAI_API_KEY`` in the ``.env`` file.
     """
 
     def extract(

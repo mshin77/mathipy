@@ -41,7 +41,7 @@ class VisualModelClassifier(VisionAPIClient):
     Returns boolean flags per type, the primary type, and a model count.
 
     Requires ``pip install mathipy[ocr]`` and a ``GEMINI_API_KEY`` or
-    ``OPENAI_API_KEY`` in your ``.env`` file.
+    ``OPENAI_API_KEY`` in the ``.env`` file.
     """
 
     def classify(self, source: str | Path | bytes) -> dict[str, Any]:

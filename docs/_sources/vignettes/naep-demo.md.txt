@@ -124,7 +124,7 @@ The algebra item is correctly classified with high confidence. The geometry item
 
 ## Step 4: Cognitive Load Estimation
 
-Estimate intrinsic, extraneous, and germane cognitive load components.
+Extract raw cognitive load indicators: element counts, operation counts, and density ratios.
 
 ```python
 from mathipy import CognitiveLoadEstimator
@@ -132,19 +132,19 @@ from mathipy import CognitiveLoadEstimator
 estimator = CognitiveLoadEstimator()
 for item_id, text in texts.items():
     result = estimator.estimate(text)
-    print(f"{item_id}: total={result['total_cognitive_load']:.3f} "
-          f"(intrinsic={result['intrinsic_cognitive_load']:.3f}, "
-          f"extraneous={result['extraneous_cognitive_load']:.3f}, "
-          f"germane={result['germane_cognitive_load']:.3f})")
+    print(f"{item_id}: elements={result['numeric_elements']}, "
+          f"ops={result['operation_count']}, "
+          f"vars={result['variable_count']}, "
+          f"density={result['element_density']:.3f}")
 ```
 
 ```
-2024-4M10 #2: total=0.478 (intrinsic=0.621, extraneous=0.466, germane=0.300)
-2017-4M1 #4:  total=0.391 (intrinsic=0.800, extraneous=0.138, germane=0.100)
-2022-8M1 #2:  total=0.273 (intrinsic=0.000, extraneous=0.610, germane=0.300)
+2024-4M10 #2: elements=1, ops=4, vars=4, density=0.172
+2017-4M1 #4:  elements=2, ops=2, vars=0, density=0.400
+2022-8M1 #2:  elements=0, ops=0, vars=0, density=0.000
 ```
 
-The arithmetic item (2017-4M1 #4) has high intrinsic load (numbers and division) but very low extraneous load (minimal text). The geometry item has the opposite pattern — high extraneous load from lengthy instructions but no numeric elements in the text itself.
+The arithmetic item (2017-4M1 #4) has high element density (numbers and division operator packed into few words). The geometry item (2022-8M1 #2) has zero numeric elements — its complexity is in the lengthy verbal instructions, reflected by higher word and sentence counts.
 
 ## Step 5: Visual Feature Extraction
 
@@ -159,18 +159,17 @@ for item in items[:3]:
     features = extractor.extract(image_path)
     dims = features["dimensions"]
     score = features["complexity_score"]
-    edges = features["edge_metrics"]
     shapes = features["structural_elements"]
     print(f"{item['item_id']}: "
           f"{dims['width']}x{dims['height']}, "
-          f"complexity={score['level']} ({score['overall']:.3f}), "
-          f"lines={shapes['line_count']}, "
-          f"shapes={shapes['total_shapes']}")
+          f"edge_ratio={score['edge_ratio']:.3f}, "
+          f"shapes={score['total_shapes']}, "
+          f"lines={shapes['line_count']}")
 ```
 
 ```
-2024-4M10 #2: 520x390,  complexity=medium (0.506), lines=39, shapes=1
-2017-4M1 #4:  872x147,  complexity=medium (0.372), lines=0,  shapes=1
+2024-4M10 #2: 520x390,  edge_ratio=0.105, shapes=1, lines=39
+2017-4M1 #4:  872x147,  edge_ratio=0.072, shapes=1, lines=0
 2024-4M13 #2: (measurement item with visual content)
 ```
 
@@ -198,16 +197,15 @@ for item in items:
         "grade": item["grade"],
         "difficulty": item["difficulty"],
         "content": item["content"],
-        "complexity": visual["complexity_score"]["overall"],
-        "complexity_level": visual["complexity_score"]["level"],
+        "edge_ratio": visual["complexity_score"]["edge_ratio"],
+        "total_shapes": visual["complexity_score"]["total_shapes"],
         "lines": visual["structural_elements"]["line_count"],
-        "shapes": visual["structural_elements"]["total_shapes"],
     })
 
 for r in results:
     print(f"{r['item_id']:16s} | {r['difficulty']:6s} | "
-          f"complexity={r['complexity_level']:6s} ({r['complexity']:.3f}) | "
-          f"lines={r['lines']:3d}")
+          f"edge_ratio={r['edge_ratio']:.3f} | "
+          f"shapes={r['total_shapes']:3d} | lines={r['lines']:3d}")
 ```
 
 Text-based features (readability, math content, cognitive load) can be added after OCR extraction, building a complete feature table suitable for statistical analysis.

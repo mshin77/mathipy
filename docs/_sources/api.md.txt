@@ -98,18 +98,6 @@ result = estimator.estimate(text, readability_grade=5.2, math_terms=["equation",
 
 Returns a dictionary with:
 
-intrinsic_cognitive_load
-: Load from inherent item complexity (0–1)
-
-extraneous_cognitive_load
-: Load from presentation/language (0–1)
-
-germane_cognitive_load
-: Load from schema building (0–1)
-
-total_cognitive_load
-: Weighted total (0–1)
-
 numeric_elements
 : Count of numbers in text
 
@@ -117,7 +105,22 @@ variable_count
 : Count of single-letter variables
 
 operation_count
-: Count of math operations
+: Count of math operations (+, -, *, /, ^, =, <, >)
+
+word_count
+: Total words in text
+
+sentence_count
+: Total sentences in text
+
+math_term_count
+: Count of CCSSM-aligned math keywords
+
+element_density
+: Ratio of (numeric elements + variables) to word count
+
+avg_sentence_length
+: Average words per sentence
 
 ## Visual
 
@@ -152,7 +155,7 @@ frequency_domain
 : Low/mid/high frequency energy ratios
 
 complexity_score
-: Overall score (0–1) and level (low/medium/high)
+: Summary with edge_ratio, total_shapes, and high_freq_ratio
 
 ## OCR
 
@@ -202,6 +205,96 @@ answer_choices
 
 extraction_confidence
 : Confidence score (0–1)
+
+## Visual Model Classification
+
+### `VisualModelClassifier`
+
+Classify which of the 20 visual model types appear in an assessment image.
+
+Requires: `pip install mathipy[ocr]` and a `GEMINI_API_KEY` or `OPENAI_API_KEY`.
+
+```python
+from mathipy import VisualModelClassifier
+
+classifier = VisualModelClassifier(provider="gemini")
+result = classifier.classify("item_image.png")
+```
+
+Parameters:
+
+provider
+: `"gemini"` or `"openai"`
+
+model
+: Model name (defaults to `gemini-2.5-flash` or `gpt-4o`)
+
+api_key
+: API key (or set via `.env` file)
+
+Returns a dictionary with a boolean per model type, `"primary"` (str), and `"model_count"` (int).
+
+### `visual_model_groups`
+
+Dictionary mapping each of the 20 visual model types to a broader category.
+
+```python
+from mathipy import visual_model_groups
+print(visual_model_groups["number_line"])  # "number_quantity"
+```
+
+### `visual_model_info`
+
+List of tuples with `(model_name, group, CCSSM_domains, grade_band)` for each visual model type.
+
+```python
+from mathipy import visual_model_info
+for name, group, domains, grades in visual_model_info[:3]:
+    print(f"{name}: {group}, {domains}, {grades}")
+```
+
+## Item-Level Extraction
+
+### `ItemFeatureExtractor`
+
+Run all four analyzers (readability, math content, cognitive load, visual) and return a flat prefixed dictionary.
+
+```python
+from mathipy import ItemFeatureExtractor
+
+extractor = ItemFeatureExtractor()
+result = extractor.extract(
+    text="Solve for x: 2x + 5 = 15",
+    image_paths=["item_image.png"],
+)
+```
+
+Returns a flat dict with `readability_*`, `math_*`, `cognitive_*`, and `visual_*` keys.
+
+## Utilities
+
+### `safe_get`
+
+Retrieve a nested value from a dict, returning a default on any miss.
+
+```python
+from mathipy import safe_get
+
+data = {"a": {"b": {"c": 42}}}
+safe_get(data, "a", "b", "c")          # 42
+safe_get(data, "a", "x", default=0)    # 0
+```
+
+### `compute_interrater_reliability`
+
+Compute agreement and Cohen's kappa between two raters.
+
+```python
+from mathipy import compute_interrater_reliability
+
+result = compute_interrater_reliability([1, 2, 3, 1], [1, 2, 1, 1])
+print(result)  # {"agreement": 0.75, "kappa": 0.58, "n": 4}
+```
 
 ## Sample Data
 

@@ -77,7 +77,7 @@ class VisionAPIClient:
         if not key:
             env_var = "GEMINI_API_KEY" if self.provider == "gemini" else "OPENAI_API_KEY"
             raise ValueError(
-                f"API key not found. Set {env_var} in your .env file or pass api_key parameter."
+                f"API key not found. Set {env_var} in the .env file or pass api_key parameter."
             )
         return key
 

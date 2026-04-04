@@ -80,20 +80,21 @@ class ItemFeatureExtractor:
         for pname in ["equation", "fraction", "variable", "percentage", "ratio", "exponent"]:
             row[f"math_pat_{pname}"] = patterns.get(pname, 0)
 
-        # cognitive load
+        # cognitive load (raw indicators only)
         cl = self._cog.estimate(
             text,
             readability_grade=row.get("readability_flesch_kincaid_grade"),
             math_terms=mc.get("vocabulary", {}).get("math_terms"),
         )
         row.update({
-            "cognitive_intrinsic": cl.get("intrinsic_cognitive_load"),
-            "cognitive_extraneous": cl.get("extraneous_cognitive_load"),
-            "cognitive_germane": cl.get("germane_cognitive_load"),
-            "cognitive_total": cl.get("total_cognitive_load"),
             "cognitive_numeric_elements": cl.get("numeric_elements"),
             "cognitive_variable_count": cl.get("variable_count"),
             "cognitive_operation_count": cl.get("operation_count"),
+            "cognitive_word_count": cl.get("word_count"),
+            "cognitive_sentence_count": cl.get("sentence_count"),
+            "cognitive_math_term_count": cl.get("math_term_count"),
+            "cognitive_element_density": cl.get("element_density"),
+            "cognitive_avg_sentence_length": cl.get("avg_sentence_length"),
         })
 
         # visual features
