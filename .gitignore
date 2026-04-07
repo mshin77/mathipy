@@ -35,6 +35,7 @@ env/
 Thumbs.db
 docs_src/
 docs/.doctrees/
+tests/
 
 *.log
 *.csv
