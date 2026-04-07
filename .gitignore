@@ -36,6 +36,7 @@ Thumbs.db
 docs_src/
 docs/.doctrees/
 tests/
+.coverage
 
 *.log
 *.csv
