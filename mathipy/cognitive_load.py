@@ -18,7 +18,6 @@ class CognitiveLoadEstimator:
     and germane (schema-building) load from text features.
     """
 
-    # CCSSM-aligned math vocabulary for germane load indicator counting.
     math_keywords = {
         "add", "subtract", "multiply", "divide", "sum", "difference",
         "product", "quotient", "fraction", "decimal", "percent",
@@ -26,6 +25,11 @@ class CognitiveLoadEstimator:
         "area", "perimeter", "volume", "angle", "triangle", "circle",
         "mean", "median", "mode", "probability", "ratio", "proportion",
     }
+
+    _math_keyword_re = re.compile(
+        r"\b(?:" + "|".join(re.escape(t) for t in math_keywords) + r")\b",
+        re.IGNORECASE,
+    )
 
     def estimate(
         self,
@@ -73,11 +77,7 @@ class CognitiveLoadEstimator:
         }
 
     def _count_math_keywords(self, text: str) -> int:
-        text_lower = text.lower()
-        return sum(
-            1 for term in self.math_keywords
-            if re.search(r"\b" + re.escape(term) + r"\b", text_lower)
-        )
+        return len({m.lower() for m in self._math_keyword_re.findall(text)})
 
     def _empty_estimate(self) -> dict[str, Any]:
         return {

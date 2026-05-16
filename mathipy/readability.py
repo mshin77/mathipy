@@ -6,25 +6,21 @@ import logging
 import re
 from typing import Any
 
+from mathipy._api import _optional_import
 from mathipy.utils import normalize_math_text
 
 logger = logging.getLogger(__name__)
 
-try:
-    from textstat import (
-        automated_readability_index,
-        coleman_liau_index,
-        dale_chall_readability_score,
-        flesch_kincaid_grade,
-        flesch_reading_ease,
-        gunning_fog,
-        linsear_write_formula,
-        smog_index,
-    )
-    textstat_available = True
-except ImportError:
-    textstat_available = False
-    logger.warning("textstat not available - using estimation methods")
+_textstat, textstat_available = _optional_import("textstat", "textstat")
+if textstat_available:
+    automated_readability_index = _textstat.automated_readability_index
+    coleman_liau_index = _textstat.coleman_liau_index
+    dale_chall_readability_score = _textstat.dale_chall_readability_score
+    flesch_kincaid_grade = _textstat.flesch_kincaid_grade
+    flesch_reading_ease = _textstat.flesch_reading_ease
+    gunning_fog = _textstat.gunning_fog
+    linsear_write_formula = _textstat.linsear_write_formula
+    smog_index = _textstat.smog_index
 
 
 class ReadabilityAnalyzer:

@@ -137,27 +137,18 @@ class MathContentAnalyzer:
         }
 
     def _match_patterns(self, text: str) -> dict[str, int]:
-        matches = {}
-        for name, pattern in self.patterns.items():
-            found = pattern.findall(text)
-            if found:
-                matches[name] = len(found)
-        return matches
+        return {n: len(m) for n, p in self.patterns.items() if (m := p.findall(text))}
 
     def _count_symbols(self, text: str) -> dict[str, int]:
-        counts = Counter()
-        for char in text:
-            if char in self.symbols:
-                counts[self.symbols[char]] += 1
+        counts = Counter(self.symbols[c] for c in text if c in self.symbols)
         return dict(counts)
 
     def _match_vocabulary(self, text: str) -> dict[str, int]:
-        matches = {}
-        for term in self.all_terms:
-            count = len(re.findall(r"\b" + re.escape(term) + r"\b", text, re.IGNORECASE))
-            if count > 0:
-                matches[term] = count
-        return matches
+        return {
+            term: len(m)
+            for term in self.all_terms
+            if (m := re.findall(r"\b" + re.escape(term) + r"\b", text, re.IGNORECASE))
+        }
 
     def _classify_domain(
         self,
@@ -165,16 +156,11 @@ class MathContentAnalyzer:
         patterns: dict[str, int],
         terms: dict[str, int],
     ) -> dict[str, Any]:
-        domain_scores: dict[str, float] = {}
+        domain_scores: dict[str, float] = {
+            domain: sum(terms[t] for t in vocab if t in terms)
+            for domain, vocab in self.domains.items()
+        }
 
-        for domain, vocab in self.domains.items():
-            score = 0
-            for term in vocab:
-                if term in terms:
-                    score += terms[term]
-            domain_scores[domain] = score
-
-        # Pattern presence adds 1 to the matching domain (binary signal, no arbitrary boost).
         if patterns.get("derivative") or patterns.get("integral"):
             domain_scores["calculus"] = domain_scores.get("calculus", 0) + 1
 

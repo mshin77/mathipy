@@ -9,29 +9,15 @@ import re
 from pathlib import Path
 from typing import Any
 
-from mathipy._api import VisionAPIClient, image_extensions, max_file_size
+from mathipy._api import VisionAPIClient, _optional_import, image_extensions, max_file_size
 from mathipy.utils import extract_math_expressions, extract_numbers, extract_variables
 
 logger = logging.getLogger(__name__)
 
-try:
-    import httpx  # noqa: F401
-    httpx_available = True
-except ImportError:
-    httpx_available = False
-    logger.warning("httpx not available - install with: pip install httpx")
-
-try:
-    from docx import Document as DocxDocument
-    docx_available = True
-except ImportError:
-    docx_available = False
-
-try:
-    import pdfplumber
-    pdfplumber_available = True
-except ImportError:
-    pdfplumber_available = False
+_httpx, httpx_available = _optional_import("httpx", "httpx")
+_docx_module, docx_available = _optional_import("docx")
+DocxDocument = _docx_module.Document if docx_available else None
+pdfplumber, pdfplumber_available = _optional_import("pdfplumber")
 
 system_prompt = """You are an expert OCR system for multi-modal content extraction.
 Extract ALL visible text from the image accurately, including:
@@ -104,31 +90,32 @@ Be concise but precise. Return the description in the JSON format specified."""
 def _parse_response(response_text: str) -> dict[str, Any]:
     cleaned = re.sub(r"```(?:json)?\s*", "", response_text).strip()
     json_match = re.search(r"\{[\s\S]*\}", cleaned)
+    parsed = None
     if json_match:
         try:
             parsed = json.loads(json_match.group())
-            if not parsed.get("content_type"):
-                has_text = bool(parsed.get("full_text", "").strip())
-                has_desc = bool(parsed.get("image_description", "").strip())
-                if has_text and has_desc:
-                    parsed["content_type"] = "mixed"
-                elif has_text:
-                    parsed["content_type"] = "text_only"
-                else:
-                    parsed["content_type"] = "image_only"
-            return parsed
         except json.JSONDecodeError:
-            pass
+            parsed = None
+
+    if parsed is not None:
+        if not parsed.get("content_type"):
+            has_text = bool(parsed.get("full_text", "").strip())
+            has_desc = bool(parsed.get("image_description", "").strip())
+            parsed["content_type"] = (
+                "mixed" if has_text and has_desc
+                else "text_only" if has_text
+                else "image_only"
+            )
+        return parsed
 
     logger.warning("Could not parse JSON from API response; falling back to plain-text extraction")
     text = response_text.strip()
-    has_extractable_text = bool(re.search(r"[a-zA-Z0-9]{3,}", text))
-
+    has_text = bool(re.search(r"[a-zA-Z0-9]{3,}", text))
     return {
-        "content_type": "text_only" if has_extractable_text else "image_only",
-        "full_text": text if has_extractable_text else "",
-        "image_description": text if not has_extractable_text else "",
-        "question_text": text if has_extractable_text else "",
+        "content_type": "text_only" if has_text else "image_only",
+        "full_text": text if has_text else "",
+        "image_description": "" if has_text else text,
+        "question_text": text if has_text else "",
         "math_expressions": extract_math_expressions(text),
         "answer_choices": _extract_answer_choices(text),
         "data_elements": [],
@@ -201,7 +188,9 @@ class MultimodalOCR(VisionAPIClient):
 
         source_str = str(source)
 
-        if source_str.startswith(("http://", "https://")):
+        if source_str.startswith("http://"):
+            raise ValueError("Only https:// URLs are allowed for image fetch")
+        if source_str.startswith("https://"):
             return self._extract_from_image(source_str, mode, max_words)
 
         path = Path(source_str)
@@ -257,14 +246,16 @@ class MultimodalOCR(VisionAPIClient):
 
         text = path.read_text(encoding="utf-8")
         result = _empty_result()
-        result["full_text"] = text
-        result["question_text"] = text.strip().split("\n")[0] if text.strip() else ""
-        result["math_expressions"] = extract_math_expressions(text)
-        result["answer_choices"] = _extract_answer_choices(text)
-        result["numbers_found"] = extract_numbers(text)
-        result["variables_found"] = extract_variables(text)
-        result["extraction_confidence"] = 1.0
-        result["content_type"] = "text_only"
+        result.update({
+            "full_text": text,
+            "question_text": text.strip().split("\n")[0] if text.strip() else "",
+            "math_expressions": extract_math_expressions(text),
+            "answer_choices": _extract_answer_choices(text),
+            "numbers_found": extract_numbers(text),
+            "variables_found": extract_variables(text),
+            "extraction_confidence": 1.0,
+            "content_type": "text_only",
+        })
         return result
 
     def _extract_from_docx(
@@ -297,15 +288,17 @@ class MultimodalOCR(VisionAPIClient):
             text += "\n" + "\n".join(table_rows)
 
         result = _empty_result()
-        result["full_text"] = text
-        result["question_text"] = paragraphs[0] if paragraphs else ""
-        result["math_expressions"] = extract_math_expressions(text)
-        result["answer_choices"] = _extract_answer_choices(text)
-        result["numbers_found"] = extract_numbers(text)
-        result["variables_found"] = extract_variables(text)
-        result["data_elements"] = table_rows
-        result["extraction_confidence"] = 0.95
-        result["content_type"] = "text_only"
+        result.update({
+            "full_text": text,
+            "question_text": paragraphs[0] if paragraphs else "",
+            "math_expressions": extract_math_expressions(text),
+            "answer_choices": _extract_answer_choices(text),
+            "numbers_found": extract_numbers(text),
+            "variables_found": extract_variables(text),
+            "data_elements": table_rows,
+            "extraction_confidence": 0.95,
+            "content_type": "text_only",
+        })
 
         images = self._extract_docx_images(doc)
         if images:
@@ -356,14 +349,16 @@ class MultimodalOCR(VisionAPIClient):
 
         text = "\n".join(all_text)
         result = _empty_result()
-        result["full_text"] = text
-        result["question_text"] = text.strip().split("\n")[0] if text.strip() else ""
-        result["math_expressions"] = extract_math_expressions(text)
-        result["answer_choices"] = _extract_answer_choices(text)
-        result["numbers_found"] = extract_numbers(text)
-        result["variables_found"] = extract_variables(text)
-        result["extraction_confidence"] = 0.95
-        result["content_type"] = "text_only"
+        result.update({
+            "full_text": text,
+            "question_text": text.strip().split("\n")[0] if text.strip() else "",
+            "math_expressions": extract_math_expressions(text),
+            "answer_choices": _extract_answer_choices(text),
+            "numbers_found": extract_numbers(text),
+            "variables_found": extract_variables(text),
+            "extraction_confidence": 0.95,
+            "content_type": "text_only",
+        })
 
         if all_images:
             image_results = self._process_embedded_images(all_images, mode, max_words)
@@ -431,19 +426,21 @@ class MultimodalOCR(VisionAPIClient):
             data_elements.extend(img_result.get("data_elements", []))
             base.get("answer_choices", {}).update(img_result.get("answer_choices", {}))
 
-        base["math_expressions"] = list(math_set)
-        base["labels"] = list(labels_set)
-        base["numbers_found"] = list(numbers_set)
-        base["variables_found"] = list(variables_set)
-        base["data_elements"] = data_elements
-
         text_confidence = base.get("extraction_confidence", 0.95)
         img_confidences = [
             r.get("extraction_confidence", 0.5) for r in image_results
         ]
         avg_img_confidence = sum(img_confidences) / len(img_confidences) if img_confidences else 0.5
-        base["extraction_confidence"] = round(
-            0.7 * text_confidence + 0.3 * avg_img_confidence, 2
-        )
+
+        base.update({
+            "math_expressions": list(math_set),
+            "labels": list(labels_set),
+            "numbers_found": list(numbers_set),
+            "variables_found": list(variables_set),
+            "data_elements": data_elements,
+            "extraction_confidence": round(
+                0.7 * text_confidence + 0.3 * avg_img_confidence, 2
+            ),
+        })
 
         return base

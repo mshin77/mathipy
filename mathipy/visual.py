@@ -8,23 +8,14 @@ from typing import Any
 
 import numpy as np
 
+from mathipy._api import _optional_import
 from mathipy.utils import safe_get
 
 logger = logging.getLogger(__name__)
 
-try:
-    from PIL import Image
-    pillow_available = True
-except ImportError:
-    pillow_available = False
-    logger.warning("Pillow not available - install with: pip install pillow")
-
-try:
-    import cv2
-    cv2_available = True
-except ImportError:
-    cv2_available = False
-    logger.warning("OpenCV not available - install with: pip install opencv-python-headless")
+_pil_image_mod, pillow_available = _optional_import("PIL.Image", "pillow")
+Image = _pil_image_mod
+cv2, cv2_available = _optional_import("cv2", "opencv-python-headless")
 
 visual_models = [
     "number_line", "coordinate_plane", "bar_graph", "line_graph",
@@ -119,7 +110,7 @@ class VisualFeatureExtractor:
 
         return features
 
-    # -- flat-key mapping used by extract_flat / aggregate_visual_features --
+    # flat-key mapping
     vis_map = {
         "visual_contrast": ("pixel_statistics", "contrast"),
         "visual_mean": ("pixel_statistics", "mean"),
@@ -345,7 +336,6 @@ class VisualFeatureExtractor:
         }
 
     def _calculate_complexity(self, features: dict[str, Any]) -> dict[str, Any]:
-        """Return raw complexity components — no scaling or composite weights."""
         edge = features.get("edge_metrics", {})
         struct = features.get("structural_elements", {})
         freq = features.get("frequency_domain", {})

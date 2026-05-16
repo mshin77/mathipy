@@ -75,8 +75,7 @@ class VisualModelClassifier(VisionAPIClient):
     def text_only_result() -> dict[str, Any]:
         """Return a classification result for text-only items (no image)."""
         result = {m: False for m in visual_models}
-        result["primary"] = "text_only"
-        result["model_count"] = 0
+        result.update({"primary": "text_only", "model_count": 0})
         return result
 
     @staticmethod
@@ -90,8 +89,7 @@ class VisualModelClassifier(VisionAPIClient):
         if not json_match:
             logger.warning("No JSON found in classify response; returning all-False")
             result = {m: False for m in visual_models}
-            result["primary"] = "other"
-            result["model_count"] = 0
+            result.update({"primary": "other", "model_count": 0})
             return result
 
         try:
@@ -99,8 +97,7 @@ class VisualModelClassifier(VisionAPIClient):
         except json.JSONDecodeError:
             logger.warning("Invalid JSON in classify response; returning all-False")
             result = {m: False for m in visual_models}
-            result["primary"] = "other"
-            result["model_count"] = 0
+            result.update({"primary": "other", "model_count": 0})
             return result
 
         entry: dict[str, Any] = {}
@@ -110,6 +107,8 @@ class VisualModelClassifier(VisionAPIClient):
         primary = parsed.get("primary", "other")
         if primary not in visual_models and primary != "text_only":
             primary = "other"
-        entry["primary"] = primary
-        entry["model_count"] = sum(entry[m] for m in visual_models)
+        entry.update({
+            "primary": primary,
+            "model_count": sum(entry[m] for m in visual_models),
+        })
         return entry

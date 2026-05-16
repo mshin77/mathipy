@@ -35,8 +35,12 @@ env/
 Thumbs.db
 docs_src/
 docs/.doctrees/
+docs/.buildinfo.bak
 tests/
 .coverage
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
 
 *.log
 *.csv

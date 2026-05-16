@@ -3,17 +3,28 @@
 from __future__ import annotations
 
 import base64
+import importlib
+import ipaddress
 import logging
 import os
+import re
+import socket
 from pathlib import Path
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
-try:
-    import httpx
-    httpx_available = True
-except ImportError:
-    httpx_available = False
+
+def _optional_import(name: str, install_hint: str | None = None):
+    try:
+        return importlib.import_module(name), True
+    except ImportError:
+        if install_hint:
+            logger.warning(f"{name} not available - install with: pip install {install_hint}")
+        return None, False
+
+
+httpx, httpx_available = _optional_import("httpx")
 
 gemini_api_url = "https://generativelanguage.googleapis.com/v1beta"
 openai_api_url = "https://api.openai.com/v1"
@@ -26,6 +37,14 @@ default_models = {
 image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
 
 max_file_size = 20 * 1024 * 1024  # 20 MB
+
+_secret_pattern = re.compile(
+    r'AIza[A-Za-z0-9_-]{30,}|sk-(?:proj-|ant-)?[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}'
+)
+
+
+def _sanitize_error(msg: str) -> str:
+    return _secret_pattern.sub("***", msg)
 
 
 def _load_dotenv():
@@ -87,7 +106,9 @@ class VisionAPIClient:
 
         source_str = str(source)
 
-        if source_str.startswith(("http://", "https://")):
+        if source_str.startswith("http://"):
+            raise ValueError("Only https:// URLs are allowed for image fetch")
+        if source_str.startswith("https://"):
             return self._fetch_image_url(source_str)
 
         path = Path(source_str)
@@ -111,21 +132,41 @@ class VisionAPIClient:
         with open(path, "rb") as f:
             return base64.b64encode(f.read()).decode("utf-8"), mime_type
 
+    def _validate_image_url(self, url: str) -> None:
+        # reject internal/private/loopback addresses
+        parsed = urlparse(url)
+        if parsed.scheme != "https":
+            raise ValueError(f"Only https:// URLs allowed, got scheme: {parsed.scheme}")
+        if not parsed.hostname:
+            raise ValueError("URL has no hostname")
+        try:
+            addr_info = socket.getaddrinfo(parsed.hostname, None)
+        except socket.gaierror as e:
+            raise ValueError(f"Cannot resolve host: {e}") from None
+        for _af, _kind, _proto, _canon, sockaddr in addr_info:
+            ip = ipaddress.ip_address(sockaddr[0])
+            if (ip.is_private or ip.is_loopback or ip.is_link_local
+                    or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
+                raise ValueError(f"URL resolves to disallowed address: {ip}")
+
     def _fetch_image_url(self, url: str) -> tuple:
         if not httpx_available:
             raise ImportError(
                 "httpx is required for URL fetching. Install with: pip install mathipy[ocr]"
             )
-
-        with httpx.Client(timeout=self.timeout, follow_redirects=True) as client:
+        self._validate_image_url(url)
+        with httpx.Client(timeout=self.timeout, follow_redirects=False) as client:
             resp = client.get(url)
             resp.raise_for_status()
-
+        declared = int(resp.headers.get("content-length", "0") or 0)
+        if declared > max_file_size or len(resp.content) > max_file_size:
+            raise ValueError(
+                f"Image too large (max {max_file_size // 1024 // 1024} MB)"
+            )
         content_type = resp.headers.get("content-type", "image/jpeg")
         mime_type = content_type.split(";")[0].strip()
         if not mime_type.startswith("image/"):
             mime_type = "image/jpeg"
-
         return base64.b64encode(resp.content).decode("utf-8"), mime_type
 
     def _call_gemini(
@@ -167,16 +208,20 @@ class VisionAPIClient:
         with httpx.Client(
             base_url=gemini_api_url,
             timeout=httpx.Timeout(self.timeout),
+            headers={
+                "x-goog-api-key": api_key,
+                "Content-Type": "application/json",
+            },
         ) as client:
             response = client.post(
-                f"/{model_path}:generateContent?key={api_key}",
+                f"/{model_path}:generateContent",
                 json=body,
             )
 
         if response.status_code != 200:
             error_data = response.json() if response.content else {}
             error_msg = error_data.get("error", {}).get("message", f"Status {response.status_code}")
-            raise RuntimeError(f"Gemini API error: {error_msg}")
+            raise RuntimeError(f"Gemini API error: {_sanitize_error(error_msg)}")
 
         data = response.json()
         candidates = data.get("candidates", [])
@@ -231,7 +276,7 @@ class VisionAPIClient:
         if response.status_code != 200:
             error_data = response.json() if response.content else {}
             error_msg = error_data.get("error", {}).get("message", f"Status {response.status_code}")
-            raise RuntimeError(f"OpenAI API error: {error_msg}")
+            raise RuntimeError(f"OpenAI API error: {_sanitize_error(error_msg)}")
 
         data = response.json()
         choice = data.get("choices", [{}])[0]

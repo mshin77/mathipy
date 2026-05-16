@@ -98,18 +98,8 @@ class ItemFeatureExtractor:
         })
 
         # visual features
-        if image_paths:
-            flat_list = []
-            for p in image_paths:
-                path = Path(p)
-                if not path.exists():
-                    continue
-                try:
-                    flat_list.append(self._vis.extract_flat(str(path)))
-                except Exception as e:
-                    logger.warning(f"Visual extraction failed for {path}: {e}")
-            row.update(VisualFeatureExtractor.aggregate_visual_features(flat_list))
-        else:
-            row.update(VisualFeatureExtractor.aggregate_visual_features([]))
+        paths = [Path(p) for p in (image_paths or []) if Path(p).exists()]
+        flat_list = [self._vis.extract_flat(str(p)) for p in paths]
+        row.update(VisualFeatureExtractor.aggregate_visual_features(flat_list))
 
         return row
