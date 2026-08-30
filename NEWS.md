@@ -1,3 +1,10 @@
+# mathipy 0.4.5
+
+- Enlarges an image below 512 pixels on its long side before a vision call, so a
+  small answer-choice figure is read as a figure rather than as text.
+- Leaves the instructional function empty when an image carries no figure, and
+  states each function in the prompt.
+
 # mathipy 0.4.4
 
 - Counts one equation per equals sign, reads a hyphen as a minus only between

@@ -1,6 +1,6 @@
 """mathipy - Multimodal item feature extraction for K-12 math assessment."""
 
-__version__ = "0.4.4"
+__version__ = "0.4.5"
 __author__ = "Mikyung Shin"
 __email__ = "shin.mikyung@gmail.com"
 
@@ -56,11 +56,12 @@ from mathipy.visual import (
     flags_by_sign,
     group_names,
     sign_names,
-    visual_model_signs,
+    visual_function_definitions,
     visual_functions,
     visual_model_definitions,
     visual_model_groups,
     visual_model_info,
+    visual_model_signs,
 )
 
 __all__ = [
@@ -72,14 +73,15 @@ __all__ = [
     "VisualModelClassifier",
     "MultimodalAnalyzer",
     "ItemFeatureExtractor",
-    "visual_functions",
-    "visual_model_definitions",
-    "visual_model_groups",
-    "visual_model_info",
     "flags_by_group",
     "flags_by_sign",
     "group_names",
     "sign_names",
+    "visual_function_definitions",
+    "visual_functions",
+    "visual_model_definitions",
+    "visual_model_groups",
+    "visual_model_info",
     "visual_model_signs",
     "safe_get",
     "compute_interrater_reliability",

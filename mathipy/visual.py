@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import io
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -52,6 +53,12 @@ visual_models = [
 ]
 
 visual_functions = ["essential", "representational", "decorative"]
+
+visual_function_definitions = {
+    "essential": "the figure carries values, relations, or a configuration the text does not state, so removing the figure leaves the item unsolvable",
+    "representational": "the figure restates what the text already states; choose over essential when the item can be solved from the text alone",
+    "decorative": "the figure depicts none of the mathematics the item asks about; choose over representational when the figure shows no quantity, relation, or shape the item involves",
+}
 
 visual_model_definitions = {
     "number_line": "a line marked with ordered numeric values or tick marks",

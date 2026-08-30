@@ -10,12 +10,18 @@ from pathlib import Path
 from typing import Any
 
 from mathipy._api import VisionAPIClient
-from mathipy.visual import visual_functions, visual_model_definitions, visual_models
+from mathipy.visual import (
+    visual_function_definitions,
+    visual_functions,
+    visual_model_definitions,
+    visual_models,
+)
 
 logger = logging.getLogger(__name__)
 
 _type_lines = "\n".join(f"- {m}: {visual_model_definitions[m]}" for m in visual_models)
-_function_list = ", ".join(visual_functions)
+_function_lines = "\n".join(f"- {f}: {visual_function_definitions[f]}"
+                            for f in visual_functions)
 
 _example = json.dumps(
     {m: (m == "bar_graph" or m == "table") for m in visual_models}
@@ -30,10 +36,12 @@ classify_system_prompt = (
 
 classify_user_prompt = f"""For this math assessment item image, identify which visual representations are present.
 Return a JSON object with boolean values for each type, plus a "primary" field for the most prominent type,
-plus a "function" field for the instructional role of the image: {_function_list}.
-"essential" = the image contains information required to solve the item;
-"representational" = the image depicts information also stated in the item text;
-"decorative" = the image is unrelated to the mathematics of the item.
+plus a "function" field for the instructional role of the image:
+{_function_lines}
+Return null for "function" only when the image carries no figure at all, that is
+when "primary" is text_only: a screenshot of prose, an answer interface, or a bare
+fragment of notation. An image that is itself a figure, including a cropped figure
+filling the frame, always takes a function label even when "figure_box" is null.
 
 Types:
 {_type_lines}
@@ -52,7 +60,8 @@ When the answer choices are themselves graphics rather than text, return
 form. Four small graphs offered as four choices are four option boxes, not one
 figure. Return an empty list when the choices are text.
 
-Example response:
+Example response, showing the required format only. Its values are not a
+recommended answer:
 {_example}
 
 Return ONLY valid JSON, nothing else."""
@@ -276,9 +285,11 @@ class VisualModelClassifier(VisionAPIClient):
         if primary and primary not in visual_models:
             primary = "other"
 
-        function = _normalize_label(parsed.get("function"))
+        raw_function = parsed.get("function")
+        function = _normalize_label(raw_function)
         if function not in visual_functions:
-            function = "unknown"
+            function = ("unknown" if function and function != "null"
+                        else None)
 
         box = _parse_box(parsed.get("figure_box"))
         option_boxes = _parse_boxes(parsed.get("option_boxes"))
@@ -286,6 +297,9 @@ class VisualModelClassifier(VisionAPIClient):
         if not (primary or any(entry.values()) or box or option_boxes):
             logger.info("Classify response named no visual model; the image carries none")
             return VisualModelClassifier.fallback_result("empty")
+
+        if primary == "text_only":
+            function = None
 
         entry.update({
             "primary": primary or None,

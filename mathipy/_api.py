@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import importlib
+import io
 import ipaddress
 import logging
 import os
@@ -39,6 +40,7 @@ default_models = {
 image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
 
 max_file_size = 20 * 1024 * 1024  # 20 MB
+min_image_px = 512
 
 _secret_pattern = re.compile(
     r'AIza[A-Za-z0-9_-]{30,}|sk-(?:proj-|ant-)?[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}'
@@ -84,6 +86,33 @@ def _load_dotenv():
                             os.environ[key] = value
         except Exception as e:
             logger.warning(f"Could not load .env: {e}")
+
+
+def _upscale_small(data: bytes) -> tuple[bytes, str]:
+    """Enlarge an image whose long side falls below ``min_image_px``."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return data, "image/jpeg"
+    try:
+        image = Image.open(io.BytesIO(data))
+        image.load()
+    except Exception:
+        return data, "image/jpeg"
+
+    fmt = "image/png" if (image.format or "").upper() == "PNG" else "image/jpeg"
+    long_side = max(image.size)
+    if not long_side or long_side >= min_image_px:
+        return data, fmt
+
+    scale = min_image_px / long_side
+    size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
+    if image.mode not in ("RGB", "L"):
+        image = image.convert("RGB")
+    buffer = io.BytesIO()
+    image.resize(size, Image.LANCZOS).save(buffer, format="PNG")
+    logger.debug("upscaled %s to %s before the vision call", image.size, size)
+    return buffer.getvalue(), "image/png"
 
 
 class VisionAPIClient:
@@ -137,7 +166,8 @@ class VisionAPIClient:
 
     def _prepare_image(self, source: str | Path | bytes) -> tuple:
         if isinstance(source, bytes):
-            return base64.b64encode(source).decode("utf-8"), "image/jpeg"
+            data, mime_type = _upscale_small(source)
+            return base64.b64encode(data).decode("utf-8"), mime_type
 
         source_str = str(source)
 
@@ -165,7 +195,10 @@ class VisionAPIClient:
         mime_type = mime_map.get(path.suffix.lower(), "image/jpeg")
 
         with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8"), mime_type
+            data, upscaled_mime = _upscale_small(f.read())
+        if upscaled_mime == "image/png":
+            mime_type = upscaled_mime
+        return base64.b64encode(data).decode("utf-8"), mime_type
 
     def _validate_image_url(self, url: str) -> None:
         parsed = urlparse(url)

@@ -379,6 +379,7 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-classification">Visual Model Classification</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualmodelclassifier"><code class="docutils literal notranslate"><span class="pre">VisualModelClassifier</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-function-definitions"><code class="docutils literal notranslate"><span class="pre">visual_function_definitions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-definitions"><code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-groups"><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-info"><code class="docutils literal notranslate"><span class="pre">visual_model_info</span></code></a></li>
@@ -697,8 +698,16 @@
 <dt>api_key</dt><dd><p>API key (or set via <code class="docutils literal notranslate"><span class="pre">.env</span></code> file)</p>
 </dd>
 </dl>
-<p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;primary&quot;</span></code> (str), <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (str: <code class="docutils literal notranslate"><span class="pre">essential</span></code>, <code class="docutils literal notranslate"><span class="pre">representational</span></code>, <code class="docutils literal notranslate"><span class="pre">decorative</span></code>, or <code class="docutils literal notranslate"><span class="pre">unknown</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> when the item carries no image), and <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int). The <code class="docutils literal notranslate"><span class="pre">votes</span></code> argument runs multiple independent calls and merges flags by majority and <code class="docutils literal notranslate"><span class="pre">primary</span></code>/<code class="docutils literal notranslate"><span class="pre">function</span></code> by mode.</p>
+<p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;primary&quot;</span></code> (str), <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (str: <code class="docutils literal notranslate"><span class="pre">essential</span></code>, <code class="docutils literal notranslate"><span class="pre">representational</span></code>, or <code class="docutils literal notranslate"><span class="pre">decorative</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> when the image carries no figure, and <code class="docutils literal notranslate"><span class="pre">unknown</span></code> when the model returns a label outside the three), and <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int). The <code class="docutils literal notranslate"><span class="pre">votes</span></code> argument runs multiple independent calls and merges flags by majority and <code class="docutils literal notranslate"><span class="pre">primary</span></code>/<code class="docutils literal notranslate"><span class="pre">function</span></code> by mode.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">item_text</span></code> argument supplies the item’s text so the <code class="docutils literal notranslate"><span class="pre">function</span></code> judgment can compare the image against it. Without <code class="docutils literal notranslate"><span class="pre">item_text</span></code>, the <code class="docutils literal notranslate"><span class="pre">essential</span></code> vs <code class="docutils literal notranslate"><span class="pre">representational</span></code> distinction is reliable only when the image contains the complete item.</p>
+</section>
+<section id="visual-function-definitions">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_function_definitions</span></code><a class="headerlink" href="#visual-function-definitions" title="Link to this heading">#</a></h3>
+<p>Dictionary with a one-line decision rule for each instructional function. The same rules appear in the classifier prompt, so human coders and the model work from a single codebook.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_function_definitions</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_function_definitions</span><span class="p">[</span><span class="s2">&quot;essential&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
 </section>
 <section id="visual-model-definitions">
 <h3><code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code><a class="headerlink" href="#visual-model-definitions" title="Link to this heading">#</a></h3>
@@ -832,7 +841,8 @@ how much white surrounds the item.</p>
 <h3><code class="docutils literal notranslate"><span class="pre">flags_by_group</span></code>, <code class="docutils literal notranslate"><span class="pre">flags_by_sign</span></code><a class="headerlink" href="#flags-by-group-flags-by-sign" title="Link to this heading">#</a></h3>
 <p>Collapse the per-type flags into representation families (<code class="docutils literal notranslate"><span class="pre">group_names</span></code>) or
 Peircean sign classes (<code class="docutils literal notranslate"><span class="pre">sign_names</span></code>, <code class="docutils literal notranslate"><span class="pre">visual_model_signs</span></code>). <code class="docutils literal notranslate"><span class="pre">visual_functions</span></code>
-lists the three instructional function labels.</p>
+lists the three instructional function labels and <code class="docutils literal notranslate"><span class="pre">visual_function_definitions</span></code>
+gives the rule for each.</p>
 </section>
 </section>
 <section id="document-segmentation">
