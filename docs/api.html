@@ -1,0 +1,1114 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API Reference &#8212; mathipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bf69dc6d" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=7f41d439"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Analyzing Math Items" href="vignettes/item-analysis.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt="mathipy  documentation - Home"/>
+    <img src="_static/logo.svg" class="logo__image only-dark pst-js-only" alt="mathipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="vignettes/item-analysis.html">
+    Analyzing Math Items
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    Support
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mshin77/mathipy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="vignettes/item-analysis.html">
+    Analyzing Math Items
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="support.html">
+    Support
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/mshin77/mathipy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#readability">Readability</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#readabilityanalyzer"><code class="docutils literal notranslate"><span class="pre">ReadabilityAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#math-content">Math Content</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mathcontentanalyzer"><code class="docutils literal notranslate"><span class="pre">MathContentAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cognitive-load">Cognitive Load</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cognitiveloadestimator"><code class="docutils literal notranslate"><span class="pre">CognitiveLoadEstimator</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual">Visual</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualfeatureextractor"><code class="docutils literal notranslate"><span class="pre">VisualFeatureExtractor</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ocr">OCR</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multimodalocr"><code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-classification">Visual Model Classification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualmodelclassifier"><code class="docutils literal notranslate"><span class="pre">VisualModelClassifier</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-definitions"><code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-groups"><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-info"><code class="docutils literal notranslate"><span class="pre">visual_model_info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flags-by-group"><code class="docutils literal notranslate"><span class="pre">flags_by_group</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multimodal-item">Multimodal Item</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multimodalanalyzer"><code class="docutils literal notranslate"><span class="pre">MultimodalAnalyzer</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notation">Notation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#normalize-math-notation"><code class="docutils literal notranslate"><span class="pre">normalize_math_notation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#insert-operators"><code class="docutils literal notranslate"><span class="pre">insert_operators</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#morphology">Morphology</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#morphology-features"><code class="docutils literal notranslate"><span class="pre">morphology_features</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#symbolic-notation">Symbolic Notation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#symbolic-features"><code class="docutils literal notranslate"><span class="pre">symbolic_features</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fractions">Fractions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fraction-features"><code class="docutils literal notranslate"><span class="pre">fraction_features</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cross-modal-reference">Cross-modal Reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#crossmodal-features"><code class="docutils literal notranslate"><span class="pre">crossmodal_features</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geometry">Geometry</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classify-shapes"><code class="docutils literal notranslate"><span class="pre">classify_shapes</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-redundancy">Feature Redundancy</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dependent-sets"><code class="docutils literal notranslate"><span class="pre">dependent_sets</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#figure-region">Figure Region</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#crop-to-box"><code class="docutils literal notranslate"><span class="pre">crop_to_box</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flags-by-group-flags-by-sign"><code class="docutils literal notranslate"><span class="pre">flags_by_group</span></code>, <code class="docutils literal notranslate"><span class="pre">flags_by_sign</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#document-segmentation">Document Segmentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#body-paragraphs-paragraph-images-paragraph-text"><code class="docutils literal notranslate"><span class="pre">body_paragraphs</span></code>, <code class="docutils literal notranslate"><span class="pre">paragraph_images</span></code>, <code class="docutils literal notranslate"><span class="pre">paragraph_text</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cohesion">Cohesion</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#de-identification">De-identification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dialogue">Dialogue</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-handling">Data Handling</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-interrater-reliability"><code class="docutils literal notranslate"><span class="pre">compute_interrater_reliability</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#safe-get"><code class="docutils literal notranslate"><span class="pre">safe_get</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#provenance-and-limitations">Provenance and Limitations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematics-register">Mathematics Register</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-features"><code class="docutils literal notranslate"><span class="pre">register_features</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relational-features"><code class="docutils literal notranslate"><span class="pre">relational_features</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#number-features"><code class="docutils literal notranslate"><span class="pre">number_features</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#homonym-features"><code class="docutils literal notranslate"><span class="pre">homonym_features</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">API Reference</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
+<section id="readability">
+<h2>Readability<a class="headerlink" href="#readability" title="Link to this heading">#</a></h2>
+<section id="readabilityanalyzer">
+<h3><code class="docutils literal notranslate"><span class="pre">ReadabilityAnalyzer</span></code><a class="headerlink" href="#readabilityanalyzer" title="Link to this heading">#</a></h3>
+<p>Class for analyzing text readability with math-aware normalization.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadabilityAnalyzer</span>
+
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="s2">&quot;Solve for x: 2x + 5 = 15&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Returns a dictionary with:</p>
+<dl class="simple myst">
+<dt>flesch_reading_ease</dt><dd><p>Flesch Reading Ease score (0–100)</p>
+</dd>
+<dt>flesch_kincaid_grade</dt><dd><p>Flesch-Kincaid grade level</p>
+</dd>
+<dt>gunning_fog</dt><dd><p>Gunning Fog index</p>
+</dd>
+<dt>smog_index</dt><dd><p>SMOG index</p>
+</dd>
+<dt>automated_readability_index</dt><dd><p>ARI score</p>
+</dd>
+<dt>coleman_liau_index</dt><dd><p>Coleman-Liau index</p>
+</dd>
+<dt>linsear_write_formula</dt><dd><p>Linsear Write formula</p>
+</dd>
+<dt>dale_chall_readability</dt><dd><p>Dale-Chall readability score</p>
+</dd>
+<dt>average_grade_level</dt><dd><p>Average of FK, Fog, and SMOG</p>
+</dd>
+<dt>low_confidence</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if text is shorter than 20 words</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="math-content">
+<h2>Math Content<a class="headerlink" href="#math-content" title="Link to this heading">#</a></h2>
+<section id="mathcontentanalyzer">
+<h3><code class="docutils literal notranslate"><span class="pre">MathContentAnalyzer</span></code><a class="headerlink" href="#mathcontentanalyzer" title="Link to this heading">#</a></h3>
+<p>Class for math content analysis and CCSSM domain classification.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MathContentAnalyzer</span>
+
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="s2">&quot;What is the area of a triangle with base 6 and height 4?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Returns a dictionary with:</p>
+<dl class="simple myst">
+<dt>pattern_matches</dt><dd><p>Detected math patterns (equations, fractions, etc.)</p>
+</dd>
+<dt>symbol_counts</dt><dd><p>Counts of math symbols by type</p>
+</dd>
+<dt>total_math_symbols</dt><dd><p>Total math symbols found</p>
+</dd>
+<dt>numbers</dt><dd><p>Extracted numbers with count, range, and properties</p>
+</dd>
+<dt>vocabulary</dt><dd><p>Matched math terms and counts</p>
+</dd>
+<dt>domain_classification</dt><dd><p>Primary domain, confidence, and scores</p>
+</dd>
+<dt>math_density</dt><dd><p>Ratio of math patterns to word count</p>
+</dd>
+</dl>
+<p><strong>Domain categories:</strong> arithmetic, algebra, geometry, statistics, calculus, fractions</p>
+</section>
+</section>
+<section id="cognitive-load">
+<h2>Cognitive Load<a class="headerlink" href="#cognitive-load" title="Link to this heading">#</a></h2>
+<section id="cognitiveloadestimator">
+<h3><code class="docutils literal notranslate"><span class="pre">CognitiveLoadEstimator</span></code><a class="headerlink" href="#cognitiveloadestimator" title="Link to this heading">#</a></h3>
+<p>Class for estimating cognitive load components.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span>
+
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">readability_grade</span><span class="o">=</span><span class="mf">5.2</span><span class="p">,</span> <span class="n">math_terms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;equation&quot;</span><span class="p">,</span> <span class="s2">&quot;solve&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Returns a dictionary with:</p>
+<dl class="simple myst">
+<dt>numeric_elements</dt><dd><p>Count of numbers in text</p>
+</dd>
+<dt>variable_count</dt><dd><p>Count of single-letter variables</p>
+</dd>
+<dt>operation_count</dt><dd><p>Count of math operations (+, -, *, /, ^, =, &lt;, &gt;)</p>
+</dd>
+<dt>word_count</dt><dd><p>Total words in text</p>
+</dd>
+<dt>sentence_count</dt><dd><p>Total sentences in text</p>
+</dd>
+<dt>math_term_count</dt><dd><p>Count of CCSSM-aligned math keywords</p>
+</dd>
+<dt>element_density</dt><dd><p>Ratio of (numeric elements + variables) to word count</p>
+</dd>
+<dt>avg_sentence_length</dt><dd><p>Average words per sentence</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="visual">
+<h2>Visual<a class="headerlink" href="#visual" title="Link to this heading">#</a></h2>
+<section id="visualfeatureextractor">
+<h3><code class="docutils literal notranslate"><span class="pre">VisualFeatureExtractor</span></code><a class="headerlink" href="#visualfeatureextractor" title="Link to this heading">#</a></h3>
+<p>Class for extracting complexity features from assessment images.</p>
+<p>Requires: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mathipy[vision]</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
+
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Accepts a file path, <code class="docutils literal notranslate"><span class="pre">Path</span></code> object, or numpy array. Returns a dictionary with:</p>
+<dl class="simple myst">
+<dt>dimensions</dt><dd><p>Width, height, aspect ratio, channels</p>
+</dd>
+<dt>pixel_statistics</dt><dd><p>Mean, std, min, max, median, contrast</p>
+</dd>
+<dt>edge_metrics</dt><dd><p>Canny edge ratio, Sobel/Laplacian statistics</p>
+</dd>
+<dt>structural_elements</dt><dd><p>Detected lines, circles, shapes (triangles, rectangles, etc.)</p>
+</dd>
+<dt>frequency_domain</dt><dd><p>Low/mid/high frequency energy ratios</p>
+</dd>
+<dt>complexity_score</dt><dd><p>Summary with edge_ratio, total_shapes, and high_freq_ratio</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="ocr">
+<h2>OCR<a class="headerlink" href="#ocr" title="Link to this heading">#</a></h2>
+<section id="multimodalocr">
+<h3><code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code><a class="headerlink" href="#multimodalocr" title="Link to this heading">#</a></h3>
+<p>Class for extracting text and math from images using vision LLMs.</p>
+<p>Requires: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mathipy[ocr]</span></code> and a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
+
+<span class="n">ocr</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">ocr</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<dl class="simple myst">
+<dt>provider</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;gemini&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;openai&quot;</span></code></p>
+</dd>
+<dt>model</dt><dd><p>Model name (defaults to <code class="docutils literal notranslate"><span class="pre">gemini-2.5-flash</span></code> or <code class="docutils literal notranslate"><span class="pre">gpt-4o</span></code>)</p>
+</dd>
+<dt>api_key</dt><dd><p>API key (or set via <code class="docutils literal notranslate"><span class="pre">.env</span></code> file)</p>
+</dd>
+</dl>
+<p>Accepts image path, URL, bytes, PDF, DOCX, or text file. Returns a dictionary with:</p>
+<dl class="simple myst">
+<dt>content_type</dt><dd><p><code class="docutils literal notranslate"><span class="pre">text_only</span></code>, <code class="docutils literal notranslate"><span class="pre">image_only</span></code>, or <code class="docutils literal notranslate"><span class="pre">mixed</span></code></p>
+</dd>
+<dt>full_text</dt><dd><p>All extracted text</p>
+</dd>
+<dt>image_description</dt><dd><p>Visual content description</p>
+</dd>
+<dt>question_text</dt><dd><p>Main question/problem statement</p>
+</dd>
+<dt>math_expressions</dt><dd><p>List of LaTeX expressions</p>
+</dd>
+<dt>answer_choices</dt><dd><p>Dictionary of answer choices</p>
+</dd>
+<dt>extraction_confidence</dt><dd><p>Confidence score (0–1)</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="visual-model-classification">
+<h2>Visual Model Classification<a class="headerlink" href="#visual-model-classification" title="Link to this heading">#</a></h2>
+<section id="visualmodelclassifier">
+<h3><code class="docutils literal notranslate"><span class="pre">VisualModelClassifier</span></code><a class="headerlink" href="#visualmodelclassifier" title="Link to this heading">#</a></h3>
+<p>Classify which visual model types appear in an assessment image.</p>
+<p>Requires: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mathipy[ocr]</span></code> and a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualModelClassifier</span>
+
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">,</span> <span class="n">votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">,</span> <span class="n">item_text</span><span class="o">=</span><span class="s2">&quot;A store sells 3 apples for $2...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters:</p>
+<dl class="simple myst">
+<dt>provider</dt><dd><p><code class="docutils literal notranslate"><span class="pre">&quot;gemini&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;openai&quot;</span></code></p>
+</dd>
+<dt>model</dt><dd><p>Model name (defaults to <code class="docutils literal notranslate"><span class="pre">gemini-2.5-flash</span></code> or <code class="docutils literal notranslate"><span class="pre">gpt-4o</span></code>)</p>
+</dd>
+<dt>api_key</dt><dd><p>API key (or set via <code class="docutils literal notranslate"><span class="pre">.env</span></code> file)</p>
+</dd>
+</dl>
+<p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;primary&quot;</span></code> (str), <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (str: <code class="docutils literal notranslate"><span class="pre">essential</span></code>, <code class="docutils literal notranslate"><span class="pre">representational</span></code>, <code class="docutils literal notranslate"><span class="pre">decorative</span></code>, or <code class="docutils literal notranslate"><span class="pre">unknown</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> when the item carries no image), and <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int). The <code class="docutils literal notranslate"><span class="pre">votes</span></code> argument runs multiple independent calls and merges flags by majority and <code class="docutils literal notranslate"><span class="pre">primary</span></code>/<code class="docutils literal notranslate"><span class="pre">function</span></code> by mode.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">item_text</span></code> argument supplies the item’s text so the <code class="docutils literal notranslate"><span class="pre">function</span></code> judgment can compare the image against it. Without <code class="docutils literal notranslate"><span class="pre">item_text</span></code>, the <code class="docutils literal notranslate"><span class="pre">essential</span></code> vs <code class="docutils literal notranslate"><span class="pre">representational</span></code> distinction is reliable only when the image contains the complete item.</p>
+</section>
+<section id="visual-model-definitions">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code><a class="headerlink" href="#visual-model-definitions" title="Link to this heading">#</a></h3>
+<p>Dictionary with a one-line decision rule for each type. The same rules appear in the classifier prompt, so human coders and the model work from a single codebook.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_definitions</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_definitions</span><span class="p">[</span><span class="s2">&quot;box_plot&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="visual-model-groups">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code><a class="headerlink" href="#visual-model-groups" title="Link to this heading">#</a></h3>
+<p>Dictionary mapping each visual model type to a broader category.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_groups</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_groups</span><span class="p">[</span><span class="s2">&quot;number_line&quot;</span><span class="p">])</span>  <span class="c1"># &quot;number_quantity&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="visual-model-info">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_model_info</span></code><a class="headerlink" href="#visual-model-info" title="Link to this heading">#</a></h3>
+<p>List of tuples with <code class="docutils literal notranslate"><span class="pre">(model_name,</span> <span class="pre">group,</span> <span class="pre">CCSSM_domains,</span> <span class="pre">grade_band)</span></code> for each visual model type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_info</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">domains</span><span class="p">,</span> <span class="n">grades</span> <span class="ow">in</span> <span class="n">visual_model_info</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">domains</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">grades</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="flags-by-group">
+<h3><code class="docutils literal notranslate"><span class="pre">flags_by_group</span></code><a class="headerlink" href="#flags-by-group" title="Link to this heading">#</a></h3>
+<p>Collapses the per-type boolean flags into one <code class="docutils literal notranslate"><span class="pre">visual_group_*</span></code> key per representation family. Several types are rare in any single corpus, so the families give a workable predictor set for modeling while the per-type flags remain available for description.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">flags_by_group</span><span class="p">,</span> <span class="n">group_names</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">group_names</span><span class="p">)</span>
+<span class="c1"># [&#39;data_display&#39;, &#39;geometric&#39;, &#39;number_quantity&#39;, &#39;organizational&#39;,</span>
+<span class="c1">#  &#39;other_visual&#39;, &#39;part_whole_model&#39;]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">flags_by_group</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="c1"># {&#39;visual_group_data_display&#39;: 1, &#39;visual_group_geometric&#39;: 0, ...}</span>
+</pre></div>
+</div>
+<p>Keys other than the type names are ignored, so a full classification result can be passed directly.</p>
+</section>
+</section>
+<section id="multimodal-item">
+<h2>Multimodal Item<a class="headerlink" href="#multimodal-item" title="Link to this heading">#</a></h2>
+<section id="multimodalanalyzer">
+<h3><code class="docutils literal notranslate"><span class="pre">MultimodalAnalyzer</span></code><a class="headerlink" href="#multimodalanalyzer" title="Link to this heading">#</a></h3>
+<p>Runs every analyzer over one item and returns a flat <code class="docutils literal notranslate"><span class="pre">prefix_*</span></code> dict. Aliased as
+<code class="docutils literal notranslate"><span class="pre">ItemFeatureExtractor</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalAnalyzer</span>
+
+<span class="n">row</span> <span class="o">=</span> <span class="n">MultimodalAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;Which fraction is larger, 2/3 or 3/4?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="notation">
+<h2>Notation<a class="headerlink" href="#notation" title="Link to this heading">#</a></h2>
+<section id="normalize-math-notation">
+<h3><code class="docutils literal notranslate"><span class="pre">normalize_math_notation</span></code><a class="headerlink" href="#normalize-math-notation" title="Link to this heading">#</a></h3>
+<p>Converts LaTeX and hybrid-ASCII math markup to one plain-text grammar, so the
+same expression is not counted as several different things.</p>
+</section>
+<section id="insert-operators">
+<h3><code class="docutils literal notranslate"><span class="pre">insert_operators</span></code><a class="headerlink" href="#insert-operators" title="Link to this heading">#</a></h3>
+<p>Inserts operators a reference rendering carries and the text lacks. The two are
+accepted as the same content only when every letter and digit agrees, so the
+result differs by operators alone.</p>
+</section>
+</section>
+<section id="morphology">
+<h2>Morphology<a class="headerlink" href="#morphology" title="Link to this heading">#</a></h2>
+<section id="morphology-features">
+<h3><code class="docutils literal notranslate"><span class="pre">morphology_features</span></code><a class="headerlink" href="#morphology-features" title="Link to this heading">#</a></h3>
+<p>Counts of meaning-bearing morphemes below the word: nominalization, Greek and
+Latin roots, derivational suffixes.</p>
+</section>
+</section>
+<section id="symbolic-notation">
+<h2>Symbolic Notation<a class="headerlink" href="#symbolic-notation" title="Link to this heading">#</a></h2>
+<section id="symbolic-features">
+<h3><code class="docutils literal notranslate"><span class="pre">symbolic_features</span></code><a class="headerlink" href="#symbolic-features" title="Link to this heading">#</a></h3>
+<p>Counts of relations carried by notation rather than by wording. <code class="docutils literal notranslate"><span class="pre">channel_pairs</span></code>
+names the <code class="docutils literal notranslate"><span class="pre">sym_*</span></code> measures that have a <code class="docutils literal notranslate"><span class="pre">rel_*</span></code> counterpart, so the two channels
+can be compared.</p>
+</section>
+</section>
+<section id="fractions">
+<h2>Fractions<a class="headerlink" href="#fractions" title="Link to this heading">#</a></h2>
+<section id="fraction-features">
+<h3><code class="docutils literal notranslate"><span class="pre">fraction_features</span></code><a class="headerlink" href="#fraction-features" title="Link to this heading">#</a></h3>
+<p>Structural features of every fraction in the text, in digit or word form:
+denominator magnitude, unit fractions, unlike denominators, unreduced forms.</p>
+</section>
+</section>
+<section id="cross-modal-reference">
+<h2>Cross-modal Reference<a class="headerlink" href="#cross-modal-reference" title="Link to this heading">#</a></h2>
+<section id="crossmodal-features">
+<h3><code class="docutils literal notranslate"><span class="pre">crossmodal_features</span></code><a class="headerlink" href="#crossmodal-features" title="Link to this heading">#</a></h3>
+<p>Every cross-modal measure for one item. <code class="docutils literal notranslate"><span class="pre">deictic_features</span></code> counts pointers to
+the image (“shown above”); <code class="docutils literal notranslate"><span class="pre">label_features</span></code> counts references to a labeled
+element inside it (“angle A”).</p>
+</section>
+</section>
+<section id="geometry">
+<h2>Geometry<a class="headerlink" href="#geometry" title="Link to this heading">#</a></h2>
+<section id="classify-shapes">
+<h3><code class="docutils literal notranslate"><span class="pre">classify_shapes</span></code><a class="headerlink" href="#classify-shapes" title="Link to this heading">#</a></h3>
+<p>Counts of geometric shape subtypes from contour analysis: triangle and
+quadrilateral subtypes, regular polygons, fill and partition structure.</p>
+</section>
+</section>
+<section id="feature-redundancy">
+<h2>Feature Redundancy<a class="headerlink" href="#feature-redundancy" title="Link to this heading">#</a></h2>
+<section id="dependent-sets">
+<h3><code class="docutils literal notranslate"><span class="pre">dependent_sets</span></code><a class="headerlink" href="#dependent-sets" title="Link to this heading">#</a></h3>
+<p>Every composite in a column set whose components are also present, so a caller
+can see what would make a correlation matrix singular. <code class="docutils literal notranslate"><span class="pre">drop_composites</span></code> and
+<code class="docutils literal notranslate"><span class="pre">drop_components</span></code> apply the two reductions; <code class="docutils literal notranslate"><span class="pre">composite_features</span></code> and
+<code class="docutils literal notranslate"><span class="pre">near_duplicates</span></code> declare the structure.</p>
+</section>
+</section>
+<section id="figure-region">
+<h2>Figure Region<a class="headerlink" href="#figure-region" title="Link to this heading">#</a></h2>
+<section id="crop-to-box">
+<h3><code class="docutils literal notranslate"><span class="pre">crop_to_box</span></code><a class="headerlink" href="#crop-to-box" title="Link to this heading">#</a></h3>
+<p>Crops an image to a figure box and returns the region measured, <code class="docutils literal notranslate"><span class="pre">&quot;figure&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;frame&quot;</span></code>. <code class="docutils literal notranslate"><span class="pre">trim_margin</span></code> removes capture margin so a ratio does not depend on
+how much white surrounds the item.</p>
+</section>
+<section id="flags-by-group-flags-by-sign">
+<h3><code class="docutils literal notranslate"><span class="pre">flags_by_group</span></code>, <code class="docutils literal notranslate"><span class="pre">flags_by_sign</span></code><a class="headerlink" href="#flags-by-group-flags-by-sign" title="Link to this heading">#</a></h3>
+<p>Collapse the per-type flags into representation families (<code class="docutils literal notranslate"><span class="pre">group_names</span></code>) or
+Peircean sign classes (<code class="docutils literal notranslate"><span class="pre">sign_names</span></code>, <code class="docutils literal notranslate"><span class="pre">visual_model_signs</span></code>). <code class="docutils literal notranslate"><span class="pre">visual_functions</span></code>
+lists the three instructional function labels.</p>
+</section>
+</section>
+<section id="document-segmentation">
+<h2>Document Segmentation<a class="headerlink" href="#document-segmentation" title="Link to this heading">#</a></h2>
+<p>Released test documents hold many items in one file, marked by an identifier line. Whether that line precedes or follows the block it names varies by publisher, and both readings parse without error — so a wrong choice is silent and shifts every item’s content by one position.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">segment_docx</span><span class="p">,</span> <span class="n">check_alignment</span>
+
+<span class="n">items</span> <span class="o">=</span> <span class="n">segment_docx</span><span class="p">(</span>
+    <span class="s2">&quot;released-test.docx&quot;</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;Question ID:&quot;</span><span class="p">,</span>
+    <span class="n">label_position</span><span class="o">=</span><span class="s2">&quot;trailing&quot;</span><span class="p">,</span>
+    <span class="n">skip_prefixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_____&quot;</span><span class="p">,</span> <span class="s2">&quot;Item Detail&quot;</span><span class="p">],</span>
+    <span class="n">section_markers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Item Detail - Question Description&quot;</span><span class="p">:</span> <span class="s2">&quot;description&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">label_position</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;leading&quot;</span></code> when the marker introduces the block below it, <code class="docutils literal notranslate"><span class="pre">&quot;trailing&quot;</span></code> when it names the block above. <code class="docutils literal notranslate"><span class="pre">section_markers</span></code> routes text under a named header into its own field, so descriptive metadata does not contaminate the item body. Each record holds <code class="docutils literal notranslate"><span class="pre">item_id</span></code>, <code class="docutils literal notranslate"><span class="pre">text</span></code>, <code class="docutils literal notranslate"><span class="pre">images</span></code>, and any named sections.</p>
+<p>Confirm the reading before an analysis depends on it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">check_alignment</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="p">{</span><span class="n">item_id</span><span class="p">:</span> <span class="n">expected_description</span><span class="p">})</span>
+<span class="c1"># {&#39;own&#39;: 1180, &#39;next&#39;: 84, &#39;previous&#39;: 6, &#39;compared&#39;: 1270,</span>
+<span class="c1">#  &#39;proportions&#39;: {...}, &#39;verdict&#39;: &#39;aligned&#39;}</span>
+</pre></div>
+</div>
+<p>A verdict of <code class="docutils literal notranslate"><span class="pre">shifted_next</span></code> means identifiers lag the content by one position — switch <code class="docutils literal notranslate"><span class="pre">label_position</span></code> and re-check. Comparing image counts between the two readings is a second signal: the wrong reading silently drops content that precedes the first marker.</p>
+<section id="body-paragraphs-paragraph-images-paragraph-text">
+<h3><code class="docutils literal notranslate"><span class="pre">body_paragraphs</span></code>, <code class="docutils literal notranslate"><span class="pre">paragraph_images</span></code>, <code class="docutils literal notranslate"><span class="pre">paragraph_text</span></code><a class="headerlink" href="#body-paragraphs-paragraph-images-paragraph-text" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">doc.paragraphs</span></code> skips any paragraph nested in a table, and paragraph text
+omits equation objects, so both losses are silent. <code class="docutils literal notranslate"><span class="pre">body_paragraphs</span></code> returns
+every paragraph in document order including those inside tables,
+<code class="docutils literal notranslate"><span class="pre">paragraph_images</span></code> returns the image bytes each paragraph carries, and
+<code class="docutils literal notranslate"><span class="pre">paragraph_text</span></code> reads a paragraph with its equations rendered as text.</p>
+</section>
+</section>
+<section id="cohesion">
+<h2>Cohesion<a class="headerlink" href="#cohesion" title="Link to this heading">#</a></h2>
+<p>Discourse measures for extended writing and dialogue, where readability formulas do not apply. Deterministic, standard library only, no network call.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohesion_features</span>
+
+<span class="n">cohesion_features</span><span class="p">(</span><span class="s2">&quot;The slope rises. However it falls later. Therefore we checked.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;connective_additive&#39;: 0, &#39;connective_causal&#39;: 1, &#39;connective_adversative&#39;: 1,</span>
+<span class="c1">#  &#39;connective_total&#39;: 2, &#39;connective_per_100w&#39;: 16.7,</span>
+<span class="c1">#  &#39;overlap_adjacent_mean&#39;: 0.25, &#39;lexical_diversity&#39;: 0.85,</span>
+<span class="c1">#  &#39;pronoun_per_100w&#39;: 8.3, &#39;unit_count&#39;: 3}</span>
+</pre></div>
+</div>
+<p>Accepts a string, split into sentences, or a sequence of units such as turns from <code class="docutils literal notranslate"><span class="pre">segment_turns</span></code>.</p>
+<p>Individual measures are available as <code class="docutils literal notranslate"><span class="pre">connective_density</span></code>, <code class="docutils literal notranslate"><span class="pre">lexical_overlap</span></code>, <code class="docutils literal notranslate"><span class="pre">lexical_diversity</span></code>, and <code class="docutils literal notranslate"><span class="pre">pronoun_density</span></code>. Connectives are grouped as additive, causal, temporal, adversative, and clarifying, matched longest-phrase-first so <code class="docutils literal notranslate"><span class="pre">on</span> <span class="pre">the</span> <span class="pre">other</span> <span class="pre">hand</span></code> is not double-counted as <code class="docutils literal notranslate"><span class="pre">but</span></code>. Lexical diversity uses a moving-average ratio so it does not fall with text length. Numerals are excluded from token counts, since numeric values are not lexical repetition.</p>
+</section>
+<section id="de-identification">
+<h2>De-identification<a class="headerlink" href="#de-identification" title="Link to this heading">#</a></h2>
+<p>Classroom transcripts and student writing carry names and contact details. Run this before anything else touches the data. Local and deterministic — nothing is transmitted.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deidentify_turns</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">segment_turns</span>
+
+<span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">&quot;lesson.vtt&quot;</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">&quot;vtt&quot;</span><span class="p">)</span>
+<span class="n">clean</span> <span class="o">=</span> <span class="n">deidentify_turns</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
+<span class="c1"># speaker labels become &quot;Speaker 1&quot;, &quot;Speaker 2&quot;; names in text become [NAME]</span>
+
+<span class="n">scan</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>   <span class="c1"># report what is present without changing anything</span>
+</pre></div>
+</div>
+<p>Masks emails, phone numbers, URLs, social security numbers, student IDs, dates, and titled names such as <code class="docutils literal notranslate"><span class="pre">Ms.</span> <span class="pre">Rivera</span></code>. <code class="docutils literal notranslate"><span class="pre">deidentify_turns</span></code> also removes speaker names from the body text, since speakers address each other by name. Pass <code class="docutils literal notranslate"><span class="pre">names=[...]</span></code> to remove additional names, and <code class="docutils literal notranslate"><span class="pre">keep=[&quot;url&quot;]</span></code> to retain a category.</p>
+<p>Matching is pattern-based, so it will not catch every name. Review <code class="docutils literal notranslate"><span class="pre">scan</span></code> output before treating a transcript as clean.</p>
+</section>
+<section id="dialogue">
+<h2>Dialogue<a class="headerlink" href="#dialogue" title="Link to this heading">#</a></h2>
+<p>Splits a transcript into speaker turns and reports turn-level measures. Runs locally with no network call, so transcripts are never transmitted.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">segment_turns</span><span class="p">,</span> <span class="n">turn_measures</span><span class="p">,</span> <span class="n">check_speakers</span>
+
+<span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">&quot;lesson.vtt&quot;</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">&quot;vtt&quot;</span><span class="p">)</span>
+<span class="n">turn_measures</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
+<span class="c1"># {&#39;turns&#39;: 42, &#39;speakers&#39;: 3, &#39;talk_share&#39;: {&#39;Teacher&#39;: 0.61, ...},</span>
+<span class="c1">#  &#39;mean_turn_words&#39;: 14.3, &#39;uptake_mean&#39;: 0.18}</span>
+</pre></div>
+</div>
+<p>Formats: <code class="docutils literal notranslate"><span class="pre">plain</span></code> for <code class="docutils literal notranslate"><span class="pre">Speaker:</span> <span class="pre">text</span></code> lines, <code class="docutils literal notranslate"><span class="pre">vtt</span></code> and <code class="docutils literal notranslate"><span class="pre">srt</span></code> for captions, <code class="docutils literal notranslate"><span class="pre">csv</span></code> with <code class="docutils literal notranslate"><span class="pre">speaker_key</span></code> and <code class="docutils literal notranslate"><span class="pre">text_key</span></code>. <code class="docutils literal notranslate"><span class="pre">uptake_mean</span></code> is the lexical overlap between adjacent turns by different speakers.</p>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">text=</span></code> to segment an in-memory string, with <code class="docutils literal notranslate"><span class="pre">separator</span></code> for turns that are not newline-delimited and <code class="docutils literal notranslate"><span class="pre">strip_pattern</span></code> to drop inline annotations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;conversation&quot;</span><span class="p">],</span>
+    <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;|EOM|&quot;</span><span class="p">,</span>
+    <span class="n">strip_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\((?:generic|focus|probing|telling)\)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">check_speakers</span></code> flags labels likely to be transcription artifacts — speakers appearing once, near-duplicate spellings, and runs of consecutive same-speaker turns.</p>
+<p>Readability formulas assume written prose with sentence boundaries and are not valid on transcripts. Use the math-content and dialogue measures instead.</p>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<p>Automated labels need checking against human coders. This module draws the sample, emits the coding instrument, and scores agreement. Standard library only.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">stratified_sample</span><span class="p">,</span> <span class="n">write_coding_sheets</span><span class="p">,</span> <span class="n">write_label_studio</span><span class="p">,</span>
+    <span class="n">score_agreement</span><span class="p">,</span> <span class="n">disagreements</span><span class="p">,</span> <span class="n">ocr_rubric</span><span class="p">,</span> <span class="n">visual_rubric</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sample</span> <span class="o">=</span> <span class="n">stratified_sample</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tier&quot;</span><span class="p">,</span> <span class="s2">&quot;band&quot;</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2026</span><span class="p">)</span>
+<span class="n">write_coding_sheets</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">ocr_rubric</span><span class="p">,</span> <span class="s2">&quot;output/validation&quot;</span><span class="p">,</span> <span class="n">carry</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">])</span>
+<span class="n">write_label_studio</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">visual_rubric</span><span class="p">,</span> <span class="s2">&quot;output/validation&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">stratified_sample</span></code> allocates proportionally with a floor per stratum, so rare categories are not lost. <code class="docutils literal notranslate"><span class="pre">write_coding_sheets</span></code> writes one blank sheet per rater plus the rubric. <code class="docutils literal notranslate"><span class="pre">write_label_studio</span></code> writes a task file and a labeling-interface config for <a class="reference external" href="https://labelstud.io/">Label Studio</a>, carrying provenance fields into each task.</p>
+<p>Score the completed sheets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">score_agreement</span><span class="p">(</span><span class="n">rows_a</span><span class="p">,</span> <span class="n">rows_b</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">ocr_rubric</span><span class="p">))</span>
+<span class="c1"># {&#39;hallucinated_content&#39;: {&#39;agreement&#39;: 0.96, &#39;kappa&#39;: 0.71, &#39;n&#39;: 135}, ...}</span>
+
+<span class="n">disagreements</span><span class="p">(</span><span class="n">rows_a</span><span class="p">,</span> <span class="n">rows_b</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">ocr_rubric</span><span class="p">))</span>   <span class="c1"># rows needing adjudication</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ocr_rubric</span></code> covers extraction completeness and hallucinated content. <code class="docutils literal notranslate"><span class="pre">visual_rubric</span></code> covers the types and the function labels, drawn from <code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code> so coders and the classifier share one definition.</p>
+</section>
+<section id="data-handling">
+<h2>Data Handling<a class="headerlink" href="#data-handling" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">MultimodalOCR.extract()</span></code> and <code class="docutils literal notranslate"><span class="pre">VisualModelClassifier.classify()</span></code> send image data to the configured provider. Every other analyzer runs locally.</p>
+<p>Defaults are <code class="docutils literal notranslate"><span class="pre">https://generativelanguage.googleapis.com/v1beta</span></code> and <code class="docutils literal notranslate"><span class="pre">https://api.openai.com/v1</span></code>. Setting <code class="docutils literal notranslate"><span class="pre">base_url</span></code> redirects to any OpenAI-compatible endpoint, including a local server, in which case nothing is transmitted. Results record <code class="docutils literal notranslate"><span class="pre">provider</span></code>, <code class="docutils literal notranslate"><span class="pre">model</span></code>, <code class="docutils literal notranslate"><span class="pre">base_url</span></code>, and <code class="docutils literal notranslate"><span class="pre">extracted_at</span></code>.</p>
+<p>Provider terms differ by tier and change. As of this release, unpaid Gemini API content may be used to improve Google products and read by human reviewers; paid-tier content is not used for training; EEA, Swiss, and UK users get paid terms on all tiers. Verify at <a class="reference external" href="https://ai.google.dev/gemini-api/terms">Gemini</a> and <a class="reference external" href="https://openai.com/policies/api-data-usage-policies">OpenAI</a>.</p>
+<p>Before sending secure or restricted items: check the governing agreement, confirm which tier the key belongs to, and consider a local endpoint.</p>
+<p>The package sends no telemetry, writes no extracted content to disk, downloads no models, and distributes no assessment items.</p>
+<section id="compute-interrater-reliability">
+<h3><code class="docutils literal notranslate"><span class="pre">compute_interrater_reliability</span></code><a class="headerlink" href="#compute-interrater-reliability" title="Link to this heading">#</a></h3>
+<p>Agreement and Cohen’s kappa between two raters, over matched rows.</p>
+</section>
+<section id="safe-get">
+<h3><code class="docutils literal notranslate"><span class="pre">safe_get</span></code><a class="headerlink" href="#safe-get" title="Link to this heading">#</a></h3>
+<p>Retrieves a nested value from a dict, returning a default on any miss.</p>
+</section>
+</section>
+<section id="provenance-and-limitations">
+<h2>Provenance and Limitations<a class="headerlink" href="#provenance-and-limitations" title="Link to this heading">#</a></h2>
+<p>Representation types follow Lesh et al. (1987) and Duval (2006); the data-display family follows Friel et al. (2001); domain and grade-band columns map to CCSSM (NGA &amp; CCSSO, 2010). The <code class="docutils literal notranslate"><span class="pre">pattern_visual</span></code>, <code class="docutils literal notranslate"><span class="pre">picture</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code> rows are author-derived.</p>
+<p>The three function labels <strong>adapt</strong> Levin et al. (1987), retaining <em>decorative</em> and <em>representational</em> and collapsing <em>interpretational</em> and <em>transformational</em> into <code class="docutils literal notranslate"><span class="pre">essential</span></code>, because assessment items call for a solve-relevance judgment. This is an adaptation, not an implementation of the five-category scheme.</p>
+<p>Classification is not deterministic: temperature is 0.1, no seed is available, and hosted models change over time. Record the model identifier and date, cache results rather than re-classifying, and report vote agreement when <code class="docutils literal notranslate"><span class="pre">votes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
+<p><strong>Classifier accuracy against human coders has not been established.</strong> Treat labels as provisional and validate against hand-coded items before relying on them for inference.</p>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Carney, R. N., &amp; Levin, J. R. (2002). Pictorial illustrations still improve students’ learning from text. <em>Educational Psychology Review, 14</em>(1), 5-26. <a class="reference external" href="https://doi.org/10.1023/A:1013176309260">https://doi.org/10.1023/A:1013176309260</a></p></li>
+<li><p>Duval, R. (2006). A cognitive analysis of problems of comprehension in a learning of mathematics. <em>Educational Studies in Mathematics, 61</em>(1-2), 103-131. <a class="reference external" href="https://doi.org/10.1007/s10649-006-0400-z">https://doi.org/10.1007/s10649-006-0400-z</a></p></li>
+<li><p>Friel, S. N., Curcio, F. R., &amp; Bright, G. W. (2001). Making sense of graphs. <em>Journal for Research in Mathematics Education, 32</em>(2), 124-158.</p></li>
+<li><p>Lesh, R., Post, T., &amp; Behr, M. (1987). Representations and translations among representations in mathematics learning and problem solving. In C. Janvier (Ed.), <em>Problems of representation in the teaching and learning of mathematics</em> (pp. 33-40). Erlbaum.</p></li>
+<li><p>Levin, J. R., Anglin, G. J., &amp; Carney, R. N. (1987). On empirically validating functions of pictures in prose. In D. M. Willows &amp; H. A. Houghton (Eds.), <em>The psychology of illustration</em> (Vol. 1, pp. 51-85). Springer.</p></li>
+<li><p>National Governors Association Center for Best Practices &amp; Council of Chief State School Officers. (2010). <em>Common Core State Standards for Mathematics.</em></p></li>
+</ul>
+</section>
+</section>
+<section id="sample-data">
+<h2>Sample Data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
+<p>No assessment items are distributed with mathipy. These helpers resolve paths inside a directory supplied by the user — set <code class="docutils literal notranslate"><span class="pre">MATHIPY_DATA_DIR</span></code> to a folder holding item images and a metadata CSV.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MATHIPY_DATA_DIR</span><span class="o">=</span>/path/to/items
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">data_directory</span><span class="p">,</span> <span class="n">get_sample_csv</span><span class="p">,</span> <span class="n">get_sample_image</span><span class="p">,</span> <span class="n">list_sample_images</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">data_directory</span><span class="p">())</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">list_sample_images</span><span class="p">()</span>          <span class="c1"># [] when the directory holds no PNGs</span>
+<span class="n">csv_path</span> <span class="o">=</span> <span class="n">get_sample_csv</span><span class="p">()</span>            <span class="c1"># path only; may not exist</span>
+<span class="n">image_path</span> <span class="o">=</span> <span class="n">get_sample_image</span><span class="p">(</span><span class="s2">&quot;demo-g4-algebra&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The functions return paths without requiring the files to exist, so check <code class="docutils literal notranslate"><span class="pre">Path.exists()</span></code> before reading. <code class="docutils literal notranslate"><span class="pre">get_sample_image</span></code> rejects item IDs containing path separators or characters outside <code class="docutils literal notranslate"><span class="pre">A-Z</span> <span class="pre">a-z</span> <span class="pre">0-9</span> <span class="pre">_</span> <span class="pre">-</span> <span class="pre">space</span> <span class="pre">#</span></code>.</p>
+</section>
+<section id="mathematics-register">
+<h2>Mathematics Register<a class="headerlink" href="#mathematics-register" title="Link to this heading">#</a></h2>
+<p>Existing item features count how much text an item carries. These describe what
+the language does: which relation the wording encodes, which kind of number it
+names, and whether an everyday word is being used in its mathematical sense.</p>
+<p>Depends only on the standard library.</p>
+<section id="register-features">
+<h3><code class="docutils literal notranslate"><span class="pre">register_features</span></code><a class="headerlink" href="#register-features" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_features</span>
+
+<span class="n">register_features</span><span class="p">(</span><span class="s2">&quot;Ann has 5 less than Ben. The table shows 1/2.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;rel_comparison&#39;: 1, &#39;rel_order_reversed&#39;: 1, &#39;rel_partitive&#39;: 1, ...</span>
+<span class="c1">#  &#39;num_fraction&#39;: 1, &#39;homonym_count&#39;: 1, &#39;homonym_unique&#39;: 1}</span>
+</pre></div>
+</div>
+<p>Returns every measure below in one dictionary.</p>
+</section>
+<section id="relational-features">
+<h3><code class="docutils literal notranslate"><span class="pre">relational_features</span></code><a class="headerlink" href="#relational-features" title="Link to this heading">#</a></h3>
+<p>Counts of the relations the wording encodes: comparison, rate, multiplicative,
+partitive, distribution, and division.</p>
+<p><code class="docutils literal notranslate"><span class="pre">rel_order_reversed</span></code> counts the marked comparative, in which a quantity precedes
+the comparative as in <em>five less than Ben</em>. The operands then appear in the
+reverse of the order the operation needs, which is a documented source of error
+(Lewis &amp; Mayer, 1987).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">relational_features</span>
+
+<span class="n">relational_features</span><span class="p">(</span><span class="s2">&quot;Ann has 5 less than Ben.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;rel_comparison&#39;: 1, &#39;rel_order_reversed&#39;: 1, &#39;rel_total&#39;: 1, ...}</span>
+</pre></div>
+</div>
+</section>
+<section id="number-features">
+<h3><code class="docutils literal notranslate"><span class="pre">number_features</span></code><a class="headerlink" href="#number-features" title="Link to this heading">#</a></h3>
+<p>Numbers split by what they do: count a set, index a position, name a part, or
+identify an object. Treating every number as a count misdescribes ordinary text
+(Woodin &amp; Winter, 2024), and the kinds make different demands on a reader.
+<code class="docutils literal notranslate"><span class="pre">num_round</span></code> counts values that signal approximation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">number_features</span>
+
+<span class="n">number_features</span><span class="p">(</span><span class="s2">&quot;The 3rd bus carries 40 people and 1/2 of the seats are free.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;num_cardinal&#39;: 1, &#39;num_ordinal&#39;: 1, &#39;num_fraction&#39;: 1, &#39;num_round&#39;: 1, ...}</span>
+</pre></div>
+</div>
+</section>
+<section id="homonym-features">
+<h3><code class="docutils literal notranslate"><span class="pre">homonym_features</span></code><a class="headerlink" href="#homonym-features" title="Link to this heading">#</a></h3>
+<p>Everyday words carrying a distinct mathematical sense, such as <em>table</em>, <em>mean</em>,
+<em>product</em>, <em>power</em>, <em>base</em>, <em>root</em>, <em>plane</em>, <em>right</em>, and <em>odd</em>. A reader must
+choose between the two senses, which is one of the demands the register places
+on comprehension (Schleppegrell, 2007).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">homonym_features</span>
+
+<span class="n">homonym_features</span><span class="p">(</span><span class="s2">&quot;The table shows the mean and the range.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;homonym_count&#39;: 3, &#39;homonym_unique&#39;: 3}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026 Mikyung Shin.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
