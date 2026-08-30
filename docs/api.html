@@ -960,7 +960,7 @@ every paragraph in document order including those inside tables,
 </section>
 <section id="provenance-and-limitations">
 <h2>Provenance and Limitations<a class="headerlink" href="#provenance-and-limitations" title="Link to this heading">#</a></h2>
-<p>Representation types follow Lesh et al. (1987) and Duval (2006); the data-display family follows Friel et al. (2001); domain and grade-band columns map to CCSSM (NGA &amp; CCSSO, 2010). The <code class="docutils literal notranslate"><span class="pre">pattern_visual</span></code>, <code class="docutils literal notranslate"><span class="pre">picture</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code> rows are author-derived.</p>
+<p>Representation types follow Lesh et al. (1987); the data-display family follows Friel et al. (2001); domain and grade-band columns map to CCSSM (NGA &amp; CCSSO, 2010). The <code class="docutils literal notranslate"><span class="pre">pattern_visual</span></code>, <code class="docutils literal notranslate"><span class="pre">picture</span></code>, and <code class="docutils literal notranslate"><span class="pre">other</span></code> rows are author-derived.</p>
 <p>The three function labels <strong>adapt</strong> Levin et al. (1987), retaining <em>decorative</em> and <em>representational</em> and collapsing <em>interpretational</em> and <em>transformational</em> into <code class="docutils literal notranslate"><span class="pre">essential</span></code>, because assessment items call for a solve-relevance judgment. This is an adaptation, not an implementation of the five-category scheme.</p>
 <p>Classification is not deterministic: temperature is 0.1, no seed is available, and hosted models change over time. Record the model identifier and date, cache results rather than re-classifying, and report vote agreement when <code class="docutils literal notranslate"><span class="pre">votes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
 <p><strong>Classifier accuracy against human coders has not been established.</strong> Treat labels as provisional and validate against hand-coded items before relying on them for inference.</p>
@@ -968,11 +968,13 @@ every paragraph in document order including those inside tables,
 <h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Carney, R. N., &amp; Levin, J. R. (2002). Pictorial illustrations still improve students’ learning from text. <em>Educational Psychology Review, 14</em>(1), 5-26. <a class="reference external" href="https://doi.org/10.1023/A:1013176309260">https://doi.org/10.1023/A:1013176309260</a></p></li>
-<li><p>Duval, R. (2006). A cognitive analysis of problems of comprehension in a learning of mathematics. <em>Educational Studies in Mathematics, 61</em>(1-2), 103-131. <a class="reference external" href="https://doi.org/10.1007/s10649-006-0400-z">https://doi.org/10.1007/s10649-006-0400-z</a></p></li>
 <li><p>Friel, S. N., Curcio, F. R., &amp; Bright, G. W. (2001). Making sense of graphs. <em>Journal for Research in Mathematics Education, 32</em>(2), 124-158.</p></li>
 <li><p>Lesh, R., Post, T., &amp; Behr, M. (1987). Representations and translations among representations in mathematics learning and problem solving. In C. Janvier (Ed.), <em>Problems of representation in the teaching and learning of mathematics</em> (pp. 33-40). Erlbaum.</p></li>
 <li><p>Levin, J. R., Anglin, G. J., &amp; Carney, R. N. (1987). On empirically validating functions of pictures in prose. In D. M. Willows &amp; H. A. Houghton (Eds.), <em>The psychology of illustration</em> (Vol. 1, pp. 51-85). Springer.</p></li>
+<li><p>Lewis, A. B., &amp; Mayer, R. E. (1987). Students’ miscomprehension of relational statements in arithmetic word problems. <em>Journal of Educational Psychology, 79</em>(4), 363-371.</p></li>
 <li><p>National Governors Association Center for Best Practices &amp; Council of Chief State School Officers. (2010). <em>Common Core State Standards for Mathematics.</em></p></li>
+<li><p>Schleppegrell, M. J. (2007). The linguistic challenges of mathematics teaching and learning: A research review. <em>Reading &amp; Writing Quarterly, 23</em>(2), 139-159.</p></li>
+<li><p>Woodin, G., Winter, B., Littlemore, J., Perlman, M., &amp; Grieve, J. (2024). Large-scale patterns of number use in spoken and written English. <em>Corpus Linguistics and Linguistic Theory, 20</em>(1), 123-152.</p></li>
 </ul>
 </section>
 </section>
@@ -1028,7 +1030,7 @@ reverse of the order the operation needs, which is a documented source of error
 <h3><code class="docutils literal notranslate"><span class="pre">number_features</span></code><a class="headerlink" href="#number-features" title="Link to this heading">#</a></h3>
 <p>Numbers split by what they do: count a set, index a position, name a part, or
 identify an object. Treating every number as a count misdescribes ordinary text
-(Woodin &amp; Winter, 2024), and the kinds make different demands on a reader.
+(Woodin et al., 2024), and the kinds make different demands on a reader.
 <code class="docutils literal notranslate"><span class="pre">num_round</span></code> counts values that signal approximation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">number_features</span>
 
