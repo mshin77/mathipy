@@ -1,3 +1,8 @@
+# mathipy 0.4.6
+
+- Enlarges a wide, short figure, which the previous size test passed over.
+- Caps the enlarged size and leaves an image alone when enlarging would shrink it.
+
 # mathipy 0.4.5
 
 - Enlarges an image below 512 pixels on its long side before a vision call, so a

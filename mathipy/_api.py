@@ -41,6 +41,7 @@ image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", "
 
 max_file_size = 20 * 1024 * 1024  # 20 MB
 min_image_px = 512
+max_image_px = 2048
 
 _secret_pattern = re.compile(
     r'AIza[A-Za-z0-9_-]{30,}|sk-(?:proj-|ant-)?[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}'
@@ -101,11 +102,13 @@ def _upscale_small(data: bytes) -> tuple[bytes, str]:
         return data, "image/jpeg"
 
     fmt = "image/png" if (image.format or "").upper() == "PNG" else "image/jpeg"
-    long_side = max(image.size)
-    if not long_side or long_side >= min_image_px:
+    short_side, long_side = min(image.size), max(image.size)
+    if not short_side or short_side >= min_image_px:
         return data, fmt
 
-    scale = min_image_px / long_side
+    scale = min(min_image_px / short_side, max_image_px / long_side)
+    if scale <= 1:
+        return data, fmt
     size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
     if image.mode not in ("RGB", "L"):
         image = image.convert("RGB")
