@@ -1,6 +1,6 @@
 """mathipy - Multimodal item feature extraction for K-12 math assessment."""
 
-__version__ = "0.4.6"
+__version__ = "0.4.7"
 __author__ = "Mikyung Shin"
 __email__ = "shin.mikyung@gmail.com"
 
@@ -60,7 +60,6 @@ from mathipy.visual import (
     visual_functions,
     visual_model_definitions,
     visual_model_groups,
-    visual_model_info,
     visual_model_signs,
 )
 
@@ -81,7 +80,6 @@ __all__ = [
     "visual_functions",
     "visual_model_definitions",
     "visual_model_groups",
-    "visual_model_info",
     "visual_model_signs",
     "safe_get",
     "compute_interrater_reliability",

@@ -43,3 +43,4 @@ data/
 !mathipy/data/
 mathipy/data/*.png
 mathipy/data/*.md
+mathipy-*/

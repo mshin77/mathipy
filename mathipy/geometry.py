@@ -320,13 +320,7 @@ def _shaded_cells(binary: np.ndarray, contour: np.ndarray,
 
 
 def _shaded_regions(binary: np.ndarray, contour: np.ndarray, min_area: float) -> int:
-    """Number of solidly shaded sub-regions inside a partitioned figure.
-
-    A shaded cell of an area model is contiguous with the gridlines around it,
-    so it is not a hole and the hole count cannot see it. Counting holes alone
-    made ``shape_partition_count`` fall one-for-one as cells were shaded -
-    exactly ``(1 - fill)`` rather than a count of the model's parts.
-    """
+    """Number of solidly shaded sub-regions inside a partitioned figure."""
     mask = _interior_mask(binary.shape, contour)
     inside = cv2.bitwise_and(binary, mask)
     _, _, w, h = cv2.boundingRect(contour)
@@ -402,7 +396,7 @@ def classify_shapes(image_source: str | Path | np.ndarray) -> dict[str, int]:
         grid = _lattice(binary, contour)
         shaded = _shaded_cells(binary, contour, grid) if grid else 0
         if grid and abs(shaded / (grid[0] * grid[1]) - ratio) <= _LATTICE_TOL:
-            counts["shape_partition_count"] += grid[0] * grid[1] - holes[index]
+            counts["shape_partition_count"] += max(0, grid[0] * grid[1] - holes[index])
             counts["shape_shaded_partition_count"] += shaded
         else:
             regions = _shaded_regions(binary, contour, min_area)

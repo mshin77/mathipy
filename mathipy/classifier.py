@@ -38,10 +38,12 @@ classify_user_prompt = f"""For this math assessment item image, identify which v
 Return a JSON object with boolean values for each type, plus a "primary" field for the most prominent type,
 plus a "function" field for the instructional role of the image:
 {_function_lines}
-Return null for "function" only when the image carries no figure at all, that is
-when "primary" is text_only: a screenshot of prose, an answer interface, or a bare
-fragment of notation. An image that is itself a figure, including a cropped figure
-filling the frame, always takes a function label even when "figure_box" is null.
+Return "no_visual" for "function" exactly when "primary" is text_only, that is
+when the image carries no figure at all: a screenshot of prose, an answer interface,
+or a bare fragment of notation. An image that is itself a figure, including a cropped
+figure filling the frame, always takes essential or decorative even when "figure_box"
+is null. Never pair text_only with essential or decorative, and never pair a figure
+type with no_visual.
 
 Types:
 {_type_lines}
@@ -179,7 +181,7 @@ class VisualModelClassifier(VisionAPIClient):
         """
         result = {m: False for m in visual_models}
         result["text_only"] = True
-        result.update({"primary": "text_only", "function": None,
+        result.update({"primary": "text_only", "function": "no_visual",
                        "model_count": 1, "figure_box": None, "option_boxes": [],
                        "parsed": True, "status": "ok"})
         return result
@@ -283,13 +285,19 @@ class VisualModelClassifier(VisionAPIClient):
 
         primary = _normalize_label(parsed.get("primary"))
         if primary and primary not in visual_models:
-            primary = "other"
+            logger.warning("unrecognised primary %r; recording as unclassified", primary)
+            primary = None
 
         raw_function = parsed.get("function")
         function = _normalize_label(raw_function)
-        if function not in visual_functions:
-            function = ("unknown" if function and function != "null"
-                        else None)
+        if function in (None, "null"):
+            function = "no_visual" if primary == "text_only" else None
+        elif function not in visual_functions:
+            function = "unknown"
+        if primary == "text_only" and function in ("essential", "decorative"):
+            function = "no_visual"
+        elif primary and primary != "text_only" and function == "no_visual":
+            function = "unknown"
 
         box = _parse_box(parsed.get("figure_box"))
         option_boxes = _parse_boxes(parsed.get("option_boxes"))

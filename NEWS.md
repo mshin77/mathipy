@@ -1,3 +1,9 @@
+# mathipy 0.4.7
+
+- Names each visual type for what the figure encodes, not its topic or domain.
+- Records the instructional function as no visual, essential, or decorative.
+- Counts transformation words as geometry terms and keeps shaded-region counts positive.
+
 # mathipy 0.4.6
 
 - Enlarges a wide, short figure, which the previous size test passed over.

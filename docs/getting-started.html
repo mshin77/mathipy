@@ -531,7 +531,7 @@ and used for model training.</p>
 <span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;math_problem.png&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;primary&quot;</span><span class="p">])</span>   <span class="c1"># e.g. &quot;circle_graph&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">])</span>  <span class="c1"># &quot;essential&quot;, &quot;representational&quot;, &quot;decorative&quot;, or None</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">])</span>  <span class="c1"># &quot;no_visual&quot;, &quot;essential&quot;, or &quot;decorative&quot;</span>
 </pre></div>
 </div>
 <p>Twenty-six types is more granularity than most models can absorb, and several
@@ -549,7 +549,7 @@ majority, the primary type and function label by mode:</p>
 </pre></div>
 </div>
 <p>Pass the item’s text so the function judgment can compare the image against
-it; without it, <code class="docutils literal notranslate"><span class="pre">essential</span></code> vs <code class="docutils literal notranslate"><span class="pre">representational</span></code> is reliable only when the
+it; without it, <code class="docutils literal notranslate"><span class="pre">essential</span></code> vs <code class="docutils literal notranslate"><span class="pre">decorative</span></code> is reliable only when the
 image shows the complete item:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;math_problem.png&quot;</span><span class="p">,</span> <span class="n">item_text</span><span class="o">=</span><span class="s2">&quot;A store sells...&quot;</span><span class="p">)</span>
 </pre></div>

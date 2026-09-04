@@ -106,6 +106,9 @@ class MathContentAnalyzer:
                 "point", "line", "ray", "segment", "angle", "triangle",
                 "rectangle", "square", "circle", "polygon", "area",
                 "perimeter", "volume", "parallel", "perpendicular", "congruent",
+                "symmetry", "symmetric", "line of symmetry", "transformation",
+                "rotation", "reflection", "translation", "dilation",
+                "similar figure", "similar triangle", "scale drawing",
             },
             "statistics": {
                 "mean", "median", "mode", "range", "data", "graph", "chart",
