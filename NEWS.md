@@ -1,3 +1,8 @@
+# mathipy 0.4.9
+
+- Names construction workspaces, instrument shapes, and CCSSM terms in the types.
+- Counts conditional connectives and negations, and narrows the temporal class.
+
 # mathipy 0.4.8
 
 - Counts everyday-and-mathematical words as polysemy rather than homonymy.

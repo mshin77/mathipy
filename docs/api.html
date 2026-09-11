@@ -871,14 +871,14 @@ every paragraph in document order including those inside tables,
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohesion_features</span>
 
 <span class="n">cohesion_features</span><span class="p">(</span><span class="s2">&quot;The slope rises. However it falls later. Therefore we checked.&quot;</span><span class="p">)</span>
-<span class="c1"># {&#39;connective_additive&#39;: 0, &#39;connective_causal&#39;: 1, &#39;connective_adversative&#39;: 1,</span>
-<span class="c1">#  &#39;connective_total&#39;: 2, &#39;connective_per_100w&#39;: 16.7,</span>
-<span class="c1">#  &#39;overlap_adjacent_mean&#39;: 0.25, &#39;lexical_diversity&#39;: 0.85,</span>
-<span class="c1">#  &#39;pronoun_per_100w&#39;: 8.3, &#39;unit_count&#39;: 3}</span>
+<span class="c1"># {&#39;connective_additive&#39;: 0, &#39;connective_causal&#39;: 1, &#39;connective_conditional&#39;: 0,</span>
+<span class="c1">#  &#39;connective_adversative&#39;: 1, &#39;connective_total&#39;: 2, &#39;connective_per_100w&#39;: 20.0,</span>
+<span class="c1">#  &#39;overlap_adjacent_mean&#39;: 0.0, &#39;lexical_diversity&#39;: 1.0,</span>
+<span class="c1">#  &#39;pronoun_per_100w&#39;: 20.0, &#39;negation_count&#39;: 0, &#39;unit_count&#39;: 3}</span>
 </pre></div>
 </div>
 <p>Accepts a string, split into sentences, or a sequence of units such as turns from <code class="docutils literal notranslate"><span class="pre">segment_turns</span></code>.</p>
-<p>Individual measures are available as <code class="docutils literal notranslate"><span class="pre">connective_density</span></code>, <code class="docutils literal notranslate"><span class="pre">lexical_overlap</span></code>, <code class="docutils literal notranslate"><span class="pre">lexical_diversity</span></code>, and <code class="docutils literal notranslate"><span class="pre">pronoun_density</span></code>. Connectives are grouped as additive, causal, temporal, adversative, and clarifying, matched longest-phrase-first so <code class="docutils literal notranslate"><span class="pre">on</span> <span class="pre">the</span> <span class="pre">other</span> <span class="pre">hand</span></code> is not double-counted as <code class="docutils literal notranslate"><span class="pre">but</span></code>. Lexical diversity uses a moving-average ratio so it does not fall with text length. Numerals are excluded from token counts, since numeric values are not lexical repetition.</p>
+<p>Individual measures are available as <code class="docutils literal notranslate"><span class="pre">connective_density</span></code>, <code class="docutils literal notranslate"><span class="pre">lexical_overlap</span></code>, <code class="docutils literal notranslate"><span class="pre">lexical_diversity</span></code>, <code class="docutils literal notranslate"><span class="pre">pronoun_density</span></code>, and <code class="docutils literal notranslate"><span class="pre">negation_density</span></code>. Connectives are grouped as additive, causal, temporal, conditional, adversative, and clarifying, matched longest-phrase-first so <code class="docutils literal notranslate"><span class="pre">on</span> <span class="pre">the</span> <span class="pre">other</span> <span class="pre">hand</span></code> is not double-counted as <code class="docutils literal notranslate"><span class="pre">but</span></code>. Lexical diversity uses a moving-average ratio so it does not fall with text length. Numerals are excluded from token counts, since numeric values are not lexical repetition.</p>
 </section>
 <section id="de-identification">
 <h2>De-identification<a class="headerlink" href="#de-identification" title="Link to this heading">#</a></h2>

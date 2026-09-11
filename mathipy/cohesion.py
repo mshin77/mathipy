@@ -11,12 +11,19 @@ connectives = {
                  "besides", "similarly", "likewise"],
     "causal": ["as a result", "because of", "because", "therefore", "thus", "hence",
                "consequently", "since", "so that"],
-    "temporal": ["at the same time", "meanwhile", "afterward", "finally", "then",
+    "temporal": ["at the same time", "meanwhile", "afterward", "finally",
                  "next", "before", "after", "first", "second"],
+    "conditional": ["if and only if", "provided that", "given that", "in that case",
+                    "whenever", "otherwise", "unless", "if", "then"],
     "adversative": ["on the other hand", "even though", "however", "although",
                     "nevertheless", "whereas", "instead", "yet", "but"],
     "clarifying": ["for example", "for instance", "in other words", "that is",
                    "specifically", "namely"],
+}
+
+negations = {
+    "not", "no", "never", "none", "neither", "nor", "without", "cannot",
+    "can't", "don't", "doesn't", "isn't", "aren't", "won't", "didn't",
 }
 
 pronouns = {
@@ -137,6 +144,20 @@ def pronoun_density(text: str) -> dict[str, float]:
             "pronoun_count": hits}
 
 
+def negation_density(text: str) -> dict[str, float]:
+    """Negations per 100 words.
+
+    S-CP.1 names "or", "and", "not" as the operators a student must read; the
+    first two are conjunctions the connective classes already carry.
+    """
+    tokens = _words(text)
+    if not tokens:
+        return {"negation_per_100w": 0.0, "negation_count": 0}
+    hits = sum(1 for w in tokens if w in negations)
+    return {"negation_per_100w": round(100 * hits / len(tokens), 3),
+            "negation_count": hits}
+
+
 def cohesion_features(source: str | Sequence[str]) -> dict[str, Any]:
     """Return all cohesion measures for a text or a sequence of units."""
     if isinstance(source, str):
@@ -151,5 +172,6 @@ def cohesion_features(source: str | Sequence[str]) -> dict[str, Any]:
         **lexical_overlap(units),
         **lexical_diversity(text),
         **pronoun_density(text),
+        **negation_density(text),
         "unit_count": len(units),
     }
