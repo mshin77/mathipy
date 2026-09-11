@@ -1,3 +1,7 @@
+# mathipy 0.4.10
+
+- Names the visual type from the item text as well as the figure, never from the topic.
+
 # mathipy 0.4.9
 
 - Names construction workspaces, instrument shapes, and CCSSM terms in the types.

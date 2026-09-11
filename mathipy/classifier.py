@@ -126,7 +126,10 @@ def _build_user_prompt(item_text: str | None = None) -> str:
     if item_text is None:
         return classify_user_prompt
     return (classify_user_prompt
-            + f'\n\nItem text (judge the "function" field against it):\n{item_text}')
+            + f'\n\nItem text. Judge the "function" field against it, and use it to identify '
+              'what the marks in the figure are: points named as the corners of a square are '
+              'the vertices of a polygon. Never take the type from the item topic, so a '
+              f'rectangle in an item about area is polygon, not area_model.\n{item_text}')
 
 
 class VisualModelClassifier(VisionAPIClient):
