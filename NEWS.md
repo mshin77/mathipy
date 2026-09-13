@@ -1,3 +1,9 @@
+# mathipy 0.4.12
+
+- Quotes the item text between markers so a provider that declines assessment
+  questions still classifies the figure.
+- Keeps the item when a vote is refused.
+
 # mathipy 0.4.11
 
 - Reads the item text only to name marks the image already shows.

@@ -101,7 +101,9 @@ def _upscale_small(data: bytes) -> tuple[bytes, str]:
     except Exception:
         return data, "image/jpeg"
 
-    fmt = "image/png" if (image.format or "").upper() == "PNG" else "image/jpeg"
+    fmt = {"PNG": "image/png", "JPEG": "image/jpeg", "GIF": "image/gif",
+           "WEBP": "image/webp", "BMP": "image/bmp"}.get(
+        (image.format or "").upper(), "image/jpeg")
     short_side, long_side = min(image.size), max(image.size)
     if not short_side or short_side >= min_image_px:
         return data, fmt
@@ -355,4 +357,9 @@ class VisionAPIClient:
 
         data = response.json()
         choice = data.get("choices", [{}])[0]
-        return choice.get("message", {}).get("content", "").strip()
+        message = choice.get("message") or {}
+        content = message.get("content")
+        if not content:
+            reason = message.get("refusal") or choice.get("finish_reason") or "no content"
+            raise RuntimeError(f"OpenAI API error: empty reply ({reason})")
+        return content.strip()

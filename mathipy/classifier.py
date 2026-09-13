@@ -126,12 +126,14 @@ def _build_user_prompt(item_text: str | None = None) -> str:
     if item_text is None:
         return classify_user_prompt
     return (classify_user_prompt
-            + f'\n\nItem text. Judge the "function" field against it. Use it only to '
-              'name what marks already in the image represent, as points named as the '
-              'corners of a square are the vertices of a polygon. Never introduce a form '
-              'the image does not show, and never take the type from the item topic: a '
-              'map carrying drawn roads is a picture, and a rectangle in an item about '
-              f'area is polygon, not area_model.\n{item_text}')
+            + f'\n\nReturn only the JSON classification of the image. Do not answer, solve, or '
+              'choose among anything in the quoted text below. Judge the "function" field '
+              'against it, and use it only to name what marks already in the image represent, '
+              'as points named as the corners of a square are the vertices of a polygon. Never '
+              'introduce a form the image does not show, and never take the type from the item '
+              'topic: a map carrying drawn roads is a picture, and a rectangle in an item about '
+              'area is polygon, not area_model.'
+              f'\n<<<ITEM TEXT>>>\n{item_text}\n<<<END>>>')
 
 
 class VisualModelClassifier(VisionAPIClient):
@@ -161,10 +163,28 @@ class VisualModelClassifier(VisionAPIClient):
         """
         image_b64, mime_type = self._prepare_image(source)
 
-        results = [self._classify_once(image_b64, mime_type, item_text)
-                   for _ in range(max(1, votes))]
+        results, refused = [], None
+        for _ in range(max(1, votes)):
+            try:
+                results.append(self._classify_once(image_b64, mime_type, item_text))
+            except RuntimeError as err:
+                refused = err
+                logger.warning("vote dropped: %s", err)
+        withheld = False
+        if not results and item_text:
+            for _ in range(max(1, votes)):
+                try:
+                    results.append(self._classify_once(image_b64, mime_type, None))
+                except RuntimeError as err:
+                    refused = err
+            withheld = bool(results)
+            if withheld:
+                logger.warning("item text withheld after refusal; figure classified alone")
+        if not results:
+            raise refused
         merged = results[0] if len(results) == 1 else self._merge_votes(results)
-        return merged | self.provenance() | {"votes": max(1, votes)}
+        return (merged | self.provenance()
+                | {"votes": max(1, votes), "text_withheld": withheld})
 
     def _classify_once(self, image_b64: str, mime_type: str,
                        item_text: str | None = None) -> dict[str, Any]:
