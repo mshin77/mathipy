@@ -25,7 +25,7 @@ _function_lines = "\n".join(f"- {f}: {visual_function_definitions[f]}"
 
 _example = json.dumps(
     {m: (m == "bar_graph" or m == "table") for m in visual_models}
-    | {"primary": "bar_graph", "function": "essential",
+    | {"visual_type": "bar_graph", "function": "essential",
        "figure_box": [0.08, 0.21, 0.74, 0.66], "option_boxes": []},
     indent=None,
 )
@@ -35,10 +35,10 @@ classify_system_prompt = (
 )
 
 classify_user_prompt = f"""For this math assessment item image, identify which visual representations are present.
-Return a JSON object with boolean values for each type, plus a "primary" field for the most prominent type,
+Return a JSON object with boolean values for each type, plus a "visual_type" field for the form the image is mainly built from,
 plus a "function" field for the instructional role of the image:
 {_function_lines}
-Return "no_visual" for "function" exactly when "primary" is text_only, that is
+Return "no_visual" for "function" exactly when "visual_type" is text_only, that is
 when the image carries no figure at all: a screenshot of prose, an answer interface,
 or a bare fragment of notation. An image that is itself a figure, including a cropped
 figure filling the frame, always takes essential or decorative even when "figure_box"
@@ -126,10 +126,12 @@ def _build_user_prompt(item_text: str | None = None) -> str:
     if item_text is None:
         return classify_user_prompt
     return (classify_user_prompt
-            + f'\n\nItem text. Judge the "function" field against it, and use it to identify '
-              'what the marks in the figure are: points named as the corners of a square are '
-              'the vertices of a polygon. Never take the type from the item topic, so a '
-              f'rectangle in an item about area is polygon, not area_model.\n{item_text}')
+            + f'\n\nItem text. Judge the "function" field against it. Use it only to '
+              'name what marks already in the image represent, as points named as the '
+              'corners of a square are the vertices of a polygon. Never introduce a form '
+              'the image does not show, and never take the type from the item topic: a '
+              'map carrying drawn roads is a picture, and a rectangle in an item about '
+              f'area is polygon, not area_model.\n{item_text}')
 
 
 class VisualModelClassifier(VisionAPIClient):
@@ -154,7 +156,7 @@ class VisualModelClassifier(VisionAPIClient):
                 against it; without it the label rests on the image alone.
 
         Returns:
-            Dict with a boolean per model type, ``"primary"`` (str),
+            Dict with a boolean per model type, ``"visual_type"`` (str),
             ``"function"`` (str), and ``"model_count"`` (int).
         """
         image_b64, mime_type = self._prepare_image(source)
@@ -184,7 +186,7 @@ class VisualModelClassifier(VisionAPIClient):
         """
         result = {m: False for m in visual_models}
         result["text_only"] = True
-        result.update({"primary": "text_only", "function": "no_visual",
+        result.update({"visual_type": "text_only", "function": "no_visual",
                        "model_count": 1, "figure_box": None, "option_boxes": [],
                        "parsed": True, "status": "ok"})
         return result
@@ -208,7 +210,7 @@ class VisualModelClassifier(VisionAPIClient):
                 them apart.
         """
         result = {m: False for m in visual_models}
-        result.update({"primary": None, "function": None, "model_count": 0,
+        result.update({"visual_type": None, "function": None, "model_count": 0,
                        "figure_box": None, "option_boxes": [], "parsed": False,
                        "status": status})
         return result
@@ -232,7 +234,7 @@ class VisualModelClassifier(VisionAPIClient):
         entry: dict[str, Any] = {
             m: sum(r[m] for r in usable) * 2 > n for m in visual_models
         }
-        for field in ("primary", "function"):
+        for field in ("visual_type", "function"):
             entry[field] = Counter(r[field] for r in usable).most_common(1)[0][0]
         entry["model_count"] = sum(entry[m] for m in visual_models)
         boxes = [r["figure_box"] for r in usable if r.get("figure_box")]
@@ -254,7 +256,7 @@ class VisualModelClassifier(VisionAPIClient):
         both reads a contradiction. The named type wins - it is the more
         considered judgment - and its flag is raised to match.
         """
-        primary = entry.get("primary")
+        primary = entry.get("visual_type")
         if primary in visual_models and not entry[primary]:
             entry[primary] = True
             entry["model_count"] = sum(entry[m] for m in visual_models)
@@ -284,7 +286,7 @@ class VisualModelClassifier(VisionAPIClient):
 
         entry: dict[str, Any] = {m: bool(parsed.get(m, False)) for m in visual_models}
 
-        primary = _normalize_label(parsed.get("primary"))
+        primary = _normalize_label(parsed.get("visual_type"))
         if primary and primary not in visual_models:
             logger.warning("unrecognised primary %r; recording as unclassified", primary)
             primary = None
@@ -307,7 +309,7 @@ class VisualModelClassifier(VisionAPIClient):
             return VisualModelClassifier.fallback_result("empty")
 
         entry.update({
-            "primary": primary or None,
+            "visual_type": primary or None,
             "function": function,
             "model_count": sum(entry[m] for m in visual_models),
             "figure_box": box,

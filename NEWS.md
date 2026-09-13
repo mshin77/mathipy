@@ -1,3 +1,8 @@
+# mathipy 0.4.11
+
+- Reads the item text only to name marks the image already shows.
+- Names the returned type after the feature it becomes.
+
 # mathipy 0.4.10
 
 - Names the visual type from the item text as well as the figure, never from the topic.
