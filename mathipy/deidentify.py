@@ -25,6 +25,9 @@ _vocative_skip = {"Thanks", "Thank", "Hello", "Hi", "Hey", "Great", "Good", "Wel
                   "Awesome", "Excellent", "You", "Your", "That", "This", "What",
                   "How", "Why", "Can", "Could", "Would", "Let", "Now", "So"}
 
+_role_words = {"teacher", "teachers", "student", "students", "instructor",
+               "tutor", "unknown", "speaker"}
+
 replacements = {
     "email": "[EMAIL]",
     "phone": "[PHONE]",
@@ -45,6 +48,15 @@ def _mask_names(text: str, names: Sequence[str]) -> tuple[str, int]:
         text, n = pattern.subn(replacements["name"], text)
         count += n
     return text, count
+
+
+_code_label = re.compile(r"[A-Z]\d*|[A-Z]{1,2}\d+")
+
+
+def _is_name_label(label: str | None) -> bool:
+    label = (label or "").strip()
+    words = set(re.findall(r"[a-z]+", label.lower()))
+    return bool(label) and not _code_label.fullmatch(label) and not words <= _role_words
 
 
 def _vocative_names(text: str) -> list[str]:
@@ -88,6 +100,7 @@ def deidentify_turns(
 ) -> list[dict[str, Any]]:
     """Mask identifiers across turns, using speaker labels as names to remove."""
     labels = [t.get("speaker", "") for t in turns]
+    names = [label for label in labels if _is_name_label(label)]
     aliases = {}
     for label in labels:
         if label and label not in aliases:
@@ -95,7 +108,7 @@ def deidentify_turns(
 
     cleaned = []
     for turn in turns:
-        result = deidentify(turn.get("text", ""), names=labels, keep=keep)
+        result = deidentify(turn.get("text", ""), names=names, keep=keep)
         row = dict(turn)
         row["text"] = result["text"]
         row["deidentified"] = result["counts"]

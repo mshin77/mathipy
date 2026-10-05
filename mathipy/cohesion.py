@@ -6,6 +6,8 @@ import re
 from collections.abc import Sequence
 from typing import Any
 
+from mathipy.utils import option_label_spans
+
 connectives = {
     "additive": ["in addition", "as well as", "also", "moreover", "furthermore",
                  "besides", "similarly", "likewise"],
@@ -38,8 +40,8 @@ _function_words = pronouns | set(
 )
 
 
-_abbreviations = {"mr", "mrs", "ms", "dr", "st", "vs", "fig", "no", "approx",
-                  "e.g", "i.e", "etc", "in", "ft", "cm", "mm", "km", "lb", "oz"}
+_abbreviations = {"mr", "mrs", "ms", "dr", "st", "vs", "fig", "approx", "in", "no",
+                  "e.g", "i.e", "etc", "ft", "cm", "mm", "km", "lb", "oz"}
 _answer_label = re.compile(r"^[A-E]$")
 
 
@@ -52,18 +54,21 @@ def split_sentences(text: str) -> list[str]:
     and because answer lists occur mostly in multiple-choice items the
     inflation tracks item format rather than prose structure.
     """
-    parts = re.split(r"(?<=[.!?])\s+", text.strip())
+    text = text.strip()
+    for _, end in option_label_spans(text):
+        text = text[:end - 1] + ("\x00" if text[end - 1] == "." else text[end - 1]) + text[end:]
+    parts = [p.strip().replace("\x00", ".")
+             for p in re.split(r"(?<=[.!?])\s+", text) if p.strip()]
     merged: list[str] = []
-    for part in parts:
-        part = part.strip()
-        if not part:
+    for previous, part in zip([""] + parts, parts):
+        tail = previous.rstrip(".").rsplit(None, 1)
+        last = tail[-1] if tail else ""
+        continues = not part[0].isupper()
+        label = bool(_answer_label.match(last)) and (previous == f"{last}." or continues)
+        abbreviation = last.lower() in _abbreviations and (last.lower() not in {"in", "no"} or continues)
+        if merged and (abbreviation or label):
+            merged[-1] = f"{merged[-1]} {part}"
             continue
-        if merged:
-            tail = merged[-1].rstrip(".").rsplit(None, 1)
-            last = tail[-1].lower() if tail else ""
-            if last in _abbreviations or _answer_label.match(last.upper()):
-                merged[-1] = f"{merged[-1]} {part}"
-                continue
         merged.append(part)
     return merged
 

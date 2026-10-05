@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+from functools import lru_cache
 from typing import Any
 
 from mathipy._api import _optional_import
@@ -22,6 +23,23 @@ if textstat_available:
     linsear_write_formula = _textstat.linsear_write_formula
     smog_index = _textstat.smog_index
 
+_metric_keys = (
+    "flesch_reading_ease", "flesch_kincaid_grade", "gunning_fog", "smog_index",
+    "automated_readability_index", "coleman_liau_index", "linsear_write_formula",
+    "dale_chall_readability", "average_grade_level",
+)
+_dale_chall_skip = re.compile(r"\b\d+(?:[.,/]\d+)*\b|\bMATH\b")
+
+
+def _dale_chall_text(text: str) -> str:
+    return re.sub(r"\s+", " ", _dale_chall_skip.sub(" ", text)).strip()
+
+
+@lru_cache(maxsize=1)
+def _warn_missing_cmudict() -> None:
+    logger.warning("CMU dictionary not installed; syllables use a vowel heuristic. "
+                   "Install with: python -m nltk.downloader cmudict")
+
 
 class ReadabilityAnalyzer:
     """Analyze text readability with math-aware normalization.
@@ -36,17 +54,18 @@ class ReadabilityAnalyzer:
 
     def __init__(self):
         self._cmu_dict: dict | None = None
+        self._cmu_missing = False
         self._load_cmu_dict()
 
     def _load_cmu_dict(self) -> None:
         try:
             import nltk
             from nltk.corpus import cmudict
-            try:
-                nltk.data.find('corpora/cmudict')
-            except LookupError:
-                nltk.download('cmudict', quiet=True)
+            nltk.data.find('corpora/cmudict')
             self._cmu_dict = cmudict.dict()
+        except LookupError:
+            self._cmu_missing = True
+            _warn_missing_cmudict()
         except Exception as e:
             logger.debug(f"CMU dictionary not available: {e}")
 
@@ -68,7 +87,7 @@ class ReadabilityAnalyzer:
         word_count = len(normalized.split())
         low_confidence = word_count < 20
 
-        if textstat_available:
+        if textstat_available and not self._cmu_missing:
             return self._compute_metrics(normalized, low_confidence)
         else:
             return self._estimate_metrics(normalized, low_confidence)
@@ -90,9 +109,10 @@ class ReadabilityAnalyzer:
                 "automated_readability_index": automated_readability_index(text),
                 "coleman_liau_index": coleman_liau_index(text),
                 "linsear_write_formula": linsear_write_formula(text),
-                "dale_chall_readability": dale_chall_readability_score(text),
+                "dale_chall_readability": dale_chall_readability_score(_dale_chall_text(text)),
                 "average_grade_level": (fk + fog + smog) / 3,
                 "low_confidence": low_confidence,
+                "estimated": False,
             }
         except Exception as e:
             logger.warning(f"Readability calculation failed: {e}")
@@ -158,14 +178,7 @@ class ReadabilityAnalyzer:
 
     def _empty_metrics(self) -> dict[str, Any]:
         return {
-            "flesch_reading_ease": 50.0,
-            "flesch_kincaid_grade": 8.0,
-            "gunning_fog": 8.0,
-            "smog_index": 8.0,
-            "automated_readability_index": 8.0,
-            "coleman_liau_index": 8.0,
-            "linsear_write_formula": 8.0,
-            "dale_chall_readability": 8.0,
-            "average_grade_level": 8.0,
+            **dict.fromkeys(_metric_keys, float("nan")),
             "low_confidence": True,
+            "estimated": False,
         }

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
+import math
 import re
 from collections import Counter
 from typing import Any
 
-from mathipy.utils import extract_numbers
+from mathipy.utils import consume_phrases, extract_numbers
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,12 @@ _unit_abbreviations = {
 }
 
 _unit_abbrev_re = re.compile(
-    r"(?<![A-Za-z])(?<=\d)\s?(" + "|".join(sorted(_unit_abbreviations, key=len, reverse=True))
+    r"(?<![A-Za-z])(?<=\d)\s?(" + "|".join(sorted(set(_unit_abbreviations) - {"in"}, key=len, reverse=True))
     + r")(?![A-Za-z])", re.IGNORECASE)
+_inch_follow = r"\.|\s*(?:by\b|x\b|×|[^\w\s]|$)"
+_inch_re = re.compile(rf"(?<=\d)\s?in\b(?={_inch_follow})", re.IGNORECASE)
+_inch_pair_re = re.compile(
+    rf"(?<=\d)\s?in\.?\s*(?:by\b|x\b|×)\s*\d+(?:\.\d+)?\s?in\b(?!{_inch_follow})", re.IGNORECASE)
 
 
 def _match_unit_abbreviations(text: str) -> dict[str, int]:
@@ -33,6 +38,8 @@ def _match_unit_abbreviations(text: str) -> dict[str, int]:
     for abbrev in _unit_abbrev_re.findall(text):
         unit = _unit_abbreviations[abbrev.lower()]
         counts[unit] = counts.get(unit, 0) + 1
+    inches = len(_inch_re.findall(text)) + len(_inch_pair_re.findall(text))
+    counts.update({"inch": inches} if inches else {})
     return counts
 
 
@@ -56,7 +63,7 @@ class MathContentAnalyzer:
             "division": re.compile(r"\d+\s*[÷/]\s*\d+"),
             "variable": re.compile(r"\b(?![Ia]\b)[a-zA-Z]\b(?!\w)"),
             "equation": re.compile(r"="),
-            "inequality": re.compile(r"[^<>=]+\s*[<>≤≥]\s*[^<>=]+"),
+            "inequality": re.compile(r"\S+\s*[<>≤≥]=?\s*\S+"),
             "exponent": re.compile(r"\w+\^[\w\d{}]+|\w+\*\*[\w\d{}]+"),
             "function": re.compile(r"\b[a-zA-Z]+\([^)]+\)"),
             "polynomial": re.compile(r"[a-z]\^?\d*\s*[+\-]\s*[a-z]\^?\d*"),
@@ -76,7 +83,7 @@ class MathContentAnalyzer:
         }
 
         self.symbols = {
-            "+": "addition", "-": "subtraction", "×": "multiplication",
+            "+": "addition", "-": "subtraction", "−": "subtraction", "×": "multiplication",
             "*": "multiplication", "·": "multiplication", "÷": "division",
             "/": "division", "=": "equals", "<": "less_than",
             ">": "greater_than", "≤": "less_equal", "≥": "greater_equal",
@@ -178,10 +185,11 @@ class MathContentAnalyzer:
                 "values": numbers[:20],
                 "range": max(numbers) - min(numbers) if numbers else 0,
                 "has_negative": any(n < 0 for n in numbers),
-                "has_decimal": any(isinstance(n, float) and n != int(n) for n in numbers),
+                "has_decimal": any(isinstance(n, float) and math.isfinite(n) and n != int(n)
+                                   for n in numbers),
             },
             "vocabulary": {
-                "math_terms": list(term_matches.keys()),
+                "math_terms": sorted(term_matches),
                 "term_count": sum(term_matches.values()),
                 "unique_terms": len(term_matches),
             },
@@ -197,11 +205,7 @@ class MathContentAnalyzer:
         return dict(counts)
 
     def _match_vocabulary(self, text: str) -> dict[str, int]:
-        matched = {
-            term: len(m)
-            for term in self.all_terms
-            if (m := re.findall(r"\b" + re.escape(term) + r"\b", text, re.IGNORECASE))
-        }
+        matched = consume_phrases(text, self.all_terms)
         for unit, count in _match_unit_abbreviations(text).items():
             matched[unit] = matched.get(unit, 0) + count
         return matched
@@ -226,18 +230,18 @@ class MathContentAnalyzer:
         if patterns.get("equation") or patterns.get("variable"):
             domain_scores["algebra"] = domain_scores.get("algebra", 0) + 1
 
-        primary = max(domain_scores, key=domain_scores.get) if domain_scores else "unknown"
-        total = sum(domain_scores.values()) or 1
+        total = sum(domain_scores.values())
+        primary = max(domain_scores, key=domain_scores.get) if total else "unknown"
 
         return {
             "primary": primary,
-            "confidence": domain_scores.get(primary, 0) / total,
+            "confidence": domain_scores.get(primary, 0) / total if total else 0,
             "scores": domain_scores,
             "secondary": sorted(
                 domain_scores.keys(),
                 key=lambda k: domain_scores[k],
                 reverse=True,
-            )[1:3] if len(domain_scores) > 1 else [],
+            )[1:3] if total else [],
         }
 
     def _empty_analysis(self) -> dict[str, Any]:
@@ -252,7 +256,8 @@ class MathContentAnalyzer:
             },
             "vocabulary": {"math_terms": [], "term_count": 0, "unique_terms": 0},
             "domain_classification": {
-                "primary": "unknown", "confidence": 0, "scores": {}, "secondary": [],
+                "primary": "unknown", "confidence": 0,
+                "scores": dict.fromkeys(self.domains, 0), "secondary": [],
             },
             "math_density": 0,
         }

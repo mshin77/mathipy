@@ -8,8 +8,10 @@ agreement between two raters. Depends only on the standard library.
 from __future__ import annotations
 
 import csv
+import html
 import json
 import random
+import re
 from collections import Counter
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -183,8 +185,9 @@ def score_agreement(
     id_key: str = "item_id",
 ) -> dict[str, dict[str, Any]]:
     """Compute agreement and Cohen's kappa per rubric field over matched rows."""
-    by_id_b = {r.get(id_key): r for r in rows_b}
-    matched = [(a, by_id_b[a.get(id_key)]) for a in rows_a if a.get(id_key) in by_id_b]
+    by_id_b = {r[id_key]: r for r in rows_b if r.get(id_key) is not None}
+    matched = [(a, by_id_b[a[id_key]]) for a in rows_a
+               if a.get(id_key) is not None and a[id_key] in by_id_b]
 
     scored = {}
     for field in fields:
@@ -380,6 +383,10 @@ build();
 """
 
 
+def _script_json(value: Any) -> str:
+    return json.dumps(value).replace("<", "\\u003c")
+
+
 def write_coding_app(
     records: Sequence[dict[str, Any]],
     rubric: dict[str, list[str]],
@@ -410,14 +417,16 @@ def write_coding_app(
             entry["__images"] = row.get(image_field, "")
         prepared.append(entry)
 
-    page = (_app_template
-            .replace("__RECORDS__", json.dumps(prepared))
-            .replace("__RUBRIC__", json.dumps({k: list(v) for k, v in rubric.items()}))
-            .replace("__CARRY__", json.dumps(keep))
-            .replace("__RULES__", json.dumps(rules or {}))
-            .replace("__TITLE_JSON__", json.dumps(title))
-            .replace("__IMAGE_BASE__", json.dumps(image_base if image_field else ""))
-            .replace("__TITLE__", title))
+    values = {
+        "RECORDS": _script_json(prepared),
+        "RUBRIC": _script_json({k: list(v) for k, v in rubric.items()}),
+        "CARRY": _script_json(keep),
+        "RULES": _script_json(rules or {}),
+        "TITLE_JSON": _script_json(title),
+        "IMAGE_BASE": _script_json(image_base if image_field else ""),
+        "TITLE": html.escape(title),
+    }
+    page = re.sub(r"__([A-Z_]+?)__", lambda m: values.get(m.group(1), m.group(0)), _app_template)
 
     path = out / "coding-app.html"
     path.write_text(page, encoding="utf-8")

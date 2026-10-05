@@ -6,7 +6,8 @@ import logging
 import re
 from typing import Any
 
-from mathipy.utils import extract_numbers, extract_variables
+from mathipy.cohesion import split_sentences
+from mathipy.utils import extract_numbers, extract_variables, strip_option_labels
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,8 @@ class CognitiveLoadEstimator:
         Args:
             text: Input text to analyze.
             readability_grade: Optional Flesch-Kincaid grade level.
-            math_terms: Optional list of math terms found in the text.
+            math_terms: Accepted for compatibility and ignored; the count
+                always comes from the inflected keyword match.
 
         Returns:
             Dictionary with raw element counts and ratios.
@@ -83,15 +85,13 @@ class CognitiveLoadEstimator:
 
         numbers = extract_numbers(text)
         variables = extract_variables(text)
-        operations = sum(1 for c in text if c in "+-*/^=<>")
-        words = text.split()
-        word_count = len(words)
+        operations = sum(1 for c in text if c in "+-*/^=<>×÷−")
+        content = strip_option_labels(text)
+        word_count = len(content.split())
 
-        sentences = re.split(r"[.!?]+", text)
-        sentences = [s for s in sentences if s.strip()]
-        sentence_count = max(len(sentences), 1)
+        sentence_count = max(len(split_sentences(content)), 1)
 
-        math_term_count = len(math_terms) if math_terms else self._count_math_keywords(text)
+        math_term_count = self._count_math_keywords(text)
 
         return {
             "numeric_elements": len(numbers),

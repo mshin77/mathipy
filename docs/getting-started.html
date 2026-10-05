@@ -498,14 +498,14 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 <span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
 <span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;math_problem.png&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Edge ratio: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;complexity_score&#39;</span><span class="p">][</span><span class="s1">&#39;edge_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Edge ratio: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;edge_metrics&#39;</span><span class="p">][</span><span class="s1">&#39;edge_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shapes found: </span><span class="si">{</span><span class="n">features</span><span class="p">[</span><span class="s1">&#39;structural_elements&#39;</span><span class="p">][</span><span class="s1">&#39;total_shapes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="multimodal-ocr">
 <h3>Multimodal OCR<a class="headerlink" href="#multimodal-ocr" title="Link to this heading">#</a></h3>
-<p>Requires a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> in your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
+<p>Requires a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
 
 <span class="n">ocr</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>

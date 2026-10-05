@@ -9,7 +9,13 @@ import re
 from pathlib import Path
 from typing import Any
 
-from mathipy._api import VisionAPIClient, _optional_import, max_file_size
+from mathipy._api import (
+    ProviderUnavailableError,
+    VisionAPIClient,
+    _optional_import,
+    _sanitize_error,
+    max_file_size,
+)
 from mathipy.utils import extract_math_expressions, extract_numbers, extract_variables
 
 logger = logging.getLogger(__name__)
@@ -19,7 +25,7 @@ _docx_module, docx_available = _optional_import("docx")
 DocxDocument = _docx_module.Document if docx_available else None
 pdfplumber, pdfplumber_available = _optional_import("pdfplumber")
 
-system_prompt = """You are an expert OCR system for multi-modal content extraction.
+system_prompt = """Role: expert OCR system for multi-modal content extraction.
 Extract ALL visible text from the image accurately, including:
 - Question text and instructions
 - Mathematical expressions and equations (use LaTeX notation)
@@ -29,7 +35,7 @@ Extract ALL visible text from the image accurately, including:
 - Table data, chart labels, and data values
 - Headers, titles, and captions
 
-IMPORTANT: You MUST always provide meaningful output.
+IMPORTANT: ALWAYS provide meaningful output; this is mandatory.
 - If the image contains text: extract all text accurately.
 - If the image contains ONLY a picture with NO text: set "content_type" to "image_only"
   and provide a detailed description of what the image shows in the "image_description" field.
@@ -58,9 +64,9 @@ user_prompt = """Extract all text and mathematical content from this assessment 
 Be thorough and accurate. Include all visible text, equations, and symbols.
 If the image contains no extractable text (picture only), describe the visual content
 in detail using K-12 math vocabulary (shapes, colors, dimensions, spatial relationships).
-You must ALWAYS return meaningful content - never empty results."""
+ALWAYS return meaningful content; this is mandatory - never empty results."""
 
-describe_system_prompt = """You are an expert image description system for K-12 math education.
+describe_system_prompt = """Role: expert image description system for K-12 math education.
 Provide a concise description of the image content, focusing on:
 - Mathematical elements (equations, expressions, symbols)
 - Geometric shapes and spatial relationships
@@ -196,7 +202,7 @@ class MultimodalOCR(VisionAPIClient):
         if mode not in ("full", "describe"):
             raise ValueError(f"Unsupported mode: {mode}. Use 'full' or 'describe'.")
 
-        return self._dispatch(source, mode, max_words) | self.provenance()
+        return {"images_failed": 0} | self._dispatch(source, mode, max_words) | self.provenance()
 
     def _dispatch(
         self,
@@ -321,10 +327,10 @@ class MultimodalOCR(VisionAPIClient):
         })
 
         images = self._extract_docx_images(doc)
-        if images:
-            image_results = self._process_embedded_images(images, mode, max_words)
-            if image_results:
-                result = self._merge_image_results(result, image_results)
+        image_results = self._process_embedded_images(images, mode, max_words)
+        result["images_failed"] = len(images) - len(image_results)
+        if image_results:
+            result = self._merge_image_results(result, image_results)
 
         return result
 
@@ -380,10 +386,10 @@ class MultimodalOCR(VisionAPIClient):
             "content_type": "text_only",
         })
 
-        if all_images:
-            image_results = self._process_embedded_images(all_images, mode, max_words)
-            if image_results:
-                result = self._merge_image_results(result, image_results)
+        image_results = self._process_embedded_images(all_images, mode, max_words)
+        result["images_failed"] = len(all_images) - len(image_results)
+        if image_results:
+            result = self._merge_image_results(result, image_results)
 
         return result
 
@@ -411,8 +417,11 @@ class MultimodalOCR(VisionAPIClient):
             try:
                 result = self._extract_from_image(img_bytes, mode, max_words)
                 results.append(result)
+            except ProviderUnavailableError:
+                raise
             except Exception as e:
-                logger.debug(f"Could not process embedded image: {e}")
+                logger.warning("embedded image skipped: %s: %s",
+                               type(e).__name__, _sanitize_error(str(e)))
         return results
 
     def _merge_image_results(
@@ -440,17 +449,30 @@ class MultimodalOCR(VisionAPIClient):
         variables_set = set(base.get("variables_found", []))
         data_elements = list(base.get("data_elements", []))
 
-        for img_result in image_results:
-            math_set.update(img_result.get("math_expressions", []))
-            labels_set.update(img_result.get("labels", []))
-            numbers_set.update(img_result.get("numbers_found", []))
-            variables_set.update(img_result.get("variables_found", []))
-            data_elements.extend(img_result.get("data_elements", []))
-            base.get("answer_choices", {}).update(img_result.get("answer_choices", {}))
+        def as_list(value):
+            return [v for v in value if isinstance(v, (str, int, float))] if isinstance(value, list) else []
 
-        text_confidence = base.get("extraction_confidence", 0.95)
+        def as_float(value, default):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return default
+
+        if not isinstance(base.get("answer_choices"), dict):
+            base["answer_choices"] = {}
+        for img_result in image_results:
+            math_set.update(as_list(img_result.get("math_expressions")))
+            labels_set.update(as_list(img_result.get("labels")))
+            numbers_set.update(as_list(img_result.get("numbers_found")))
+            variables_set.update(as_list(img_result.get("variables_found")))
+            data_elements.extend(img_result.get("data_elements") or []
+                                 if isinstance(img_result.get("data_elements"), list) else [])
+            choices = img_result.get("answer_choices")
+            base["answer_choices"].update(choices if isinstance(choices, dict) else {})
+
+        text_confidence = as_float(base.get("extraction_confidence"), 0.95)
         img_confidences = [
-            r.get("extraction_confidence", 0.5) for r in image_results
+            as_float(r.get("extraction_confidence"), 0.5) for r in image_results
         ]
         avg_img_confidence = sum(img_confidences) / len(img_confidences) if img_confidences else 0.5
 

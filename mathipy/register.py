@@ -9,6 +9,8 @@ distinguishes cardinal, ordinal, fraction and nominal uses of a numeral.
 import re
 from collections import Counter
 
+from mathipy.utils import consume_phrases
+
 relational_terms: dict[str, list[str]] = {
 
     "rate": ["per", "for every", "for each", "apiece"],
@@ -67,6 +69,9 @@ _slash_fraction = re.compile(r"\b\d+\s*/\s*\d+\b")
 _nominal = re.compile(r"\b(?:number|room|page|problem|item|question|bus|route|"
                       r"channel|line)\s+\d+\b", re.I)
 _integer = re.compile(r"\b\d+(?:\.\d+)?\b")
+_word_fraction = re.compile(
+    r"\b(?:" + "|".join(number_words) + r")[\s-]+(?:"
+    + "|".join(sorted(fraction_words, key=len, reverse=True)) + r")s?\b")
 
 
 def _count(text: str, phrases: list[str]) -> int:
@@ -83,7 +88,8 @@ def relational_features(text: str) -> dict[str, int]:
     operation needs, which is a documented source of error.
     """
     text = text or ""
-    counts = {f"rel_{name}": _count(text, terms)
+    hits = consume_phrases(text, [t for terms in relational_terms.values() for t in terms])
+    counts = {f"rel_{name}": sum(hits.get(t, 0) for t in terms)
               for name, terms in relational_terms.items()}
     counts["rel_comparison"] = (len(_comparison.findall(text))
                                 + len(_comparison_question.findall(text)))
@@ -105,15 +111,12 @@ def number_features(text: str) -> dict[str, int]:
     lowered = text.lower()
 
     nominal = len(_nominal.findall(text))
-    ordinal = len(_ordinal_suffix.findall(text)) + _count(lowered, ordinal_words)
-    fraction = len(_slash_fraction.findall(text))
-    for word in fraction_words:
-        for match in re.finditer(r"\b(\w+)[\s-]+" + word + r"s?\b", lowered):
-            if match.group(1) in number_words:
-                fraction += 1
+    ordinal = (len(_ordinal_suffix.findall(text))
+               + _count(_word_fraction.sub(" | ", lowered), ordinal_words))
+    fraction = len(_slash_fraction.findall(text)) + len(_word_fraction.findall(lowered))
 
     digits = [m.group(0) for m in _integer.finditer(text)]
-    consumed = nominal + len(_ordinal_suffix.findall(text)) + len(_slash_fraction.findall(text)) * 2
+    consumed = nominal + len(_slash_fraction.findall(text)) * 2
     cardinal = max(0, len(digits) - consumed)
 
     values = [float(d) for d in digits if "." not in d]

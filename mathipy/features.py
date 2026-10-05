@@ -21,6 +21,11 @@ composite_features = {
         "sym_addition", "sym_subtraction", "sym_multiplicative",
         "sym_division", "sym_comparison", "sym_equality", "sym_exponent",
     ),
+    "cohesion_connective_total": (
+        "cohesion_connective_additive", "cohesion_connective_causal",
+        "cohesion_connective_temporal", "cohesion_connective_conditional",
+        "cohesion_connective_adversative", "cohesion_connective_clarifying",
+    ),
     "shape_quad_quadrilateral": (
         "shape_quad_trapezoid", "shape_quad_kite", "shape_quad_irregular",
     ),

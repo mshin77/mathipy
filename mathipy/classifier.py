@@ -9,12 +9,14 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from mathipy._api import VisionAPIClient
+from mathipy._api import ProviderUnavailableError, VisionAPIClient
 from mathipy.visual import (
+    _is_set,
     visual_function_definitions,
     visual_functions,
     visual_model_definitions,
     visual_models,
+    visual_subtypes,
 )
 
 logger = logging.getLogger(__name__)
@@ -23,15 +25,27 @@ _type_lines = "\n".join(f"- {m}: {visual_model_definitions[m]}" for m in visual_
 _function_lines = "\n".join(f"- {f}: {visual_function_definitions[f]}"
                             for f in visual_functions)
 
+_subtype_lines = "\n".join(f"- {m}: {', '.join(v)}" for m, v in visual_subtypes.items())
+
 _example = json.dumps(
     {m: (m == "bar_graph" or m == "table") for m in visual_models}
-    | {"visual_type": "bar_graph", "function": "essential",
-       "figure_box": [0.08, 0.21, 0.74, 0.66], "option_boxes": []},
+    | {"visual_type": "bar_graph", "visual_subtype": None, "function": "essential",
+       "figure_box": [0.08, 0.21, 0.74, 0.66], "option_boxes": [],
+       "option_visual_type": None},
     indent=None,
 )
 
+image_positions = {
+    "stem": "part of the question stimulus, shown before any answer choices",
+    "option": "one answer choice of a multiple-choice item",
+    "additional": "supplementary material printed apart from the question, such as a "
+                  "manipulative sheet or a reference page",
+    "page_scan": "a screenshot of the whole item: question text, any stimulus figure, "
+                 "answer choices, and response controls together",
+}
+
 classify_system_prompt = (
-    "You are an expert classifier for K-12 math assessment visual representations."
+    "Role: expert classifier of K-12 math assessment visual representations."
 )
 
 classify_user_prompt = f"""For this math assessment item image, identify which visual representations are present.
@@ -48,6 +62,10 @@ type with no_visual.
 Types:
 {_type_lines}
 
+Also return "visual_subtype" when the primary type is one of the following and the
+image shows the named variant, otherwise null:
+{_subtype_lines}
+
 Also return "figure_box": the rectangle containing the mathematical figure, as
 [left, top, right, bottom] in fractions of image width and height, where 0,0 is
 the top-left corner. The box must contain the figure together with its own
@@ -60,7 +78,9 @@ notation on a text baseline.
 When the answer choices are themselves graphics rather than text, return
 "option_boxes": a list of one rectangle per choice, in the same coordinate
 form. Four small graphs offered as four choices are four option boxes, not one
-figure. Return an empty list when the choices are text.
+figure. Return an empty list when the choices are text. When option_boxes is not
+empty, also return "option_visual_type": the type the graphic choices are mainly
+built from; otherwise null.
 
 Example response, showing the required format only. Its values are not a
 recommended answer:
@@ -83,10 +103,11 @@ def _normalize_label(value: Any) -> str:
 
 
 _MIN_BOX_AREA = 0.01
+_MIN_OPTION_BOX_AREA = 0.0025
 _MAX_BOX_AREA = 0.98
 
 
-def _parse_box(value: Any) -> list[float] | None:
+def _parse_box(value: Any, min_area: float = _MIN_BOX_AREA) -> list[float] | None:
     """Validate a returned figure box, or None if it cannot be trusted.
 
     The box is the one output that silently changes every downstream pixel
@@ -104,7 +125,7 @@ def _parse_box(value: Any) -> list[float] | None:
         return None
     if right <= left or bottom <= top:
         return None
-    if not _MIN_BOX_AREA <= (right - left) * (bottom - top) <= _MAX_BOX_AREA:
+    if not min_area <= (right - left) * (bottom - top) <= _MAX_BOX_AREA:
         return None
     return [left, top, right, bottom]
 
@@ -119,13 +140,26 @@ def _parse_boxes(value: Any) -> list[list[float]]:
     """
     if not isinstance(value, (list, tuple)):
         return []
-    return [box for box in (_parse_box(v) for v in value) if box]
+    return [box for box in (_parse_box(v, _MIN_OPTION_BOX_AREA) for v in value) if box]
 
 
-def _build_user_prompt(item_text: str | None = None) -> str:
+def _position_note(position: str | None) -> str:
+    if position not in image_positions:
+        return ""
+    note = f"\n\nWhere this image sits in the item: {image_positions[position]}."
+    if position == "page_scan":
+        note += (" Judge the flags, visual_type, visual_subtype and function from the "
+                 "stimulus figure alone, never from the answer choices or response "
+                 "controls; return text_only when the only graphics are the answer "
+                 "choices. figure_box encloses the stimulus figure alone.")
+    return note
+
+
+def _build_user_prompt(item_text: str | None = None, position: str | None = None) -> str:
+    prompt = classify_user_prompt + _position_note(position)
     if item_text is None:
-        return classify_user_prompt
-    return (classify_user_prompt
+        return prompt
+    return (prompt
             + f'\n\nReturn only the JSON classification of the image. Do not answer, solve, or '
               'choose among anything in the quoted text below. Judge the "function" field '
               'against it, and use it only to name what marks already in the image represent, '
@@ -147,7 +181,8 @@ class VisualModelClassifier(VisionAPIClient):
     """
 
     def classify(self, source: str | Path | bytes, votes: int = 1,
-                 item_text: str | None = None) -> dict[str, Any]:
+                 item_text: str | None = None,
+                 position: str | None = None) -> dict[str, Any]:
         """Classify visual models present in the image.
 
         Args:
@@ -156,42 +191,53 @@ class VisualModelClassifier(VisionAPIClient):
                 merged by majority (flags) and mode (primary, function).
             item_text: Item text. The function label compares image content
                 against it; without it the label rests on the image alone.
+            position: Where the image sits: one of ``image_positions``. A
+                ``page_scan`` is typed from its stimulus figure alone.
 
         Returns:
-            Dict with a boolean per model type, ``"visual_type"`` (str),
-            ``"function"`` (str), and ``"model_count"`` (int).
+            Dict with a boolean per model type, ``"visual_type"``, ``"visual_subtype"``,
+            ``"function"``, ``"option_visual_type"``, ``"model_count"``, ``"position"``,
+            and ``"text_withheld"``.
         """
+        if position is not None and position not in image_positions:
+            raise ValueError(f"position must be one of {sorted(image_positions)} or None")
         image_b64, mime_type = self._prepare_image(source)
 
-        results, refused = [], None
+        results, refused, failed = [], None, None
         for _ in range(max(1, votes)):
             try:
-                results.append(self._classify_once(image_b64, mime_type, item_text))
+                results.append(self._classify_once(image_b64, mime_type, item_text, position))
+            except ProviderUnavailableError as err:
+                failed = err
+                logger.warning("vote dropped: %s", err)
             except RuntimeError as err:
                 refused = err
                 logger.warning("vote dropped: %s", err)
         withheld = False
-        if not results and item_text:
+        if not results and item_text and refused is not None:
             for _ in range(max(1, votes)):
                 try:
-                    results.append(self._classify_once(image_b64, mime_type, None))
+                    results.append(self._classify_once(image_b64, mime_type, None, position))
+                except ProviderUnavailableError as err:
+                    failed = err
                 except RuntimeError as err:
                     refused = err
             withheld = bool(results)
             if withheld:
                 logger.warning("item text withheld after refusal; figure classified alone")
         if not results:
-            raise refused
+            raise refused or failed
         merged = results[0] if len(results) == 1 else self._merge_votes(results)
         return (merged | self.provenance()
-                | {"votes": max(1, votes), "text_withheld": withheld})
+                | {"votes": max(1, votes), "text_withheld": withheld, "position": position})
 
     def _classify_once(self, image_b64: str, mime_type: str,
-                       item_text: str | None = None) -> dict[str, Any]:
+                       item_text: str | None = None,
+                       position: str | None = None) -> dict[str, Any]:
         call = self._call_gemini if self.provider == "gemini" else self._call_openai
         raw = call(image_b64, mime_type,
                    system_prompt=classify_system_prompt,
-                   user_prompt=_build_user_prompt(item_text),
+                   user_prompt=_build_user_prompt(item_text, position),
                    json_output=True)
         return self._parse_classify_response(raw)
 
@@ -206,8 +252,9 @@ class VisualModelClassifier(VisionAPIClient):
         """
         result = {m: False for m in visual_models}
         result["text_only"] = True
-        result.update({"visual_type": "text_only", "function": "no_visual",
-                       "model_count": 1, "figure_box": None, "option_boxes": [],
+        result.update({"visual_type": "text_only", "visual_subtype": None,
+                       "function": "no_visual", "model_count": 1, "figure_box": None,
+                       "option_boxes": [], "option_visual_type": None,
                        "parsed": True, "status": "ok"})
         return result
 
@@ -230,9 +277,9 @@ class VisualModelClassifier(VisionAPIClient):
                 them apart.
         """
         result = {m: False for m in visual_models}
-        result.update({"visual_type": None, "function": None, "model_count": 0,
-                       "figure_box": None, "option_boxes": [], "parsed": False,
-                       "status": status})
+        result.update({"visual_type": None, "visual_subtype": None, "function": None,
+                       "model_count": 0, "figure_box": None, "option_boxes": [],
+                       "option_visual_type": None, "parsed": False, "status": status})
         return result
 
     @staticmethod
@@ -254,14 +301,22 @@ class VisualModelClassifier(VisionAPIClient):
         entry: dict[str, Any] = {
             m: sum(r[m] for r in usable) * 2 > n for m in visual_models
         }
-        for field in ("visual_type", "function"):
-            entry[field] = Counter(r[field] for r in usable).most_common(1)[0][0]
+        entry["visual_type"] = Counter(r.get("visual_type") for r in usable).most_common(1)[0][0]
+        same_type = [r for r in usable if r.get("visual_type") == entry["visual_type"]]
+        for field in ("function", "visual_subtype"):
+            entry[field] = Counter(r.get(field) for r in same_type).most_common(1)[0][0]
         entry["model_count"] = sum(entry[m] for m in visual_models)
         boxes = [r["figure_box"] for r in usable if r.get("figure_box")]
         entry["figure_box"] = ([sorted(c)[len(c) // 2] for c in zip(*boxes)]
                                if len(boxes) * 2 > n else None)
-        entry["option_boxes"] = max((r.get("option_boxes") or [] for r in usable),
-                                    key=len, default=[])
+        n_boxes = lambda r: len(r.get("option_boxes") or [])  # noqa: E731
+        widest = max(usable, key=n_boxes)
+        typed = [r for r in usable if n_boxes(r) and r.get("option_visual_type")]
+        type_votes = Counter(r["option_visual_type"] for r in typed)
+        top = max(type_votes.values(), default=0)
+        modal = [r for r in typed if type_votes[r["option_visual_type"]] == top]
+        entry["option_boxes"] = widest.get("option_boxes") or []
+        entry["option_visual_type"] = max(modal, key=n_boxes, default={}).get("option_visual_type")
         entry["parsed"] = True
         entry["status"] = "ok"
         return VisualModelClassifier._reconcile(entry)
@@ -304,7 +359,7 @@ class VisualModelClassifier(VisionAPIClient):
             logger.warning("Unparseable classify response; the call is worth retrying")
             return VisualModelClassifier.fallback_result("unparseable")
 
-        entry: dict[str, Any] = {m: bool(parsed.get(m, False)) for m in visual_models}
+        entry: dict[str, Any] = {m: _is_set(parsed.get(m, False)) for m in visual_models}
 
         primary = _normalize_label(parsed.get("visual_type"))
         if primary and primary not in visual_models:
@@ -323,6 +378,11 @@ class VisualModelClassifier(VisionAPIClient):
 
         box = _parse_box(parsed.get("figure_box"))
         option_boxes = _parse_boxes(parsed.get("option_boxes"))
+        subtype = _normalize_label(parsed.get("visual_subtype"))
+        subtype = subtype if subtype in visual_subtypes.get(primary, []) else None
+        option_type = _normalize_label(parsed.get("option_visual_type"))
+        option_type = (option_type if option_boxes and option_type in visual_models
+                       and option_type != "text_only" else None)
 
         if not (primary or any(entry.values()) or box or option_boxes):
             logger.info("Classify response named no visual model; the image carries none")
@@ -330,10 +390,12 @@ class VisualModelClassifier(VisionAPIClient):
 
         entry.update({
             "visual_type": primary or None,
+            "visual_subtype": subtype,
             "function": function,
             "model_count": sum(entry[m] for m in visual_models),
             "figure_box": box,
             "option_boxes": option_boxes,
+            "option_visual_type": option_type,
             "parsed": True,
             "status": "ok",
         })

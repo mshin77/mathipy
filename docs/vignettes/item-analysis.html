@@ -358,15 +358,8 @@
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-items">Load the items</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#text-features">Text features</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#readability">Readability</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#math-content">Math content</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cognitive-load">Cognitive load</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#text-features">Text features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-features">Visual features</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-row-per-item">One row per item</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#representation-type">Representation type</a></li>
 </ul>
   </nav></div>
@@ -426,218 +419,59 @@
                   
   <section id="analyzing-math-items">
 <h1>Analyzing Math Items<a class="headerlink" href="#analyzing-math-items" title="Link to this heading">#</a></h1>
-<p>Feature extraction across five items, grades 4 and 8.</p>
-<p><strong>No assessment items ship with mathipy.</strong> Save each item image as <code class="docutils literal notranslate"><span class="pre">&lt;item_id&gt;.png</span></code>, record the metadata in a CSV with the columns shown below, and point mathipy at that folder.</p>
+<p><strong>No assessment items ship with mathipy.</strong> Save each item image as <code class="docutils literal notranslate"><span class="pre">&lt;item_id&gt;.png</span></code> in one folder, with an <code class="docutils literal notranslate"><span class="pre">items.csv</span></code> holding <code class="docutils literal notranslate"><span class="pre">item_id,grade,year,difficulty,content,image_file</span></code>.</p>
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o">[</span>all<span class="o">]</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">MATHIPY_DATA_DIR</span><span class="o">=</span>/path/to/items
 </pre></div>
 </div>
-<p>The metadata CSV is named <code class="docutils literal notranslate"><span class="pre">items.csv</span></code> and uses these columns:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">item_id</span><span class="p">,</span><span class="n">grade</span><span class="p">,</span><span class="n">year</span><span class="p">,</span><span class="n">difficulty</span><span class="p">,</span><span class="n">content</span><span class="p">,</span><span class="n">image_file</span>
-</pre></div>
-</div>
-</section>
-<section id="load-the-items">
-<h2>Load the items<a class="headerlink" href="#load-the-items" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sample_csv</span><span class="p">,</span> <span class="n">get_sample_image</span><span class="p">,</span> <span class="n">list_sample_images</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sample_csv</span><span class="p">,</span> <span class="n">get_sample_image</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_sample_csv</span><span class="p">())</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;item_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | Grade </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;grade&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;difficulty&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;content&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Prints one line per item:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">algebra</span>  <span class="o">|</span> <span class="n">Grade</span> <span class="mi">4</span> <span class="o">|</span> <span class="n">Easy</span>      <span class="o">|</span> <span class="n">Algebra</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">number</span>   <span class="o">|</span> <span class="n">Grade</span> <span class="mi">4</span> <span class="o">|</span> <span class="n">Medium</span>    <span class="o">|</span> <span class="n">Number</span> <span class="n">Properties</span> <span class="ow">and</span> <span class="n">Operations</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">measure</span>  <span class="o">|</span> <span class="n">Grade</span> <span class="mi">4</span> <span class="o">|</span> <span class="n">Hard</span>      <span class="o">|</span> <span class="n">Measurement</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g8</span><span class="o">-</span><span class="n">geometry</span> <span class="o">|</span> <span class="n">Grade</span> <span class="mi">8</span> <span class="o">|</span> <span class="n">Easy</span>      <span class="o">|</span> <span class="n">Geometry</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g8</span><span class="o">-</span><span class="n">data</span>     <span class="o">|</span> <span class="n">Grade</span> <span class="mi">8</span> <span class="o">|</span> <span class="n">Easy</span>      <span class="o">|</span> <span class="n">Data</span> <span class="n">Analysis</span><span class="p">,</span> <span class="n">Statistics</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Probability</span>
-</pre></div>
-</div>
-<p>Available images:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">list_sample_images</span><span class="p">())</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;demo-g4-algebra.png&#39;</span><span class="p">,</span> <span class="s1">&#39;demo-g4-measure.png&#39;</span><span class="p">,</span> <span class="s1">&#39;demo-g4-number.png&#39;</span><span class="p">,</span>
- <span class="s1">&#39;demo-g8-data.png&#39;</span><span class="p">,</span> <span class="s1">&#39;demo-g8-geometry.png&#39;</span><span class="p">]</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
 <section id="text-features">
 <h2>Text features<a class="headerlink" href="#text-features" title="Link to this heading">#</a></h2>
-<p>Use <code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code> to extract text and math expressions from item images. This requires a Gemini or OpenAI API key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span><span class="p">,</span> <span class="n">MathContentAnalyzer</span><span class="p">,</span> <span class="n">ReadabilityAnalyzer</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;A garden is 8 feet long and 5 feet wide. What is its area in square feet?&quot;</span>
+
+<span class="n">readability</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">math_content</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">load</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code> reads item text from an image and requires a Gemini or OpenAI API key:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
 
-<span class="n">ocr</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
-<span class="n">image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="s2">&quot;demo-g4-algebra&quot;</span><span class="p">))</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">ocr</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;full_text&quot;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;math_expressions&quot;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;answer_choices&quot;</span><span class="p">])</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_id&quot;</span><span class="p">])))[</span><span class="s2">&quot;full_text&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">full_text</span></code> holds the transcription, <code class="docutils literal notranslate"><span class="pre">math_expressions</span></code> the detected expressions, and <code class="docutils literal notranslate"><span class="pre">answer_choices</span></code> a letter-to-option mapping.</p>
-<section id="readability">
-<h3>Readability<a class="headerlink" href="#readability" title="Link to this heading">#</a></h3>
-<p>LaTeX and math symbols are replaced with placeholders so they don’t inflate complexity scores.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadabilityAnalyzer</span>
-
-<span class="n">analyzer</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span>
-<span class="n">texts</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;demo-g4-algebra&quot;</span><span class="p">:</span>  <span class="s2">&quot;Maya is Y years old. Maya cousin is 4 years older than Maya. &quot;</span>
-                        <span class="s2">&quot;Which expression represents Maya cousin age in years? &quot;</span>
-                        <span class="s2">&quot;A) Y+4 B) Y-4 C) Y*4 D) Y/4&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;demo-g4-number&quot;</span><span class="p">:</span>   <span class="s2">&quot;Multiply. 315 * 6 =&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;demo-g8-geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;The six points shown on the diagram represent parks. &quot;</span>
-                        <span class="s2">&quot;The distances, in meters, along the paths between parks are given. &quot;</span>
-                        <span class="s2">&quot;Rosa wants to travel from her park to Cedar park in the shortest distance. &quot;</span>
-                        <span class="s2">&quot;On which paths should Rosa travel? &quot;</span>
-                        <span class="s2">&quot;Select the appropriate paths to show your answer.&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="k">for</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: FK Grade=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;flesch_kincaid_grade&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;Reading Ease=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;flesch_reading_ease&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The strings above are made up, not copied from real items. Replace them with OCR output from an item folder.</p>
-<p>Values depend on whether <code class="docutils literal notranslate"><span class="pre">textstat</span></code> is installed; <code class="docutils literal notranslate"><span class="pre">mathipy[nlp]</span></code> supplies it, and a built-in fallback is used otherwise.</p>
-</section>
-<section id="math-content">
-<h3>Math content<a class="headerlink" href="#math-content" title="Link to this heading">#</a></h3>
-<p>Classify items by CCSSM math domain and extract math features.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MathContentAnalyzer</span>
-
-<span class="n">math_analyzer</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">math_analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    <span class="n">domain</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;domain_classification&quot;</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: domain=</span><span class="si">{</span><span class="n">domain</span><span class="p">[</span><span class="s1">&#39;primary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;(confidence=</span><span class="si">{</span><span class="n">domain</span><span class="p">[</span><span class="s1">&#39;confidence&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">), &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;density=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;math_density&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;terms=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;vocabulary&#39;</span><span class="p">][</span><span class="s1">&#39;math_terms&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">algebra</span><span class="p">:</span>  <span class="n">domain</span><span class="o">=</span><span class="n">algebra</span>    <span class="p">(</span><span class="n">confidence</span><span class="o">=</span><span class="mf">1.00</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.31</span><span class="p">,</span> <span class="n">terms</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;expression&#39;</span><span class="p">]</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">number</span><span class="p">:</span>   <span class="n">domain</span><span class="o">=</span><span class="n">arithmetic</span> <span class="p">(</span><span class="n">confidence</span><span class="o">=</span><span class="mf">1.00</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span> <span class="n">terms</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;multiply&#39;</span><span class="p">]</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g8</span><span class="o">-</span><span class="n">geometry</span><span class="p">:</span> <span class="n">domain</span><span class="o">=</span><span class="n">arithmetic</span> <span class="p">(</span><span class="n">confidence</span><span class="o">=</span><span class="mf">0.00</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">terms</span><span class="o">=</span><span class="p">[]</span>
-</pre></div>
-</div>
-<p>The geometry item scores zero because its content sits in a diagram, not the text — text-only features miss math that lives in a picture. Measurement and geometry are separate domains, and an item is assigned by what it asks for: units, instruments, time and conversion go to measurement, while a dimensioned shape goes to geometry. So “how many inches in 3 feet” is measurement and “the area of a rectangle with length 8 feet” is geometry.</p>
-</section>
-<section id="cognitive-load">
-<h3>Cognitive load<a class="headerlink" href="#cognitive-load" title="Link to this heading">#</a></h3>
-<p>Element counts, operation counts, and density ratios.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span>
-
-<span class="n">estimator</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">: elements=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;numeric_elements&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;ops=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;operation_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;vars=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;variable_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;density=</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;element_density&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">algebra</span><span class="p">:</span>  <span class="n">elements</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ops</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.34</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">number</span><span class="p">:</span>   <span class="n">elements</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ops</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.40</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g8</span><span class="o">-</span><span class="n">geometry</span><span class="p">:</span> <span class="n">elements</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ops</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">vars</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">0.00</span>
-</pre></div>
-</div>
-<p>The geometry item has no numbers at all; its load sits in the long instructions, which word and sentence counts pick up instead.</p>
-</section>
 </section>
 <section id="visual-features">
 <h2>Visual features<a class="headerlink" href="#visual-features" title="Link to this heading">#</a></h2>
-<p>Image complexity features from the item screenshots.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
 
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">[:</span><span class="mi">3</span><span class="p">]:</span>
-    <span class="n">image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">]))</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
-    <span class="n">dims</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;dimensions&quot;</span><span class="p">]</span>
-    <span class="n">score</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;complexity_score&quot;</span><span class="p">]</span>
-    <span class="n">shapes</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;structural_elements&quot;</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;item_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">dims</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;edge_ratio=</span><span class="si">{</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;edge_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;shapes=</span><span class="si">{</span><span class="n">score</span><span class="p">[</span><span class="s1">&#39;total_shapes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;lines=</span><span class="si">{</span><span class="n">shapes</span><span class="p">[</span><span class="s1">&#39;line_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_id&quot;</span><span class="p">])))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">algebra</span><span class="p">:</span>  <span class="mi">520</span><span class="n">x390</span><span class="p">,</span> <span class="n">edge_ratio</span><span class="o">=</span><span class="mf">0.105</span><span class="p">,</span> <span class="n">shapes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="mi">39</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">number</span><span class="p">:</span>   <span class="mi">872</span><span class="n">x147</span><span class="p">,</span> <span class="n">edge_ratio</span><span class="o">=</span><span class="mf">0.072</span><span class="p">,</span> <span class="n">shapes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="mi">0</span>
-<span class="n">demo</span><span class="o">-</span><span class="n">g4</span><span class="o">-</span><span class="n">measure</span><span class="p">:</span>  <span class="mi">640</span><span class="n">x480</span><span class="p">,</span> <span class="n">edge_ratio</span><span class="o">=</span><span class="mf">0.118</span><span class="p">,</span> <span class="n">shapes</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="mi">22</span>
-</pre></div>
-</div>
-</section>
-<section id="one-row-per-item">
-<h2>One row per item<a class="headerlink" href="#one-row-per-item" title="Link to this heading">#</a></h2>
-<p>The pipeline produces one feature vector per item:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sample_csv</span><span class="p">,</span> <span class="n">get_sample_image</span>
-
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
-
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_sample_csv</span><span class="p">())</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
-
-<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-    <span class="n">image_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">]))</span>
-    <span class="n">visual</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
-
-    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-        <span class="s2">&quot;item_id&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;grade&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;difficulty&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;difficulty&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;edge_ratio&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;complexity_score&quot;</span><span class="p">][</span><span class="s2">&quot;edge_ratio&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;total_shapes&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;complexity_score&quot;</span><span class="p">][</span><span class="s2">&quot;total_shapes&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;lines&quot;</span><span class="p">:</span> <span class="n">visual</span><span class="p">[</span><span class="s2">&quot;structural_elements&quot;</span><span class="p">][</span><span class="s2">&quot;line_count&quot;</span><span class="p">],</span>
-    <span class="p">})</span>
-
-<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;item_id&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">16s</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;difficulty&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">6s</span><span class="si">}</span><span class="s2"> | &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;edge_ratio=</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;edge_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> | &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;shapes=</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;total_shapes&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2"> | lines=</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Text features are added after OCR extraction to complete the table.</p>
 </section>
 <section id="representation-type">
 <h2>Representation type<a class="headerlink" href="#representation-type" title="Link to this heading">#</a></h2>
-<p>The features above measure visual complexity, not content. Classification assigns the representation type and instructional role.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualModelClassifier</span><span class="p">,</span> <span class="n">flags_by_group</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">mathipy.visual</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_models</span>
+<p>Requires a Gemini or OpenAI API key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualModelClassifier</span><span class="p">,</span> <span class="n">flags_by_representation</span>
 
-<span class="n">classifier</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="s2">&quot;demo-g8-data&quot;</span><span class="p">)))</span>
-
-<span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">visual_models</span> <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="n">m</span><span class="p">]]</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;primary : </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;primary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;function: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;function&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;types   : </span><span class="si">{</span><span class="n">types</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;groups  : </span><span class="si">{</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">flags_by_group</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">v</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_id&quot;</span><span class="p">])),</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;stem&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;visual_type&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">flags_by_representation</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">primary</span> <span class="p">:</span> <span class="n">circle_graph</span>
-<span class="n">function</span><span class="p">:</span> <span class="n">essential</span>
-<span class="n">types</span>   <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;circle_graph&#39;</span><span class="p">,</span> <span class="s1">&#39;table&#39;</span><span class="p">]</span>
-<span class="n">groups</span>  <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;visual_group_data_display&#39;</span><span class="p">,</span> <span class="s1">&#39;visual_group_symbolic&#39;</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>Two cautions. The same image can come back with a different label on a second run. The labels have not been checked against human coders, so hand-code a sample and compare before using them.</p>
+<p>Labels vary between runs; compare a hand-coded sample before relying on them.</p>
 </section>
 </section>
 

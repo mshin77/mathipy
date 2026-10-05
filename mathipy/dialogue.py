@@ -10,7 +10,8 @@ from typing import Any
 
 transcript_formats = ("plain", "vtt", "srt", "csv")
 
-_speaker_line = re.compile(r"^\s*([^:\n]{1,40}):\s*(.*)$")
+_speaker_line = re.compile(
+    r"^\s*(?:[\[(\-–]\s*)?([^\W\d_][^:\n\])]{0,39})[\])]?(?!(?<=\d):\d):\s*(.*)$")
 _timestamp = re.compile(r"\d{1,2}:\d{2}(:\d{2})?[.,]?\d*\s*-->")
 _stopwords = set(
     "a an the of to in for is are and or on with it its that this you i we he "
@@ -23,7 +24,7 @@ def _tokens(text: str) -> set[str]:
             if len(w) > 2 and w not in _stopwords}
 
 
-def _from_plain(lines: Sequence[str]) -> list[tuple[str, str]]:
+def _from_plain(lines: Sequence[str], unlabeled: str | None = None) -> list[tuple[str, str]]:
     turns = []
     for line in lines:
         match = _speaker_line.match(line)
@@ -31,6 +32,8 @@ def _from_plain(lines: Sequence[str]) -> list[tuple[str, str]]:
             turns.append([match.group(1).strip(), match.group(2).strip()])
         elif turns and line.strip():
             turns[-1][1] += " " + line.strip()
+        elif unlabeled and line.strip():
+            turns.append([unlabeled, line.strip()])
     return [(s, t) for s, t in turns if t]
 
 
@@ -38,7 +41,7 @@ def _from_captions(lines: Sequence[str]) -> list[tuple[str, str]]:
     body = [ln for ln in lines
             if ln.strip() and not _timestamp.search(ln)
             and not ln.strip().isdigit() and ln.strip() != "WEBVTT"]
-    return _from_plain(body)
+    return _from_plain(body, unlabeled="Unknown")
 
 
 def _from_csv(path: Path, speaker_key: str, text_key: str) -> list[tuple[str, str]]:
@@ -98,8 +101,8 @@ def segment_turns(
 def turn_measures(turns: Sequence[dict[str, Any]]) -> dict[str, Any]:
     """Return talk share, turn length, and cross-speaker uptake."""
     if not turns:
-        return {"turns": 0, "speakers": 0, "talk_share": {}, "mean_turn_words": 0.0,
-                "uptake_mean": 0.0}
+        return {"turns": 0, "speakers": 0, "talk_share": {}, "turn_counts": {},
+                "mean_turn_words": 0.0, "uptake_mean": 0.0}
 
     words = {}
     counts = {}

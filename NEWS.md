@@ -1,3 +1,9 @@
+# mathipy 0.4.13
+
+- Maps visual types to CCSSM representations.
+- Classifies an image by its position in the item.
+- Fixes text-feature counts, including answer labels read as variables.
+
 # mathipy 0.4.12
 
 - Quotes the item text between markers so a provider that declines assessment

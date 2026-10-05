@@ -383,6 +383,9 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-definitions"><code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-groups"><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flags-by-group"><code class="docutils literal notranslate"><span class="pre">flags_by_group</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-model-representations"><code class="docutils literal notranslate"><span class="pre">visual_model_representations</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flags-by-representation"><code class="docutils literal notranslate"><span class="pre">flags_by_representation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-subtypes"><code class="docutils literal notranslate"><span class="pre">visual_subtypes</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multimodal-item">Multimodal Item</a><ul class="nav section-nav flex-column">
@@ -436,10 +439,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#safe-get"><code class="docutils literal notranslate"><span class="pre">safe_get</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#provenance-and-limitations">Provenance and Limitations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mathematics-register">Mathematics Register</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#register-features"><code class="docutils literal notranslate"><span class="pre">register_features</span></code></a></li>
@@ -533,13 +533,16 @@
 </dd>
 <dt>linsear_write_formula</dt><dd><p>Linsear Write formula</p>
 </dd>
-<dt>dale_chall_readability</dt><dd><p>Dale-Chall readability score</p>
+<dt>dale_chall_readability</dt><dd><p>Dale-Chall readability score, computed without numerals</p>
 </dd>
 <dt>average_grade_level</dt><dd><p>Average of FK, Fog, and SMOG</p>
 </dd>
 <dt>low_confidence</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if text is shorter than 20 words</p>
 </dd>
+<dt>estimated</dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> when the scores come from the fallback estimate rather than textstat</p>
+</dd>
 </dl>
+<p>Empty text returns every key, with scores as NaN.</p>
 </section>
 </section>
 <section id="math-content">
@@ -565,7 +568,7 @@
 </dd>
 <dt>vocabulary</dt><dd><p>Matched math terms and counts</p>
 </dd>
-<dt>domain_classification</dt><dd><p>Primary domain, confidence, and scores</p>
+<dt>domain_classification</dt><dd><p>Primary domain, confidence, and scores; primary is <code class="docutils literal notranslate"><span class="pre">unknown</span></code> when no domain term occurs</p>
 </dd>
 <dt>math_density</dt><dd><p>Ratio of math patterns to word count</p>
 </dd>
@@ -581,7 +584,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span>
 
 <span class="n">estimator</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">readability_grade</span><span class="o">=</span><span class="mf">5.2</span><span class="p">,</span> <span class="n">math_terms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;equation&quot;</span><span class="p">,</span> <span class="s2">&quot;solve&quot;</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">readability_grade</span><span class="o">=</span><span class="mf">5.2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Returns a dictionary with:</p>
@@ -590,11 +593,11 @@
 </dd>
 <dt>variable_count</dt><dd><p>Count of single-letter variables</p>
 </dd>
-<dt>operation_count</dt><dd><p>Count of math operations (+, -, *, /, ^, =, &lt;, &gt;)</p>
+<dt>operation_count</dt><dd><p>Count of math operations (+, -, *, /, ^, =, &lt;, &gt;, ×, ÷, −)</p>
 </dd>
-<dt>word_count</dt><dd><p>Total words in text</p>
+<dt>word_count</dt><dd><p>Words in the text, answer labels such as <code class="docutils literal notranslate"><span class="pre">A.</span></code> excluded</p>
 </dd>
-<dt>sentence_count</dt><dd><p>Total sentences in text</p>
+<dt>sentence_count</dt><dd><p>Sentences in the text; decimals and answer labels do not end a sentence</p>
 </dd>
 <dt>math_term_count</dt><dd><p>Count of CCSSM-aligned math keywords</p>
 </dd>
@@ -628,8 +631,6 @@
 <dt>structural_elements</dt><dd><p>Detected lines, circles, shapes (triangles, rectangles, etc.)</p>
 </dd>
 <dt>frequency_domain</dt><dd><p>Low/mid/high frequency energy ratios</p>
-</dd>
-<dt>complexity_score</dt><dd><p>Summary with edge_ratio, total_shapes, and high_freq_ratio</p>
 </dd>
 </dl>
 </section>
@@ -671,7 +672,10 @@
 </dd>
 <dt>extraction_confidence</dt><dd><p>Confidence score (0–1)</p>
 </dd>
+<dt>images_failed</dt><dd><p>Count of embedded images that could not be read; each failure is logged as a warning</p>
+</dd>
 </dl>
+<p>Rate-limited calls wait for the provider’s <code class="docutils literal notranslate"><span class="pre">Retry-After</span></code> interval (at most 30 seconds) before retrying.</p>
 </section>
 </section>
 <section id="visual-model-classification">
@@ -686,6 +690,7 @@
 <span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">,</span> <span class="n">votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">,</span> <span class="n">item_text</span><span class="o">=</span><span class="s2">&quot;A store sells 3 apples for $2...&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_scan.png&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;page_scan&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Parameters:</p>
@@ -697,8 +702,10 @@
 <dt>api_key</dt><dd><p>API key (or set via <code class="docutils literal notranslate"><span class="pre">.env</span></code> file)</p>
 </dd>
 </dl>
-<p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;visual_type&quot;</span></code> (str), <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (str: <code class="docutils literal notranslate"><span class="pre">no_visual</span></code> when the image carries no figure, otherwise <code class="docutils literal notranslate"><span class="pre">essential</span></code> or <code class="docutils literal notranslate"><span class="pre">decorative</span></code>; <code class="docutils literal notranslate"><span class="pre">unknown</span></code> when the model returns a label outside the three), and <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int). The <code class="docutils literal notranslate"><span class="pre">votes</span></code> argument runs multiple independent calls and merges flags by majority and <code class="docutils literal notranslate"><span class="pre">primary</span></code>/<code class="docutils literal notranslate"><span class="pre">function</span></code> by mode.</p>
+<p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;visual_type&quot;</span></code> (str), <code class="docutils literal notranslate"><span class="pre">&quot;visual_subtype&quot;</span></code> (str or None, from <code class="docutils literal notranslate"><span class="pre">visual_subtypes</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (str: <code class="docutils literal notranslate"><span class="pre">no_visual</span></code> when the image carries no figure, otherwise <code class="docutils literal notranslate"><span class="pre">essential</span></code> or <code class="docutils literal notranslate"><span class="pre">decorative</span></code>; <code class="docutils literal notranslate"><span class="pre">unknown</span></code> when the model returns a label outside the three), <code class="docutils literal notranslate"><span class="pre">&quot;option_visual_type&quot;</span></code> (str or None, the type of graphic answer choices), <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int), <code class="docutils literal notranslate"><span class="pre">&quot;position&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;text_withheld&quot;</span></code> (True when the provider declined the item text and the figure was classified alone). The <code class="docutils literal notranslate"><span class="pre">votes</span></code> argument runs multiple independent calls: flags merge by majority and <code class="docutils literal notranslate"><span class="pre">visual_type</span></code> by mode; <code class="docutils literal notranslate"><span class="pre">function</span></code> and <code class="docutils literal notranslate"><span class="pre">visual_subtype</span></code> take the mode among the votes that agree on <code class="docutils literal notranslate"><span class="pre">visual_type</span></code>; <code class="docutils literal notranslate"><span class="pre">option_visual_type</span></code> comes from the vote that supplied the option boxes. A network or server failure drops the vote without withholding the item text.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">item_text</span></code> argument supplies the item’s text so the <code class="docutils literal notranslate"><span class="pre">function</span></code> judgment can compare the image against it. Without <code class="docutils literal notranslate"><span class="pre">item_text</span></code>, the <code class="docutils literal notranslate"><span class="pre">essential</span></code> vs <code class="docutils literal notranslate"><span class="pre">decorative</span></code> distinction is reliable only when the image contains the complete item.</p>
+<p>A network failure, server error, rate limit, or invalid API key raises <code class="docutils literal notranslate"><span class="pre">ProviderUnavailableError</span></code> (a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> subclass exported by mathipy); a provider declining the content raises a plain <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> after the retry without item text.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">position</span></code> argument states where the image sits: <code class="docutils literal notranslate"><span class="pre">&quot;stem&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;option&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;additional&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;page_scan&quot;</span></code> (keys of <code class="docutils literal notranslate"><span class="pre">mathipy.classifier.image_positions</span></code>). A <code class="docutils literal notranslate"><span class="pre">page_scan</span></code> is a screenshot of the whole item and is typed from its stimulus figure alone; graphic answer choices are reported in <code class="docutils literal notranslate"><span class="pre">option_visual_type</span></code>. Any other value raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
 </section>
 <section id="visual-function-definitions">
 <h3><code class="docutils literal notranslate"><span class="pre">visual_function_definitions</span></code><a class="headerlink" href="#visual-function-definitions" title="Link to this heading">#</a></h3>
@@ -737,6 +744,33 @@
 </pre></div>
 </div>
 <p>Keys other than the type names are ignored, so a full classification result can be passed directly.</p>
+</section>
+<section id="visual-model-representations">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_model_representations</span></code><a class="headerlink" href="#visual-model-representations" title="Link to this heading">#</a></h3>
+<p>The 27 types are the unit of classification. Three mappings collapse them for modeling, each from a different framework: <code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code> (representation encoding), <code class="docutils literal notranslate"><span class="pre">visual_model_signs</span></code> (icon, index, symbol), and <code class="docutils literal notranslate"><span class="pre">visual_model_representations</span></code> (representations the CCSSM progressions name). Pick one per analysis.</p>
+<p>Dictionary mapping each type to the representation the CCSSM progressions name for it (Common Core Standards Writing Team, 2023): <code class="docutils literal notranslate"><span class="pre">quantity_model</span></code>, <code class="docutils literal notranslate"><span class="pre">tabular</span></code>, <code class="docutils literal notranslate"><span class="pre">coordinate_graph</span></code>, <code class="docutils literal notranslate"><span class="pre">data_display</span></code>, <code class="docutils literal notranslate"><span class="pre">geometric_figure</span></code>, <code class="docutils literal notranslate"><span class="pre">measurement_tool</span></code>, <code class="docutils literal notranslate"><span class="pre">pictorial</span></code>, <code class="docutils literal notranslate"><span class="pre">other</span></code>, and <code class="docutils literal notranslate"><span class="pre">no_visual</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_representations</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_representations</span><span class="p">[</span><span class="s2">&quot;line_graph&quot;</span><span class="p">])</span>  <span class="c1"># &quot;coordinate_graph&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="flags-by-representation">
+<h3><code class="docutils literal notranslate"><span class="pre">flags_by_representation</span></code><a class="headerlink" href="#flags-by-representation" title="Link to this heading">#</a></h3>
+<p>Collapses the per-type flags into one key per representation, under a chosen prefix.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">flags_by_representation</span><span class="p">,</span> <span class="n">representation_names</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">flags_by_representation</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;stem_representation&quot;</span><span class="p">))</span>
+<span class="c1"># {&#39;stem_representation_coordinate_graph&#39;: 0, &#39;stem_representation_data_display&#39;: 1, ...}</span>
+</pre></div>
+</div>
+</section>
+<section id="visual-subtypes">
+<h3><code class="docutils literal notranslate"><span class="pre">visual_subtypes</span></code><a class="headerlink" href="#visual-subtypes" title="Link to this heading">#</a></h3>
+<p>Dictionary of named variants per type, such as <code class="docutils literal notranslate"><span class="pre">double_number_line</span></code> under <code class="docutils literal notranslate"><span class="pre">number_line</span></code> and <code class="docutils literal notranslate"><span class="pre">ratio_table</span></code> under <code class="docutils literal notranslate"><span class="pre">table</span></code>. A subtype is descriptive and never changes the type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_subtypes</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_subtypes</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="multimodal-item">
@@ -870,7 +904,7 @@ every paragraph in document order including those inside tables,
 <p>Discourse measures for extended writing and dialogue, where readability formulas do not apply. Deterministic, standard library only, no network call.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohesion_features</span>
 
-<span class="n">cohesion_features</span><span class="p">(</span><span class="s2">&quot;The slope rises. However it falls later. Therefore we checked.&quot;</span><span class="p">)</span>
+<span class="n">cohesion_features</span><span class="p">(</span><span class="s2">&quot;The slope rises. However it falls later. Therefore it was checked.&quot;</span><span class="p">)</span>
 <span class="c1"># {&#39;connective_additive&#39;: 0, &#39;connective_causal&#39;: 1, &#39;connective_conditional&#39;: 0,</span>
 <span class="c1">#  &#39;connective_adversative&#39;: 1, &#39;connective_total&#39;: 2, &#39;connective_per_100w&#39;: 20.0,</span>
 <span class="c1">#  &#39;overlap_adjacent_mean&#39;: 0.0, &#39;lexical_diversity&#39;: 1.0,</span>
@@ -883,7 +917,10 @@ every paragraph in document order including those inside tables,
 <section id="de-identification">
 <h2>De-identification<a class="headerlink" href="#de-identification" title="Link to this heading">#</a></h2>
 <p>Classroom transcripts and student writing carry names and contact details. Run this before anything else touches the data. Local and deterministic — nothing is transmitted.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deidentify_turns</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">segment_turns</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deidentify</span><span class="p">,</span> <span class="n">deidentify_turns</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">segment_turns</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">deidentify</span><span class="p">(</span><span class="s2">&quot;Thanks, Maria. Email me at a.lee@school.org.&quot;</span><span class="p">)</span>
+<span class="c1"># result[&quot;text&quot;] masks the name and the email; result[&quot;counts&quot;] tallies each category</span>
 
 <span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">&quot;lesson.vtt&quot;</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">&quot;vtt&quot;</span><span class="p">)</span>
 <span class="n">clean</span> <span class="o">=</span> <span class="n">deidentify_turns</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
@@ -892,7 +929,7 @@ every paragraph in document order including those inside tables,
 <span class="n">scan</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>   <span class="c1"># report what is present without changing anything</span>
 </pre></div>
 </div>
-<p>Masks emails, phone numbers, URLs, social security numbers, student IDs, dates, and titled names such as <code class="docutils literal notranslate"><span class="pre">Ms.</span> <span class="pre">Rivera</span></code>. <code class="docutils literal notranslate"><span class="pre">deidentify_turns</span></code> also removes speaker names from the body text, since speakers address each other by name. Pass <code class="docutils literal notranslate"><span class="pre">names=[...]</span></code> to remove additional names, and <code class="docutils literal notranslate"><span class="pre">keep=[&quot;url&quot;]</span></code> to retain a category.</p>
+<p>Masks emails, phone numbers, URLs, social security numbers, student IDs, dates, and titled names such as <code class="docutils literal notranslate"><span class="pre">Ms.</span> <span class="pre">Rivera</span></code>. <code class="docutils literal notranslate"><span class="pre">deidentify_turns</span></code> also removes speaker names from the body text, since speakers address each other by name. Pass <code class="docutils literal notranslate"><span class="pre">names=[...]</span></code> to <code class="docutils literal notranslate"><span class="pre">deidentify</span></code> to remove additional names, and <code class="docutils literal notranslate"><span class="pre">keep=[&quot;url&quot;]</span></code> to retain a category.</p>
 <p>Matching is pattern-based, so it will not catch every name. Review <code class="docutils literal notranslate"><span class="pre">scan</span></code> output before treating a transcript as clean.</p>
 </section>
 <section id="dialogue">
@@ -957,16 +994,11 @@ every paragraph in document order including those inside tables,
 <p>Retrieves a nested value from a dict, returning a default on any miss.</p>
 </section>
 </section>
-<section id="provenance-and-limitations">
-<h2>Provenance and Limitations<a class="headerlink" href="#provenance-and-limitations" title="Link to this heading">#</a></h2>
-<p>Each type is defined by what the arrangement of marks encodes, so that a coder can assign it from the figure alone. The data-display group follows Friel et al. (2001) and the quantity models follow Behr et al. (1992); type names use the vocabulary of CCSSM (NGA &amp; CCSSO, 2010) where the standards name a representation. The <code class="docutils literal notranslate"><span class="pre">depictive</span></code>, <code class="docutils literal notranslate"><span class="pre">sequential</span></code>, and <code class="docutils literal notranslate"><span class="pre">relational</span></code> groups are author-derived.</p>
-<p>The function labels <strong>adapt</strong> Levin et al. (1987). Only the solve-relevance contrast survives the move from prose to assessment, so <code class="docutils literal notranslate"><span class="pre">essential</span></code> carries the figures an item cannot be answered without and <code class="docutils literal notranslate"><span class="pre">decorative</span></code> carries the rest, whether they restate the text or depict none of the mathematics. <code class="docutils literal notranslate"><span class="pre">no_visual</span></code> marks an item with no figure. This is an adaptation, not an implementation of the five-category scheme.</p>
-<p>An OpenAI model declines an item whose text carries lettered answer options, returning a refusal rather than a classification, because the request reads as a request to answer the question. Measured on 826 released assessment items, 46 percent carry such options. Passing the stem alone removes the refusal and costs accuracy on the option images; a Gemini model classifies the same input unchanged. Choose the provider with that in mind when the corpus is assessment items.</p>
-<p>Classification is not deterministic: temperature is 0.1, no seed is available, and hosted models change over time. Record the model identifier and date, cache results rather than re-classifying, and report vote agreement when <code class="docutils literal notranslate"><span class="pre">votes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>.</p>
-<p><strong>Classifier accuracy against human coders has not been established.</strong> Treat labels as provisional and validate against hand-coded items before relying on them for inference.</p>
 <section id="references">
-<h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <ul class="simple">
+<li><p>Behr, M. J., Harel, G., Post, T., &amp; Lesh, R. (1992). Rational number, ratio, and proportion. In D. A. Grouws (Ed.), <em>Handbook of research on mathematics teaching and learning</em> (pp. 296-333). Macmillan.</p></li>
+<li><p>Common Core Standards Writing Team. (2023). <em>Progressions for the Common Core State Standards for Mathematics</em>. Institute for Mathematics and Education, University of Arizona.</p></li>
 <li><p>Friel, S. N., Curcio, F. R., &amp; Bright, G. W. (2001). Making sense of graphs. <em>Journal for Research in Mathematics Education, 32</em>(2), 124-158.</p></li>
 <li><p>Lesh, R., Post, T., &amp; Behr, M. (1987). Representations and translations among representations in mathematics learning and problem solving. In C. Janvier (Ed.), <em>Problems of representation in the teaching and learning of mathematics</em> (pp. 33-40). Erlbaum.</p></li>
 <li><p>Levin, J. R., Anglin, G. J., &amp; Carney, R. N. (1987). On empirically validating functions of pictures in prose. In D. M. Willows &amp; H. A. Houghton (Eds.), <em>The psychology of illustration</em> (Vol. 1, pp. 51-85). Springer.</p></li>
@@ -975,7 +1007,6 @@ every paragraph in document order including those inside tables,
 <li><p>Schleppegrell, M. J. (2007). The linguistic challenges of mathematics teaching and learning: A research review. <em>Reading &amp; Writing Quarterly, 23</em>(2), 139-159.</p></li>
 <li><p>Woodin, G., Winter, B., Littlemore, J., Perlman, M., &amp; Grieve, J. (2024). Large-scale patterns of number use in spoken and written English. <em>Corpus Linguistics and Linguistic Theory, 20</em>(1), 123-152.</p></li>
 </ul>
-</section>
 </section>
 <section id="sample-data">
 <h2>Sample Data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>

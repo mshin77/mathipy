@@ -128,6 +128,39 @@ visual_model_signs = {
 
 sign_names = sorted(set(visual_model_signs.values()))
 
+visual_model_representations = {
+    "number_line": "quantity_model", "tape_diagram": "quantity_model",
+    "area_model": "quantity_model", "array": "quantity_model",
+    "table": "tabular",
+    "coordinate_plane": "coordinate_graph", "line_graph": "coordinate_graph",
+    "scatter_plot": "coordinate_graph",
+    "bar_graph": "data_display", "picture_graph": "data_display",
+    "dot_plot": "data_display", "histogram": "data_display",
+    "circle_graph": "data_display", "box_plot": "data_display",
+    "stem_leaf_plot": "data_display",
+    "polygon": "geometric_figure", "circle_figure": "geometric_figure",
+    "angle_figure": "geometric_figure", "solid_figure": "geometric_figure",
+    "net_diagram": "geometric_figure",
+    "measurement_tool": "measurement_tool",
+    "picture": "pictorial",
+    "expression_frame": "other", "pattern_visual": "other",
+    "tree_diagram": "other", "venn_diagram": "other",
+    "text_only": "no_visual",
+}
+
+representation_names = sorted(set(visual_model_representations.values()))
+
+visual_subtypes = {
+    "number_line": ["double_number_line"],
+    "table": ["ratio_table", "two_way_table", "function_table", "data_table"],
+    "circle_graph": ["pie_chart", "spinner"],
+    "area_model": ["fraction_circle", "grid_model"],
+    "tape_diagram": ["fraction_strip"],
+    "measurement_tool": ["ruler", "protractor", "clock", "thermometer",
+                         "dial_scale", "pan_balance"],
+    "tree_diagram": ["probability_tree", "factor_tree"],
+}
+
 
 def _is_set(value: Any) -> bool:
     """Read a flag that may have round-tripped through CSV or JSON as text.
@@ -203,6 +236,15 @@ def flags_by_group(entry: dict[str, Any]) -> dict[str, int]:
     return {f"visual_group_{g}": int(v) for g, v in hits.items()}
 
 
+def flags_by_representation(entry: dict[str, Any], prefix: str = "visual_representation") -> dict[str, int]:
+    """Collapse per-type flags into the representation categories the CCSSM progressions name."""
+    hits = dict.fromkeys(representation_names, False)
+    for m in visual_models:
+        if _is_set(entry.get(m)):
+            hits[visual_model_representations[m]] = True
+    return {f"{prefix}_{f}": int(v) for f, v in hits.items()}
+
+
 def flags_by_sign(entry: dict[str, Any]) -> dict[str, int]:
     """Collapse per-type boolean flags into one flag per Peircean sign class.
 
@@ -224,7 +266,7 @@ class VisualFeatureExtractor:
     """Extract visual complexity features from assessment images.
 
     Analyzes dimensions, pixel statistics, edge metrics, structural elements
-    (lines, circles, shapes), frequency domain, and overall complexity score.
+    (lines, circles, shapes), and frequency domain.
 
     Requires ``pip install mathipy[vision]`` for full features.
     """
@@ -246,7 +288,7 @@ class VisualFeatureExtractor:
 
         Returns:
             Dictionary with ``dimensions``, ``pixel_statistics``, ``edge_metrics``,
-            ``structural_elements``, ``frequency_domain``, and ``complexity_score``.
+            ``structural_elements``, and ``frequency_domain``.
         """
         image = self._load_image(image_source)
         if image is None:

@@ -9,6 +9,8 @@ mentions a picture.
 import re
 from collections import Counter
 
+from mathipy.utils import consume_phrases
+
 _display_nouns = ("figure", "graph", "diagram", "table", "chart", "picture",
                   "drawing", "model", "number line", "grid", "spinner", "map",
                   "shape", "solid", "box", "image", "photograph")
@@ -54,11 +56,7 @@ _label_ref = re.compile(
 def deictic_features(text: str) -> dict[str, int]:
     """Counts of linguistic pointers to the image."""
     lowered = (text or "").lower()
-    found = Counter()
-    for phrase in deictic_phrases:
-        hits = len(re.findall(r"\b" + re.escape(phrase) + r"\b", lowered))
-        if hits:
-            found[phrase] = hits
+    found = Counter(consume_phrases(lowered, deictic_phrases))
     following = len(_following_display.findall(lowered))
     if following:
         found["following <display>"] = following

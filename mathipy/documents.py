@@ -84,12 +84,15 @@ def paragraph_text(para) -> str:
     """Paragraph text including equation objects, which ``Paragraph.text`` omits."""
     from docx.oxml.ns import qn
 
-    run, math, para_math, link = qn("w:r"), _M + "oMath", _M + "oMathPara", qn("w:hyperlink")
-    text_tag = qn("w:t")
+    run_tags = {qn(t) for t in ("w:r", "w:hyperlink", "w:ins", "w:smartTag")}
+    math, para_math, text_tag = _M + "oMath", _M + "oMathPara", qn("w:t")
+    break_tags = (qn("w:br"), qn("w:cr"), qn("w:tab"))
     parts = []
     for child in para._p:
-        if child.tag in (run, link):
-            text, spaced = "".join(t.text or "" for t in child.iter(text_tag)), False
+        if child.tag in run_tags:
+            text = "".join(t.text or "" if t.tag == text_tag else " "
+                           for t in child.iter(text_tag, *break_tags))
+            spaced = False
         elif child.tag in (math, para_math):
             text, spaced = _omml_text(child), True
         else:
@@ -116,19 +119,22 @@ def body_paragraphs(doc) -> list:
     from docx.text.paragraph import Paragraph
 
     tbl_tag, p_tag = qn("w:tbl"), qn("w:p")
+    sdt_tag, sdt_content_tag = qn("w:sdt"), qn("w:sdtContent")
 
     def walk(parent, element, seen):
         out = []
         for child in element.iterchildren():
             if child.tag == p_tag:
                 out.append(Paragraph(child, parent))
+            elif child.tag == sdt_tag:
+                for content in child.iterchildren(sdt_content_tag):
+                    out.extend(walk(parent, content, seen))
             elif child.tag == tbl_tag:
-                for row in Table(child, parent).rows:
-                    for cell in row.cells:
-                        if id(cell._tc) in seen:
-                            continue
-                        seen.add(id(cell._tc))
-                        out.extend(walk(cell, cell._tc, seen))
+                cells = {cell._tc: cell for row in Table(child, parent).rows
+                         for cell in row.cells if cell._tc not in seen}
+                seen.update(cells)
+                for cell in cells.values():
+                    out.extend(walk(cell, cell._tc, seen))
         return out
 
     return walk(doc, doc.element.body, set())
@@ -192,10 +198,13 @@ def segment_docx(
     paragraphs = body_paragraphs(doc)
     para_images = paragraph_images(paragraphs, doc)
     sections = section_markers or {}
+    reserved = {"item_id", "text", "images"} & set(sections.values())
+    if reserved:
+        raise ValueError(f"section names {sorted(reserved)} collide with item fields")
 
     items: dict[str, dict[str, Any]] = {}
     order: list[str] = []
-    buffer_text: list[str] = []
+    buffer_text: list[tuple[str | None, str]] = []
     buffer_images: list[bytes] = []
     buffer_section: str | None = None
 
@@ -209,12 +218,12 @@ def segment_docx(
     def flush(item_id: str) -> None:
         nonlocal buffer_text, buffer_images, buffer_section
         item = record(item_id)
-        if buffer_section:
-            joined = " ".join(buffer_text)
-            item[buffer_section] = f"{item[buffer_section]} {joined}".strip()
-        else:
-            item["text"] = " ".join(filter(None, [item["text"], *buffer_text]))
-            item["images"].extend(buffer_images)
+        for name in dict.fromkeys(s for s, _ in buffer_text if s):
+            joined = " ".join(t for s, t in buffer_text if s == name)
+            item[name] = f"{item[name]} {joined}".strip()
+        body = [t for s, t in buffer_text if s is None]
+        item["text"] = " ".join(filter(None, [item["text"], *body]))
+        item["images"].extend(buffer_images)
         buffer_text, buffer_images, buffer_section = [], [], None
 
     pending_id: str | None = None
@@ -234,17 +243,20 @@ def segment_docx(
                 record(item_id)
             continue
 
-        matched = next((name for prefix, name in sections.items()
+        matched = next(((prefix, name) for prefix, name in sections.items()
                         if text.startswith(prefix)), None)
         if matched:
-            buffer_section = matched
+            buffer_section = matched[1]
+            inline = text[len(matched[0]):].strip(" :-–")
+            if inline:
+                buffer_text.append((buffer_section, inline))
             continue
 
         if skip_prefixes and text.startswith(tuple(skip_prefixes)):
             continue
 
         if text:
-            buffer_text.append(text)
+            buffer_text.append((buffer_section, text))
         buffer_images.extend(para_images.get(i, []))
 
     if label_position == "leading" and pending_id is not None:

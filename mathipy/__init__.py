@@ -1,9 +1,10 @@
 """mathipy - Multimodal item feature extraction for K-12 math assessment."""
 
-__version__ = "0.4.12"
+__version__ = "0.4.13"
 __author__ = "Mikyung Shin"
 __email__ = "shin.mikyung@gmail.com"
 
+from mathipy._api import ProviderUnavailableError
 from mathipy.classifier import VisualModelClassifier
 from mathipy.cognitive_load import CognitiveLoadEstimator
 from mathipy.cohesion import (
@@ -58,14 +59,18 @@ from mathipy.validation import (
 from mathipy.visual import (
     VisualFeatureExtractor,
     flags_by_group,
+    flags_by_representation,
     flags_by_sign,
     group_names,
+    representation_names,
     sign_names,
     visual_function_definitions,
     visual_functions,
     visual_model_definitions,
     visual_model_groups,
+    visual_model_representations,
     visual_model_signs,
+    visual_subtypes,
 )
 
 __all__ = [
@@ -75,8 +80,11 @@ __all__ = [
     "VisualFeatureExtractor",
     "MultimodalOCR",
     "VisualModelClassifier",
+    "ProviderUnavailableError",
     "MultimodalAnalyzer",
     "ItemFeatureExtractor",
+    "representation_names",
+    "flags_by_representation",
     "flags_by_group",
     "flags_by_sign",
     "group_names",
@@ -85,7 +93,9 @@ __all__ = [
     "visual_functions",
     "visual_model_definitions",
     "visual_model_groups",
+    "visual_model_representations",
     "visual_model_signs",
+    "visual_subtypes",
     "safe_get",
     "compute_interrater_reliability",
     "segment_docx",

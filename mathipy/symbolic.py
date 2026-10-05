@@ -10,17 +10,18 @@ fraction is written; ``fractions`` measures that separately.
 
 import re
 
-_number = r"\d+(?:\.\d+)?"
+_number = r"(?<![\d.])\d+(?:\.\d+)?"
+
+_operand = rf"(?:{_number}|[a-z]\b)"
 
 _patterns = {
-    "sym_addition": re.compile(rf"{_number}\s*\+\s*{_number}"),
-    "sym_subtraction": re.compile(rf"{_number}\s*[-−]\s*{_number}"),
+    "sym_addition": re.compile(rf"{_number}\s*\+\s*(?={_number})"),
+    "sym_subtraction": re.compile(rf"{_number}\s*[-−]\s*(?={_number})"),
     "sym_multiplicative": re.compile(
-        rf"{_number}\s*[*×·]\s*{_number}"),
-    "sym_division": re.compile(rf"{_number}\s*[/÷]\s*{_number}"),
+        rf"{_number}\s*[*×·]\s*(?={_number})"),
+    "sym_division": re.compile(rf"{_number}\s*[/÷]\s*(?={_number})"),
     "sym_comparison": re.compile(
-        rf"{_number}\s*[<>≤≥]\s*{_number}"
-        rf"|[a-z]\s*[<>≤≥]\s*{_number}", re.I),
+        rf"(?:{_number}|[a-z])\s*(?:[<>]=?|[≤≥])\s*(?={_operand})", re.I),
     "sym_equality": re.compile(r"[^=<>!]=[^=]"),
     "sym_exponent": re.compile(rf"(?:{_number}|[a-z])\s*\^\s*(?:{_number}|[a-z])", re.I),
 }

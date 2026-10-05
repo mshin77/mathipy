@@ -23,7 +23,7 @@ def _optional_import(name: str, install_hint: str | None = None):
         return importlib.import_module(name), True
     except ImportError:
         if install_hint:
-            logger.warning(f"{name} not available - install with: pip install {install_hint}")
+            logger.debug(f"{name} not available - install with: pip install {install_hint}")
         return None, False
 
 
@@ -49,7 +49,23 @@ _secret_pattern = re.compile(
 
 
 _RETRY_STATUS = {429, 500, 502, 503, 504}
+_UNAVAILABLE_STATUS = _RETRY_STATUS | {401, 403, 404}
+_REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "content_filter"}
+
+
+class ProviderUnavailableError(RuntimeError):
+    """A call that failed for reasons other than the provider declining the request."""
+
+
 _RETRY_ATTEMPTS = 3
+_RETRY_AFTER_STATUS = {429, 503}
+_RETRY_AFTER_CAP = 30
+
+
+def _retry_wait(response, attempt):
+    header = (response.headers.get("retry-after", "")
+              if response.status_code in _RETRY_AFTER_STATUS else "").strip()
+    return min(int(header), _RETRY_AFTER_CAP) if header.isdigit() else 2 ** attempt
 
 
 def _post_retrying(client, path, body):
@@ -58,25 +74,49 @@ def _post_retrying(client, path, body):
         last = attempt + 1 == _RETRY_ATTEMPTS
         try:
             response = client.post(path, json=body)
-        except httpx.TransportError:
+        except httpx.TransportError as err:
             if last:
-                raise
+                raise ProviderUnavailableError(f"transport failure: {type(err).__name__}") from err
             time.sleep(2 ** attempt)
             continue
         if response.status_code not in _RETRY_STATUS or last:
             return response
-        time.sleep(2 ** attempt)
+        time.sleep(_retry_wait(response, attempt))
 
 
 def _sanitize_error(msg: str) -> str:
     return _secret_pattern.sub("***", msg)
 
 
+def _unavailable(response) -> bool:
+    return (response.status_code in _UNAVAILABLE_STATUS
+            or (response.status_code == 400 and "api key" in _error_message(response).lower()))
+
+
+def _error_message(response) -> str:
+    try:
+        err = response.json().get("error")
+    except (ValueError, AttributeError):
+        err = None
+    msg = err.get("message") if isinstance(err, dict) else err
+    return _sanitize_error(str(msg or f"Status {response.status_code}"))
+
+
+def _json_body(response, provider: str) -> dict:
+    try:
+        data = response.json()
+    except ValueError as err:
+        raise ProviderUnavailableError(f"{provider} API error: unreadable response body") from err
+    if not isinstance(data, dict):
+        raise ProviderUnavailableError(f"{provider} API error: unexpected response body")
+    return data
+
+
 def _load_dotenv():
     env_path = Path(".env")
     if env_path.exists():
         try:
-            with open(env_path) as f:
+            with open(env_path, encoding="utf-8-sig") as f:
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith("#") and "=" in line:
@@ -112,7 +152,11 @@ def _upscale_small(data: bytes) -> tuple[bytes, str]:
     if scale <= 1:
         return data, fmt
     size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
-    if image.mode not in ("RGB", "L"):
+    if image.mode in ("RGBA", "LA") or (image.mode == "P" and "transparency" in image.info):
+        rgba = image.convert("RGBA")
+        image = Image.new("RGB", rgba.size, "white")
+        image.paste(rgba, mask=rgba.getchannel("A"))
+    elif image.mode not in ("RGB", "L"):
         image = image.convert("RGB")
     buffer = io.BytesIO()
     image.resize(size, Image.LANCZOS).save(buffer, format="PNG")
@@ -292,17 +336,23 @@ class VisionAPIClient:
             response = _post_retrying(client, f"/{model_path}:generateContent", body)
 
         if response.status_code != 200:
-            error_data = response.json() if response.content else {}
-            error_msg = error_data.get("error", {}).get("message", f"Status {response.status_code}")
-            raise RuntimeError(f"Gemini API error: {_sanitize_error(error_msg)}")
+            error = ProviderUnavailableError if _unavailable(response) else RuntimeError
+            raise error(f"Gemini API error: {_error_message(response)}")
 
-        data = response.json()
-        candidates = data.get("candidates", [])
-        if not candidates:
-            raise RuntimeError("No candidates returned from Gemini")
+        data = _json_body(response, "Gemini")
+        blocked = (data.get("promptFeedback") or {}).get("blockReason")
+        candidates = data.get("candidates") or []
+        if blocked or not candidates:
+            raise RuntimeError(f"Gemini API error: no candidates ({blocked or 'empty'})")
 
-        content_parts = candidates[0].get("content", {}).get("parts", [])
-        return "".join(p.get("text", "") for p in content_parts).strip()
+        candidate = candidates[0] if isinstance(candidates[0], dict) else {}
+        content_parts = (candidate.get("content") or {}).get("parts") or []
+        text = "".join(p.get("text") or "" for p in content_parts if isinstance(p, dict)).strip()
+        if not text:
+            reason = candidate.get("finishReason") or "no content"
+            error = RuntimeError if reason in _REFUSAL_REASONS else ProviderUnavailableError
+            raise error(f"Gemini API error: empty reply ({reason})")
+        return text
 
     def _call_openai(
         self,
@@ -351,15 +401,16 @@ class VisionAPIClient:
             response = _post_retrying(client, "/chat/completions", body)
 
         if response.status_code != 200:
-            error_data = response.json() if response.content else {}
-            error_msg = error_data.get("error", {}).get("message", f"Status {response.status_code}")
-            raise RuntimeError(f"OpenAI API error: {_sanitize_error(error_msg)}")
+            error = ProviderUnavailableError if _unavailable(response) else RuntimeError
+            raise error(f"OpenAI API error: {_error_message(response)}")
 
-        data = response.json()
-        choice = data.get("choices", [{}])[0]
+        data = _json_body(response, "OpenAI")
+        choice = (data.get("choices") or [{}])[0] or {}
         message = choice.get("message") or {}
         content = message.get("content")
         if not content:
             reason = message.get("refusal") or choice.get("finish_reason") or "no content"
-            raise RuntimeError(f"OpenAI API error: empty reply ({reason})")
+            refused = message.get("refusal") or reason in _REFUSAL_REASONS
+            raise (RuntimeError if refused else ProviderUnavailableError)(
+                f"OpenAI API error: empty reply ({reason})")
         return content.strip()
