@@ -144,9 +144,9 @@ def _parse_boxes(value: Any) -> list[list[float]]:
 
 
 def _position_note(position: str | None) -> str:
-    if position not in image_positions:
+    if not position:
         return ""
-    note = f"\n\nWhere this image sits in the item: {image_positions[position]}."
+    note = f"\n\nWhere this image sits in the item: {image_positions.get(position, position)}."
     if position == "page_scan":
         note += (" Judge the flags, visual_type, visual_subtype and function from the "
                  "stimulus figure alone, never from the answer choices or response "
@@ -191,16 +191,17 @@ class VisualModelClassifier(VisionAPIClient):
                 merged by majority (flags) and mode (primary, function).
             item_text: Item text. The function label compares image content
                 against it; without it the label rests on the image alone.
-            position: Where the image sits: one of ``image_positions``. A
-                ``page_scan`` is typed from its stimulus figure alone.
+            position: Where the image sits. A key of ``image_positions`` adds its
+                description to the prompt; any other label is passed as written.
+                A ``page_scan`` is typed from its stimulus figure alone.
 
         Returns:
             Dict with a boolean per model type, ``"visual_type"``, ``"visual_subtype"``,
             ``"function"``, ``"option_visual_type"``, ``"model_count"``, ``"position"``,
             and ``"text_withheld"``.
         """
-        if position is not None and position not in image_positions:
-            raise ValueError(f"position must be one of {sorted(image_positions)} or None")
+        if position is not None and (not isinstance(position, str) or not position.strip()):
+            raise ValueError("position must be a non-empty label or None")
         image_b64, mime_type = self._prepare_image(source)
 
         results, refused, failed = [], None, None
@@ -363,7 +364,7 @@ class VisualModelClassifier(VisionAPIClient):
 
         primary = _normalize_label(parsed.get("visual_type"))
         if primary and primary not in visual_models:
-            logger.warning("unrecognised primary %r; recording as unclassified", primary)
+            logger.warning("unrecognized primary %r; recording as unclassified", primary)
             primary = None
 
         function = _normalize_label(parsed.get("function")) or None

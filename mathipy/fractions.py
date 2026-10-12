@@ -24,7 +24,7 @@ _word_numerators = {
 _word_denominators = {
     "half": 2, "halves": 2, "third": 3, "fourth": 4, "quarter": 4,
     "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8, "ninth": 9,
-    "tenth": 10, "twelfth": 12, "sixteenth": 16,
+    "tenth": 10, "twelfth": 12, "sixteenth": 16, "hundredth": 100,
 }
 _word_fraction = re.compile(
     r"\b(" + "|".join(_word_numerators) + r")[\s-]+("

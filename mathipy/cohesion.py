@@ -118,8 +118,14 @@ def lexical_overlap(units: Sequence[str]) -> dict[str, float]:
             "overlap_pairs": len(scores)}
 
 
-def lexical_diversity(text: str, window: int = 50) -> dict[str, float]:
-    """Moving-average type-token ratio, falling back to plain ratio when short.
+def lexical_diversity(text: str, window: int = 10) -> dict[str, float]:
+    """Moving-average type-token ratio (MATTR; Covington and McFall, 2010).
+
+    The type-token ratio of every run of ``window`` consecutive tokens is
+    averaged. A plain ratio falls as a text grows, so across items of different
+    length it tracks length; a fixed window holds the denominator constant. The
+    window of 10 fits items that are mostly under 50 words. A text shorter than
+    the window is one window, so its value is the plain ratio.
 
     Numerals are excluded here and only here. A type-token ratio measures how
     varied the vocabulary is, and "3, 7, 12, 45" contributes four types with no
@@ -130,11 +136,9 @@ def lexical_diversity(text: str, window: int = 50) -> dict[str, float]:
     tokens = [w for w in _words(text) if not w[0].isdigit()]
     if not tokens:
         return {"lexical_diversity": 0.0, "token_count": 0}
-    if len(tokens) < window:
-        return {"lexical_diversity": round(len(set(tokens)) / len(tokens), 4),
-                "token_count": len(tokens)}
-    ratios = [len(set(tokens[i:i + window])) / window
-              for i in range(len(tokens) - window + 1)]
+    size = min(window, len(tokens))
+    ratios = [len(set(tokens[i:i + size])) / size
+              for i in range(len(tokens) - size + 1)]
     return {"lexical_diversity": round(sum(ratios) / len(ratios), 4),
             "token_count": len(tokens)}
 

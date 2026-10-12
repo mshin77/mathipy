@@ -1,3 +1,8 @@
+# mathipy 0.4.14
+
+- Sharpens visual type and function definitions against CCSSM.
+- Corrects linguistic counts and uses US English spelling.
+
 # mathipy 0.4.13
 
 - Maps visual types to CCSSM representations.
@@ -62,7 +67,7 @@
 # mathipy 0.4.2
 
 - Treats a classification that names nothing as unclassified rather than as a type.
-- Leaves the primary type empty instead of labelling it other when nothing is named.
+- Leaves the primary type empty instead of labeling it other when nothing is named.
 
 # mathipy 0.4.1
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -27,21 +26,21 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bf69dc6d" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
     <script src="_static/documentation_options.js?v=7f41d439"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -49,6 +48,7 @@
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="Analyzing Math Items" href="vignettes/item-analysis.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
   
@@ -98,7 +98,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -153,7 +153,7 @@
 
 
 <li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
     API Reference
   </a>
 </li>
@@ -183,7 +183,7 @@
         <div class="navbar-item navbar-persistent--container">
           
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -194,15 +194,15 @@
         <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -228,7 +228,7 @@
   
     <div class="navbar-persistent--mobile">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -278,7 +278,7 @@
 
 
 <li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
     API Reference
   </a>
 </li>
@@ -310,15 +310,15 @@
           <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -593,7 +593,8 @@
 </dd>
 <dt>variable_count</dt><dd><p>Count of single-letter variables</p>
 </dd>
-<dt>operation_count</dt><dd><p>Count of math operations (+, -, *, /, ^, =, &lt;, &gt;, ×, ÷, −)</p>
+<dt>operation_count</dt><dd><p>Count of math operators (+, -, *, /, ^, =, &lt;, &gt;, ×, ÷, −) between two operands;
+rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 </dd>
 <dt>word_count</dt><dd><p>Words in the text, answer labels such as <code class="docutils literal notranslate"><span class="pre">A.</span></code> excluded</p>
 </dd>
@@ -705,11 +706,11 @@
 <p>Returns a dictionary with a boolean per model type, <code class="docutils literal notranslate"><span class="pre">&quot;visual_type&quot;</span></code> (str), <code class="docutils literal notranslate"><span class="pre">&quot;visual_subtype&quot;</span></code> (str or None, from <code class="docutils literal notranslate"><span class="pre">visual_subtypes</span></code>), <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (str: <code class="docutils literal notranslate"><span class="pre">no_visual</span></code> when the image carries no figure, otherwise <code class="docutils literal notranslate"><span class="pre">essential</span></code> or <code class="docutils literal notranslate"><span class="pre">decorative</span></code>; <code class="docutils literal notranslate"><span class="pre">unknown</span></code> when the model returns a label outside the three), <code class="docutils literal notranslate"><span class="pre">&quot;option_visual_type&quot;</span></code> (str or None, the type of graphic answer choices), <code class="docutils literal notranslate"><span class="pre">&quot;model_count&quot;</span></code> (int), <code class="docutils literal notranslate"><span class="pre">&quot;position&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;text_withheld&quot;</span></code> (True when the provider declined the item text and the figure was classified alone). The <code class="docutils literal notranslate"><span class="pre">votes</span></code> argument runs multiple independent calls: flags merge by majority and <code class="docutils literal notranslate"><span class="pre">visual_type</span></code> by mode; <code class="docutils literal notranslate"><span class="pre">function</span></code> and <code class="docutils literal notranslate"><span class="pre">visual_subtype</span></code> take the mode among the votes that agree on <code class="docutils literal notranslate"><span class="pre">visual_type</span></code>; <code class="docutils literal notranslate"><span class="pre">option_visual_type</span></code> comes from the vote that supplied the option boxes. A network or server failure drops the vote without withholding the item text.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">item_text</span></code> argument supplies the item’s text so the <code class="docutils literal notranslate"><span class="pre">function</span></code> judgment can compare the image against it. Without <code class="docutils literal notranslate"><span class="pre">item_text</span></code>, the <code class="docutils literal notranslate"><span class="pre">essential</span></code> vs <code class="docutils literal notranslate"><span class="pre">decorative</span></code> distinction is reliable only when the image contains the complete item.</p>
 <p>A network failure, server error, rate limit, or invalid API key raises <code class="docutils literal notranslate"><span class="pre">ProviderUnavailableError</span></code> (a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> subclass exported by mathipy); a provider declining the content raises a plain <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> after the retry without item text.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">position</span></code> argument states where the image sits: <code class="docutils literal notranslate"><span class="pre">&quot;stem&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;option&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;additional&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;page_scan&quot;</span></code> (keys of <code class="docutils literal notranslate"><span class="pre">mathipy.classifier.image_positions</span></code>). A <code class="docutils literal notranslate"><span class="pre">page_scan</span></code> is a screenshot of the whole item and is typed from its stimulus figure alone; graphic answer choices are reported in <code class="docutils literal notranslate"><span class="pre">option_visual_type</span></code>. Any other value raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">position</span></code> argument states where the image sits: <code class="docutils literal notranslate"><span class="pre">&quot;stem&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;option&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;additional&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;page_scan&quot;</span></code> (keys of <code class="docutils literal notranslate"><span class="pre">mathipy.classifier.image_positions</span></code>), each of which adds its description to the prompt. Any other non-empty label is passed to the prompt as written, so a study can name its own layouts; an empty label raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. A <code class="docutils literal notranslate"><span class="pre">page_scan</span></code> is a screenshot of the whole item and is typed from its stimulus figure alone; graphic answer choices are reported in <code class="docutils literal notranslate"><span class="pre">option_visual_type</span></code>.</p>
 </section>
 <section id="visual-function-definitions">
 <h3><code class="docutils literal notranslate"><span class="pre">visual_function_definitions</span></code><a class="headerlink" href="#visual-function-definitions" title="Link to this heading">#</a></h3>
-<p>Dictionary with a one-line decision rule for each instructional function. The same rules appear in the classifier prompt, so human coders and the model work from a single codebook.</p>
+<p>Dictionary with a one-line decision rule for each instructional function. The same rules appear in the classifier prompt, so human coders and the model work from a single codebook. A figure is <code class="docutils literal notranslate"><span class="pre">essential</span></code> when the student must read from it a value, relation, or configuration that neither the text nor any text answer choice states, following the essential illustration of Berends and van Lieshout (2009), which carries the information missing from the text. A figure that restates the text, a blank response workspace, or a pictured supplied tool is <code class="docutils literal notranslate"><span class="pre">decorative</span></code>. The rules hold for any image position; a study decides which positions it codes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_function_definitions</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">visual_function_definitions</span><span class="p">[</span><span class="s2">&quot;essential&quot;</span><span class="p">])</span>
 </pre></div>
@@ -998,6 +999,7 @@ every paragraph in document order including those inside tables,
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Behr, M. J., Harel, G., Post, T., &amp; Lesh, R. (1992). Rational number, ratio, and proportion. In D. A. Grouws (Ed.), <em>Handbook of research on mathematics teaching and learning</em> (pp. 296-333). Macmillan.</p></li>
+<li><p>Berends, I. E., &amp; van Lieshout, E. C. D. M. (2009). The effect of illustrations in arithmetic problem-solving: Effects of increased cognitive load. <em>Learning and Instruction, 19</em>(4), 345-353.</p></li>
 <li><p>Common Core Standards Writing Team. (2023). <em>Progressions for the Common Core State Standards for Mathematics</em>. Institute for Mathematics and Education, University of Arizona.</p></li>
 <li><p>Friel, S. N., Curcio, F. R., &amp; Bright, G. W. (2001). Making sense of graphs. <em>Journal for Research in Mathematics Education, 32</em>(2), 124-158.</p></li>
 <li><p>Lesh, R., Post, T., &amp; Behr, M. (1987). Representations and translations among representations in mathematics learning and problem solving. In C. Janvier (Ed.), <em>Problems of representation in the teaching and learning of mathematics</em> (pp. 33-40). Erlbaum.</p></li>
@@ -1035,7 +1037,7 @@ names, and whether an everyday word is being used in its mathematical sense.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_features</span>
 
 <span class="n">register_features</span><span class="p">(</span><span class="s2">&quot;Ann has 5 less than Ben. The table shows 1/2.&quot;</span><span class="p">)</span>
-<span class="c1"># {&#39;rel_comparison&#39;: 1, &#39;rel_order_reversed&#39;: 1, &#39;rel_partitive&#39;: 1, ...</span>
+<span class="c1"># {&#39;rel_comparison&#39;: 1, &#39;rel_order_reversed&#39;: 1, &#39;rel_partitive&#39;: 0, ...</span>
 <span class="c1">#  &#39;num_fraction&#39;: 1, &#39;polysemy_count&#39;: 1, &#39;polysemy_unique&#39;: 1}</span>
 </pre></div>
 </div>
@@ -1107,8 +1109,8 @@ on comprehension (Schleppegrell, 2007).</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1134,7 +1136,7 @@ on comprehension (Schleppegrell, 2007).</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

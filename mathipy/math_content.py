@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import logging
-import math
 import re
 from collections import Counter
 from typing import Any
 
-from mathipy.utils import consume_phrases, extract_numbers
+from mathipy.cognitive_load import inflections, plural
+from mathipy.utils import consume_phrases, extract_numbers, extract_variables, strip_option_labels
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,24 @@ _inch_follow = r"\.|\s*(?:by\b|x\b|×|[^\w\s]|$)"
 _inch_re = re.compile(rf"(?<=\d)\s?in\b(?={_inch_follow})", re.IGNORECASE)
 _inch_pair_re = re.compile(
     rf"(?<=\d)\s?in\.?\s*(?:by\b|x\b|×)\s*\d+(?:\.\d+)?\s?in\b(?!{_inch_follow})", re.IGNORECASE)
+
+
+_decimal_notation = re.compile(r"(?<![\w.])\d*\.\d+")
+_verb_terms = {"add", "subtract", "multiply", "divide", "solve", "simplify", "factor",
+               "measure", "convert", "differentiate", "integrate", "graph"}
+_no_plural = {"mean", "data", "per", "for every", "elapsed"}
+_mean_verb = re.compile(r"\b(?:do|does|did|will|would|could|can|might|may)"
+                        r"(?:\s+(?:this|that|it|these|those|he|she|they))?\s+mean\b")
+_even_adverb = re.compile(r"(?<!\bis )(?<!\bare )(?<!\bbe )\beven\b(?!\s+(?:numbers?|integers?)\b)")
+_count_words = r"\d[\d,.]*|per|many|few|several|one|two|three|four|five|six|seven|eight|nine|ten|twelve"
+_time_word = re.compile(r"(\b(?:" + _count_words + r")\s+)?\b(?:second|day|week|month|year)s?\b")
+
+
+def _drop_everyday_senses(text: str) -> str:
+    """Lowercased text with mean as a verb, adverbial even, and uncounted time words blanked."""
+    text = _mean_verb.sub(" | ", text)
+    text = _even_adverb.sub(" | ", text)
+    return _time_word.sub(lambda m: m.group(0) if m.group(1) else " | ", text)
 
 
 def _match_unit_abbreviations(text: str) -> dict[str, int]:
@@ -60,13 +78,13 @@ class MathContentAnalyzer:
             "addition": re.compile(r"\d+\s*\+\s*\d+"),
             "subtraction": re.compile(r"\d+\s*[-−]\s*\d+"),
             "multiplication": re.compile(r"\d+\s*[×*·]\s*\d+"),
-            "division": re.compile(r"\d+\s*[÷/]\s*\d+"),
-            "variable": re.compile(r"\b(?![Ia]\b)[a-zA-Z]\b(?!\w)"),
-            "equation": re.compile(r"="),
+            "division": re.compile(r"\d+\s*÷\s*\d+"),
+            "variable": re.compile(r"(?<![A-Za-z'’_])[a-zA-Z](?![A-Za-z'’_])"),
+            "equation": re.compile(r"(?<![<>!=])=(?!=)"),
             "inequality": re.compile(r"\S+\s*[<>≤≥]=?\s*\S+"),
             "exponent": re.compile(r"\w+\^[\w\d{}]+|\w+\*\*[\w\d{}]+"),
             "function": re.compile(r"\b[a-zA-Z]+\([^)]+\)"),
-            "polynomial": re.compile(r"[a-z]\^?\d*\s*[+\-]\s*[a-z]\^?\d*"),
+            "polynomial": re.compile(r"(?<![A-Za-z])[a-z]\^?\d*\s*[+\-]\s*[a-z]\^?\d*(?![A-Za-z])"),
             "fraction": re.compile(r"\d+/\d+|\\frac\{\d+\}\{\d+\}"),
             "decimal": re.compile(r"\d+\.\d+"),
             "percentage": re.compile(r"\d+\.?\d*\s*(?:%|percent\b)", re.I),
@@ -153,6 +171,12 @@ class MathContentAnalyzer:
         self.all_terms: set[str] = set()
         for terms in self.domains.values():
             self.all_terms.update(terms)
+        self._form_to_term = {
+            form: term
+            for term in sorted(self.all_terms)
+            for form in (inflections(term) if term in _verb_terms
+                         else {term} if term in _no_plural else {term, plural(term)})
+        }
 
     def analyze(self, text: str) -> dict[str, Any]:
         """Analyze math content in the given text.
@@ -168,13 +192,14 @@ class MathContentAnalyzer:
             return self._empty_analysis()
 
         text_lower = text.lower()
-        pattern_matches = self._match_patterns(text)
+        content = strip_option_labels(text)
+        pattern_matches = self._match_patterns(content)
         symbol_counts = self._count_symbols(text)
         numbers = extract_numbers(text)
         term_matches = self._match_vocabulary(text_lower)
         domain = self._classify_domain(text_lower, pattern_matches, term_matches)
 
-        word_count = len(text.split())
+        word_count = len(content.split())
         return {
             "pattern_matches": pattern_matches,
             "symbol_counts": symbol_counts,
@@ -185,8 +210,7 @@ class MathContentAnalyzer:
                 "values": numbers[:20],
                 "range": max(numbers) - min(numbers) if numbers else 0,
                 "has_negative": any(n < 0 for n in numbers),
-                "has_decimal": any(isinstance(n, float) and math.isfinite(n) and n != int(n)
-                                   for n in numbers),
+                "has_decimal": bool(_decimal_notation.search(text)),
             },
             "vocabulary": {
                 "math_terms": sorted(term_matches),
@@ -198,14 +222,21 @@ class MathContentAnalyzer:
         }
 
     def _match_patterns(self, text: str) -> dict[str, int]:
-        return {n: len(m) for n, p in self.patterns.items() if (m := p.findall(text))}
+        counts = {n: len(m) for n, p in self.patterns.items()
+                  if n != "variable" and (m := p.findall(text))}
+        variables = set(extract_variables(text))
+        hits = sum(1 for v in self.patterns["variable"].findall(text) if v in variables)
+        return {**counts, **({"variable": hits} if hits else {})}
 
     def _count_symbols(self, text: str) -> dict[str, int]:
+        text = text.replace("<=", "≤").replace(">=", "≥").replace("!=", "≠")
         counts = Counter(self.symbols[c] for c in text if c in self.symbols)
         return dict(counts)
 
     def _match_vocabulary(self, text: str) -> dict[str, int]:
-        matched = consume_phrases(text, self.all_terms)
+        matched: dict[str, int] = {}
+        for form, hits in consume_phrases(_drop_everyday_senses(text), self._form_to_term).items():
+            matched[self._form_to_term[form]] = matched.get(self._form_to_term[form], 0) + hits
         for unit, count in _match_unit_abbreviations(text).items():
             matched[unit] = matched.get(unit, 0) + count
         return matched

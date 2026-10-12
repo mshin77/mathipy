@@ -14,6 +14,31 @@ logger = logging.getLogger(__name__)
 
 _sibilant_endings = ("s", "x", "z", "ch", "sh")
 
+_rule_line = re.compile(r"[-_–—]{3,}")
+_fraction_slash = re.compile(r"(?<=\d)/(?=\d)")
+_word_join = re.compile(r"(?<=[A-Za-z]{2})[-/](?=\w)|(?<=\w)[-/](?=[A-Za-z]{2})")
+_operator = re.compile(r"(?<=[\w)\]}%])\s*(?:<=|>=|!=|[-+*/^=<>×÷−·≤≥≠])(?=\s*[\w(\[{.$−-])")
+
+
+def count_operations(text: str) -> int:
+    """Operator symbols that stand between two operands.
+
+    Rule lines, word hyphens (two-digit, x-axis), and the slash of a numeric
+    fraction are removed first, and a sign with no left operand is not an
+    operation; <=, >= and != count once.
+    """
+    text = _rule_line.sub(" ", text or "")
+    text = _fraction_slash.sub(" ", text)
+    text = _word_join.sub(" ", text)
+    return len(_operator.findall(text))
+
+
+def plural(term: str) -> str:
+    """Regular plural of a term, inflecting the last word of a phrase."""
+    if len(term) > 2 and term.endswith("y") and term[-2] not in "aeiou":
+        return term[:-1] + "ies"
+    return term + "es" if term.endswith(_sibilant_endings) else term + "s"
+
 
 def inflections(term: str) -> set[str]:
     """Base form plus its regular plural and verb inflections.
@@ -85,7 +110,7 @@ class CognitiveLoadEstimator:
 
         numbers = extract_numbers(text)
         variables = extract_variables(text)
-        operations = sum(1 for c in text if c in "+-*/^=<>×÷−")
+        operations = count_operations(text)
         content = strip_option_labels(text)
         word_count = len(content.split())
 

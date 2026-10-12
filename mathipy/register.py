@@ -15,9 +15,6 @@ relational_terms: dict[str, list[str]] = {
 
     "rate": ["per", "for every", "for each", "apiece"],
 
-    "partitive": ["of the total", "out of", "of the", "of a"],
-    "distribution": ["each", "every"],
-
 }
 
 number_words = ["zero", "one", "two", "three", "four", "five", "six", "seven",
@@ -29,7 +26,7 @@ ordinal_words = ["first", "second", "third", "fourth", "fifth", "sixth", "sevent
                  "last", "next"]
 
 fraction_words = ["half", "halves", "third", "fourth", "quarter", "fifth",
-                  "sixth", "eighth", "tenth"]
+                  "sixth", "eighth", "tenth", "hundredth"]
 
 polysemous_words = ["table", "mean", "product", "power", "base", "root", "plane", "right",
             "odd", "even", "volume", "face", "degree", "times", "difference",
@@ -64,11 +61,24 @@ _quantity_before = re.compile(
     r"\b(?:\d+(?:\.\d+)?|" + "|".join(number_words) + r")\b"
     r"(?:\s+\w+){0,2}?\s+"
     r"(?:" + "|".join(_comparatives) + r")\b(?:\s+\w+){0,3}?\s+than\b", re.I)
+_part_words = ["fraction", "percent", "percentage", "part", "portion"] + fraction_words
+_partitive = re.compile(
+    r"\b(?:" + "|".join(_part_words) + r")s?\s+of\b"
+    r"|(?:%|\b\d+/\d+)\s+of\b"
+    r"|\bout\s+of\b"
+    r"|\b(?:\d+|" + "|".join(number_words) + r")\s+of\s+(?:the|these|those)\b(?!\s+following)",
+    re.I)
+_distribution = re.compile(
+    r"(?<!\bfor )\b(?:each|every)\s+(?:\w+\s+){0,4}?"
+    r"(?:has|have|gets|costs?|holds?|contains?|weighs?|receives?|is|are)\b"
+    r"|\bin\s+(?:each|every)\b", re.I)
+_time_second = re.compile(
+    r"\b(?:\d+(?:\.\d+)?|per|" + "|".join(number_words) + r")\s+second\b|\bsecond\s+per\b")
 _ordinal_suffix = re.compile(r"\b\d+(?:st|nd|rd|th)\b", re.I)
 _slash_fraction = re.compile(r"\b\d+\s*/\s*\d+\b")
 _nominal = re.compile(r"\b(?:number|room|page|problem|item|question|bus|route|"
                       r"channel|line)\s+\d+\b", re.I)
-_integer = re.compile(r"\b\d+(?:\.\d+)?\b")
+_integer = re.compile(r"\b\d{1,2}:\d{2}\b|\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b|\b\d+(?:\.\d+)?\b")
 _word_fraction = re.compile(
     r"\b(?:" + "|".join(number_words) + r")[\s-]+(?:"
     + "|".join(sorted(fraction_words, key=len, reverse=True)) + r")s?\b")
@@ -86,11 +96,17 @@ def relational_features(text: str) -> dict[str, int]:
     A marked comparative is one where a quantity precedes the comparative, as in
     five less than Ben. The operands then appear in the reverse of the order the
     operation needs, which is a documented source of error.
+
+    Partitive counts part-whole constructions only (a fraction, percent, or
+    part of; N of the; out of), not every "of the". Distribution counts each
+    or every followed by a quantity verb, and "in each"; "for each" is a rate.
     """
     text = text or ""
     hits = consume_phrases(text, [t for terms in relational_terms.values() for t in terms])
     counts = {f"rel_{name}": sum(hits.get(t, 0) for t in terms)
               for name, terms in relational_terms.items()}
+    counts["rel_partitive"] = len(_partitive.findall(text))
+    counts["rel_distribution"] = len(_distribution.findall(text))
     counts["rel_comparison"] = (len(_comparison.findall(text))
                                 + len(_comparison_question.findall(text)))
     counts["rel_multiplicative"] = len(_multiplicative.findall(text))
@@ -112,14 +128,14 @@ def number_features(text: str) -> dict[str, int]:
 
     nominal = len(_nominal.findall(text))
     ordinal = (len(_ordinal_suffix.findall(text))
-               + _count(_word_fraction.sub(" | ", lowered), ordinal_words))
+               + _count(_time_second.sub(" | ", _word_fraction.sub(" | ", lowered)), ordinal_words))
     fraction = len(_slash_fraction.findall(text)) + len(_word_fraction.findall(lowered))
 
     digits = [m.group(0) for m in _integer.finditer(text)]
     consumed = nominal + len(_slash_fraction.findall(text)) * 2
     cardinal = max(0, len(digits) - consumed)
 
-    values = [float(d) for d in digits if "." not in d]
+    values = [float(d.replace(",", "")) for d in digits if "." not in d and ":" not in d]
     return {"num_cardinal": cardinal,
             "num_ordinal": ordinal,
             "num_fraction": fraction,

@@ -7,7 +7,8 @@ Fractions stay as ``a/b`` rather than becoming a rendered form.
 
 import re
 
-_frac = re.compile(r"\\[dt]?frac\{([^{}]+)\}\{([^{}]+)\}")
+_frac = re.compile(r"(\d?)\\[dt]?frac\{([^{}]+)\}\{([^{}]+)\}")
+_percent = re.compile(r"\\%")
 _sqrt_latex = re.compile(r"\\sqrt\{([^{}]+)\}")
 _caret_braces = re.compile(r"\^\{(\w+)\}")
 _caret_group = re.compile(r"\^\{([^{}]+)\}")
@@ -32,7 +33,8 @@ def normalize_math_notation(text: str) -> str:
     if not text:
         return text or ""
     out = text
-    out = _frac.sub(lambda m: f"{m.group(1)}/{m.group(2)}", out)
+    out = _frac.sub(lambda m: f"{m.group(1)} {m.group(2)}/{m.group(3)}".lstrip(), out)
+    out = _percent.sub("%", out)
     out = _sqrt_latex.sub(lambda m: f"sqrt({m.group(1)})", out)
     out = _caret_braces.sub(lambda m: f"^{m.group(1)}", out)
     out = _caret_group.sub(lambda m: f"^({m.group(1)})", out)

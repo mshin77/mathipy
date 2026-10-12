@@ -85,6 +85,8 @@ def consume_phrases(text: str, phrases) -> dict[str, int]:
     remaining = text.lower()
     counts = {}
     for phrase in sorted(set(phrases), key=lambda p: (-len(p), p)):
+        if phrase.lower() not in remaining:
+            continue
         pattern = re.compile(r"\b" + re.escape(phrase.lower()) + r"\b")
         remaining, hits = pattern.subn(" | ", remaining)
         counts.update({phrase: hits} if hits else {})
