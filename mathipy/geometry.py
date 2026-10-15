@@ -1,10 +1,4 @@
-"""Geometric shape subtypes from contour analysis.
-
-Shape category is too coarse for difficulty: van Hiele (1986) levels and
-the prototype phenomenon (Hershkowitz, 1989) predict recognition cost
-rises with irregularity and atypical orientation, so subtype is the
-signal. Deterministic image processing, no API call.
-"""
+"""Geometric shape subtypes from contour analysis, without an API call."""
 
 from __future__ import annotations
 
@@ -73,14 +67,7 @@ _QUAD_ANCESTORS = {
 
 
 def _resize_to_work_scale(gray: np.ndarray) -> np.ndarray:
-    """Cap the working resolution so an area threshold means one thing.
-
-    Downsampling only. Interpolating a small figure up adds no detail and
-    costs accuracy where it matters most here: a circle outline enlarged to
-    work scale loses enough boundary smoothness to be reclassified as an
-    ellipse. Small images keep their own pixels, and ``_min_area`` carries the
-    scale adjustment for them instead.
-    """
+    """Cap the working resolution so an area threshold means one thing."""
     h, w = gray.shape[:2]
     longest = max(h, w)
     if longest <= _WORK_SCALE:
@@ -91,12 +78,7 @@ def _resize_to_work_scale(gray: np.ndarray) -> np.ndarray:
 
 
 def _min_area(gray: np.ndarray) -> float:
-    """Smallest contour worth classifying, as a share of the frame.
-
-    A fixed 100 px² is 0.026% of a full-page screenshot and 0.1% of a small
-    figure, so the same constant admitted text glyphs on one image and
-    rejected real grid cells on another.
-    """
+    """Smallest contour worth classifying, as a share of the frame."""
     h, w = gray.shape[:2]
     return max(_MIN_CONTOUR_AREA_FLOOR, _MIN_AREA_SHARE * h * w)
 
@@ -132,13 +114,7 @@ def _near(a: float, b: float, rel_tol: float = _SIDE_TOL) -> bool:
 
 
 def _near_deg(a: float, b: float, tol: float = _ANGLE_TOL_DEG) -> bool:
-    """Compare two angles on an absolute scale.
-
-    Angles were compared with the relative ``_near``, which at 108 degrees
-    admits a 16-degree difference and at 20 degrees admits three. Measurement
-    error does not scale with the size of the angle, so the relative form
-    judged small angles strictly and large ones loosely - the wrong way round.
-    """
+    """Compare two angles on an absolute scale."""
     return abs(a - b) <= tol
 
 
@@ -239,12 +215,7 @@ def _classify_contour(contour: np.ndarray, min_area: float) -> tuple[str, str | 
 
 
 def _interior_mask(binary_shape: tuple[int, int], contour: np.ndarray) -> np.ndarray:
-    """The region a contour encloses, with its own stroke band removed.
-
-    The band is eroded by a fraction of the shape's own size rather than a
-    fixed number of pixels, which is what makes the fill ratio comparable
-    across shapes of different sizes.
-    """
+    """The region a contour encloses, with its own stroke band removed."""
     mask = np.zeros(binary_shape, dtype=np.uint8)
     cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
     _, _, w, h = cv2.boundingRect(contour)
@@ -253,11 +224,7 @@ def _interior_mask(binary_shape: tuple[int, int], contour: np.ndarray) -> np.nda
 
 
 def _fill_ratio(binary: np.ndarray, contour: np.ndarray) -> float:
-    """Share of a contour's interior that is drawn in.
-
-    The interior excludes the stroke band; measured against the full enclosed
-    area the ratio is a function of size rather than of fill.
-    """
+    """Share of a contour's interior that is drawn in."""
     mask = _interior_mask(binary.shape, contour)
     enclosed = int(np.count_nonzero(mask))
     if enclosed == 0:
@@ -266,15 +233,7 @@ def _fill_ratio(binary: np.ndarray, contour: np.ndarray) -> float:
 
 
 def _lattice(binary: np.ndarray, contour: np.ndarray) -> tuple[int, int] | None:
-    """Row and column counts of a ruled grid inside a contour, or None.
-
-    Gridlines are found as peaks in the projection profile of the stroke mask
-    rather than as connected components. Counting components cannot work on a
-    shaded model: a shaded cell is contiguous with the lines around it, so
-    blob counting returned one region for ten shaded cells and for fifty.
-    A projection profile is unaffected, because a line that is invisible where
-    it crosses a shaded cell is still drawn across the rest of the figure.
-    """
+    """Row and column counts of a ruled grid inside a contour, or None."""
     x, y, w, h = cv2.boundingRect(contour)
     if w < 12 or h < 12:
         return None
@@ -336,11 +295,7 @@ def _shaded_regions(binary: np.ndarray, contour: np.ndarray, min_area: float) ->
 
 
 def classify_shapes(image_source: str | Path | np.ndarray) -> dict[str, int]:
-    """Counts of geometric shape subtypes found via contour analysis.
-
-    Returns an all-zero dict (same keys) if OpenCV is unavailable or no
-    shapes are found, so output always has a stable column set.
-    """
+    """Counts of geometric shape subtypes found via contour analysis."""
     if not cv2_available:
         return dict(_empty)
 

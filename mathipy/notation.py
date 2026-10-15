@@ -1,9 +1,4 @@
-"""Normalize math notation from OCR and language-model output.
-
-The same expression arrives as LaTeX, as hybrid ASCII, or with the backslash
-stripped. Without normalization a tokenizer counts them as different things.
-Fractions stay as ``a/b`` rather than becoming a rendered form.
-"""
+"""Normalize math notation from OCR and language-model output."""
 
 import re
 

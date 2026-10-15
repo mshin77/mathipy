@@ -1,3 +1,8 @@
+# mathipy 0.4.15
+
+- Makes visual classification reproducible across runs.
+- Renames a visual function label.
+
 # mathipy 0.4.14
 
 - Sharpens visual type and function definitions against CCSSM.

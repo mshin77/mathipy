@@ -171,14 +171,7 @@ def _empty_result() -> dict[str, Any]:
 
 
 class MultimodalOCR(VisionAPIClient):
-    """Extract text and math expressions from images using vision LLMs.
-
-    Supports Gemini and OpenAI providers. Accepts image files, URLs, bytes,
-    PDFs, DOCX, and text files.
-
-    Requires ``pip install mathipy[ocr]`` and a ``GEMINI_API_KEY`` or
-    ``OPENAI_API_KEY`` in the ``.env`` file.
-    """
+    """Extract text and math expressions from images using vision LLMs."""
 
     def extract(
         self,
@@ -197,8 +190,7 @@ class MultimodalOCR(VisionAPIClient):
             Dictionary with ``content_type``, ``full_text``, ``image_description``,
             ``question_text``, ``math_expressions``, ``answer_choices``,
             ``extraction_confidence``, and the provenance keys ``provider``,
-            ``model``, and ``extracted_at``.
-        """
+            ``model``, and ``extracted_at``."""
         if mode not in ("full", "describe"):
             raise ValueError(f"Unsupported mode: {mode}. Use 'full' or 'describe'.")
 
@@ -249,20 +241,8 @@ class MultimodalOCR(VisionAPIClient):
             sys_prompt = system_prompt
             usr_prompt = user_prompt
 
-        if self.provider == "gemini":
-            response_text = self._call_gemini(
-                image_b64, mime_type,
-                system_prompt=sys_prompt,
-                user_prompt=usr_prompt,
-                json_output=True,
-            )
-        else:
-            response_text = self._call_openai(
-                image_b64, mime_type,
-                system_prompt=sys_prompt,
-                user_prompt=usr_prompt,
-                json_output=True,
-            )
+        response_text = self._call(image_b64, mime_type, system_prompt=sys_prompt,
+                                   user_prompt=usr_prompt, json_output=True)
 
         return _parse_response(response_text)
 

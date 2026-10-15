@@ -1,12 +1,4 @@
-"""Relations carried by notation rather than by words.
-
-O'Halloran (2015) treats language and symbolism as separate resources.
-``register.relational_features`` measures the wording; these count the same
-relations in notation, kept apart so the channels stay comparable.
-
-``sym_division`` counts a solidus between numbers, which is also how a
-fraction is written; ``fractions`` measures that separately.
-"""
+"""Relations carried by notation rather than by words."""
 
 import re
 

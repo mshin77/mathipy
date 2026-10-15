@@ -1,9 +1,4 @@
-"""Morphological structure of mathematics vocabulary.
-
-Nominalization, Greek and Latin roots, and derivational suffixes carry a
-distinct load from word length: a nominalized process is harder to parse than
-the verb it came from, and a technical suffix marks a term as domain-specific.
-"""
+"""Morphological structure of mathematics vocabulary."""
 
 import re
 

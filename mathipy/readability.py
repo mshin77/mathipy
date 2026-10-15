@@ -42,15 +42,7 @@ def _warn_missing_cmudict() -> None:
 
 
 class ReadabilityAnalyzer:
-    """Analyze text readability with math-aware normalization.
-
-    Computes Flesch-Kincaid, Gunning Fog, SMOG, and other readability metrics.
-    LaTeX and math symbols are replaced with placeholders before analysis
-    so they don't inflate complexity scores.
-
-    Requires ``pip install mathipy[nlp]`` for full metrics.
-    Falls back to estimation methods when textstat is not installed.
-    """
+    """Analyze text readability with math-aware normalization."""
 
     def __init__(self):
         self._cmu_dict: dict | None = None
@@ -78,8 +70,7 @@ class ReadabilityAnalyzer:
         Returns:
             Dictionary with readability scores including ``flesch_kincaid_grade``,
             ``flesch_reading_ease``, ``average_grade_level``, and others.
-            Includes ``low_confidence=True`` when text is shorter than 20 words.
-        """
+            Includes ``low_confidence=True`` when text is shorter than 20 words."""
         if not text or not text.strip():
             return self._empty_metrics()
 

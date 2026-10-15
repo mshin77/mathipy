@@ -1,10 +1,4 @@
-"""Relations the wording of an item encodes.
-
-Comparison, rate, multiplicative, partitive, distribution and division are
-relational meanings carried by phrasing rather than by notation; number type
-distinguishes cardinal, ordinal, fraction and nominal uses of a numeral.
-``symbolic`` counts the same relations when they appear as operators.
-"""
+"""Relations the wording of an item encodes."""
 
 import re
 from collections import Counter
@@ -91,16 +85,7 @@ def _count(text: str, phrases: list[str]) -> int:
 
 def relational_features(text: str) -> dict[str, int]:
     """Counts of the relations the wording encodes, and of the marked comparative,
-    whose surface order reverses the order the operation needs.
-
-    A marked comparative is one where a quantity precedes the comparative, as in
-    five less than Ben. The operands then appear in the reverse of the order the
-    operation needs, which is a documented source of error.
-
-    Partitive counts part-whole constructions only (a fraction, percent, or
-    part of; N of the; out of), not every "of the". Distribution counts each
-    or every followed by a quantity verb, and "in each"; "for each" is a rate.
-    """
+    whose surface order reverses the order the operation needs."""
     text = text or ""
     hits = consume_phrases(text, [t for terms in relational_terms.values() for t in terms])
     counts = {f"rel_{name}": sum(hits.get(t, 0) for t in terms)
@@ -117,12 +102,7 @@ def relational_features(text: str) -> dict[str, int]:
 
 
 def number_features(text: str) -> dict[str, int]:
-    """Numbers split by what they do: count, index, name a part, or identify.
-
-    Corpus work on number use finds that treating every number as a cardinal
-    misdescribes ordinary text (Woodin et al., 2024), and the three kinds make
-    different demands on a reader.
-    """
+    """Numbers split by what they do: count, index, name a part, or identify (Woodin et al., 2024)."""
     text = text or ""
     lowered = text.lower()
 

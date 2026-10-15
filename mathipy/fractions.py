@@ -1,9 +1,4 @@
-"""Fraction values in an item, in digit and word form.
-
-Denominator magnitude, unit fractions, unlike denominators and unreduced
-forms are properties of the quantity rather than of the notation, and each is
-a known source of difficulty in fraction items.
-"""
+"""Fraction values in an item, in digit and word form."""
 
 import re
 from math import gcd

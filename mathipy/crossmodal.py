@@ -1,10 +1,4 @@
-"""References from item text into the image.
-
-A deictic reference ("shown above") tells a reader to look at the figure; a
-label reference ("angle A") names an element inside it. Both mark text that
-cannot be read on its own, which is a different demand from text that merely
-mentions a picture.
-"""
+"""References from item text into the image."""
 
 import re
 from collections import Counter

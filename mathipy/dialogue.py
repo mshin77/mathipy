@@ -60,11 +60,7 @@ def segment_turns(
     separator: str | None = None,
     strip_pattern: str | None = None,
 ) -> list[dict[str, Any]]:
-    """Split a transcript into speaker turns, from a file or an in-memory string.
-
-    Pass ``text`` to segment a string directly. ``separator`` splits turns when they
-    are not newline-delimited, and ``strip_pattern`` removes inline annotations.
-    """
+    """Split a transcript into speaker turns, from a file or an in-memory string."""
     if transcript_format not in transcript_formats:
         raise ValueError(f"transcript_format must be one of {transcript_formats}")
     if text is None and source is None:

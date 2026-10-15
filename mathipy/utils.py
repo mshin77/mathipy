@@ -143,15 +143,12 @@ def compute_interrater_reliability(
 ) -> dict[str, Any]:
     """Compute agreement and Cohen's kappa between two raters.
 
-    Manual implementation — no sklearn dependency required.
-
     Args:
         coder1: Sequence of ratings from coder 1.
         coder2: Sequence of ratings from coder 2 (same length).
 
     Returns:
-        ``{"agreement": float, "kappa": float, "n": int}``
-    """
+        ``{"agreement": float, "kappa": float, "n": int}``"""
     c1, c2 = list(coder1), list(coder2)
     n = len(c1)
     if n != len(c2):

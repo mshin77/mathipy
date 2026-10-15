@@ -46,14 +46,7 @@ _answer_label = re.compile(r"^[A-E]$")
 
 
 def split_sentences(text: str) -> list[str]:
-    """Split text into sentences on terminal punctuation.
-
-    Splitting on a bare period fragments an assessment item in two ways that
-    matter: answer-choice labels ("A. 225 B. 233") become separate sentences,
-    and titles ("Mr. Chapman") break mid-name. Both inflate the sentence count,
-    and because answer lists occur mostly in multiple-choice items the
-    inflation tracks item format rather than prose structure.
-    """
+    """Split text into sentences on terminal punctuation."""
     text = text.strip()
     for _, end in option_label_spans(text):
         text = text[:end - 1] + ("\x00" if text[end - 1] == "." else text[end - 1]) + text[end:]
@@ -119,20 +112,7 @@ def lexical_overlap(units: Sequence[str]) -> dict[str, float]:
 
 
 def lexical_diversity(text: str, window: int = 10) -> dict[str, float]:
-    """Moving-average type-token ratio (MATTR; Covington and McFall, 2010).
-
-    The type-token ratio of every run of ``window`` consecutive tokens is
-    averaged. A plain ratio falls as a text grows, so across items of different
-    length it tracks length; a fixed window holds the denominator constant. The
-    window of 10 fits items that are mostly under 50 words. A text shorter than
-    the window is one window, so its value is the plain ratio.
-
-    Numerals are excluded here and only here. A type-token ratio measures how
-    varied the vocabulary is, and "3, 7, 12, 45" contributes four types with no
-    lexical variety at all, so counting numerals would make a numerically dense
-    item look lexically rich. Length denominators elsewhere in this module do
-    count them, because there the question is how long the text is.
-    """
+    """Moving-average type-token ratio (MATTR; Covington and McFall, 2010)."""
     tokens = [w for w in _words(text) if not w[0].isdigit()]
     if not tokens:
         return {"lexical_diversity": 0.0, "token_count": 0}
@@ -154,11 +134,7 @@ def pronoun_density(text: str) -> dict[str, float]:
 
 
 def negation_density(text: str) -> dict[str, float]:
-    """Negations per 100 words.
-
-    S-CP.1 names "or", "and", "not" as the operators a student must read; the
-    first two are conjunctions the connective classes already carry.
-    """
+    """Negations per 100 words."""
     tokens = _words(text)
     if not tokens:
         return {"negation_per_100w": 0.0, "negation_count": 0}

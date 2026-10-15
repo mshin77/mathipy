@@ -6,6 +6,7 @@ import json
 import logging
 import re
 from collections import Counter
+from hashlib import md5
 from pathlib import Path
 from typing import Any
 
@@ -55,8 +56,8 @@ plus a "function" field for the instructional role of the image:
 Return "no_visual" for "function" exactly when "visual_type" is text_only, that is
 when the image carries no figure at all: a screenshot of prose, an answer interface,
 or a bare fragment of notation. An image that is itself a figure, including a cropped
-figure filling the frame, always takes essential or decorative even when "figure_box"
-is null. Never pair text_only with essential or decorative, and never pair a figure
+figure filling the frame, always takes essential or non_essential even when "figure_box"
+is null. Never pair text_only with essential or non_essential, and never pair a figure
 type with no_visual.
 
 Types:
@@ -88,15 +89,12 @@ recommended answer:
 
 Return ONLY valid JSON, nothing else."""
 
+prompt_hash = md5((classify_user_prompt + json.dumps(image_positions, sort_keys=True))
+                  .encode("utf-8")).hexdigest()[:12]
+
 
 def _normalize_label(value: Any) -> str:
-    """Fold a returned label to the spelling the typology uses.
-
-    The model returns "Bar Graph", "bar-graph" and "bar_graph" for the same
-    thing across calls. An exact membership test sent the first two to
-    "other", so the same image classified twice could land in two different
-    columns.
-    """
+    """Fold a returned label to the spelling the typology uses."""
     if not isinstance(value, str):
         return ""
     return re.sub(r"[\s-]+", "_", value.strip().lower())
@@ -108,13 +106,7 @@ _MAX_BOX_AREA = 0.98
 
 
 def _parse_box(value: Any, min_area: float = _MIN_BOX_AREA) -> list[float] | None:
-    """Validate a returned figure box, or None if it cannot be trusted.
-
-    The box is the one output that silently changes every downstream pixel
-    measure, so a malformed one has to be refused rather than clipped into
-    something plausible. Coordinates are fractions of width and height, which
-    keeps the box independent of the resolution the item was exported at.
-    """
+    """Validate a returned figure box, or None if it cannot be trusted."""
     if not isinstance(value, (list, tuple)) or len(value) != 4:
         return None
     try:
@@ -131,13 +123,7 @@ def _parse_box(value: Any, min_area: float = _MIN_BOX_AREA) -> list[float] | Non
 
 
 def _parse_boxes(value: Any) -> list[list[float]]:
-    """Validate a list of option-choice boxes, dropping any that fail.
-
-    Answer choices that are graphics are several regions, not one. A single
-    rectangle drawn round all of them would enclose the choice labels, the
-    selection controls and the space between, which is the chrome the box
-    exists to exclude.
-    """
+    """Validate a list of option-choice boxes, dropping any that fail."""
     if not isinstance(value, (list, tuple)):
         return []
     return [box for box in (_parse_box(v, _MIN_OPTION_BOX_AREA) for v in value) if box]
@@ -171,14 +157,7 @@ def _build_user_prompt(item_text: str | None = None, position: str | None = None
 
 
 class VisualModelClassifier(VisionAPIClient):
-    """Classify which visual model types appear in an assessment image.
-
-    Returns boolean flags per type, the primary type, the instructional
-    function of the image, and a model count.
-
-    Requires ``pip install mathipy[ocr]`` and a ``GEMINI_API_KEY`` or
-    ``OPENAI_API_KEY`` in the ``.env`` file.
-    """
+    """Classify which visual model types appear in an assessment image."""
 
     def classify(self, source: str | Path | bytes, votes: int = 1,
                  item_text: str | None = None,
@@ -198,8 +177,7 @@ class VisualModelClassifier(VisionAPIClient):
         Returns:
             Dict with a boolean per model type, ``"visual_type"``, ``"visual_subtype"``,
             ``"function"``, ``"option_visual_type"``, ``"model_count"``, ``"position"``,
-            and ``"text_withheld"``.
-        """
+            and ``"text_withheld"``."""
         if position is not None and (not isinstance(position, str) or not position.strip()):
             raise ValueError("position must be a non-empty label or None")
         image_b64, mime_type = self._prepare_image(source)
@@ -228,29 +206,24 @@ class VisualModelClassifier(VisionAPIClient):
                 logger.warning("item text withheld after refusal; figure classified alone")
         if not results:
             raise refused or failed
+        raws = [r.pop("raw", None) for r in results]
         merged = results[0] if len(results) == 1 else self._merge_votes(results)
-        return (merged | self.provenance()
-                | {"votes": max(1, votes), "text_withheld": withheld, "position": position})
+        return (merged | self.provenance() | self._vote_agreement(results, merged)
+                | {"votes": max(1, votes), "vote_raw": raws, "prompt_hash": prompt_hash,
+                   "text_withheld": withheld, "position": position})
 
     def _classify_once(self, image_b64: str, mime_type: str,
                        item_text: str | None = None,
                        position: str | None = None) -> dict[str, Any]:
-        call = self._call_gemini if self.provider == "gemini" else self._call_openai
-        raw = call(image_b64, mime_type,
+        raw = self._call(image_b64, mime_type,
                    system_prompt=classify_system_prompt,
                    user_prompt=_build_user_prompt(item_text, position),
                    json_output=True)
-        return self._parse_classify_response(raw)
+        return self._parse_classify_response(raw) | {"raw": raw}
 
     @staticmethod
     def text_only_result() -> dict[str, Any]:
-        """Return a classification result for an item carrying no image.
-
-        ``text_only`` is set here rather than left False. Leaving it False
-        while naming it as primary contradicted the type's purpose: the
-        no-visual group flag it exists to drive read 0 for exactly the items
-        it was meant to identify.
-        """
+        """Return a classification result for an item carrying no image."""
         result = {m: False for m in visual_models}
         result["text_only"] = True
         result.update({"visual_type": "text_only", "visual_subtype": None,
@@ -263,20 +236,13 @@ class VisualModelClassifier(VisionAPIClient):
     def fallback_result(status: str = "unparseable") -> dict[str, Any]:
         """Return an all-False classification for failed or unparseable calls.
 
-        ``parsed`` is False and ``primary`` is None rather than "other". A
-        failed call previously returned primary="other", making it byte-
-        identical to a real classification of an unlisted visual - so every
-        failure entered a difficulty model as a legitimate "other" item with
-        no way to tell the two apart.
-
         Args:
             status: Why no classification is carried. "unparseable" means the
                 response could not be read; "empty" means it was read and named
                 nothing, which is a verdict about the image rather than a
                 failure of the call. Retrying is worthwhile for the first and
                 pointless for the second, and ``parsed`` alone cannot tell
-                them apart.
-        """
+                them apart."""
         result = {m: False for m in visual_models}
         result.update({"visual_type": None, "visual_subtype": None, "function": None,
                        "model_count": 0, "figure_box": None, "option_boxes": [],
@@ -285,13 +251,7 @@ class VisualModelClassifier(VisionAPIClient):
 
     @staticmethod
     def _merge_votes(results: list[dict[str, Any]]) -> dict[str, Any]:
-        """Merge repeat calls, dropping failed ones before the vote.
-
-        A failed call carries no opinion, so letting it vote would pull every
-        flag toward False and let ``None`` win the primary field on a 2-1
-        split. Only parsed calls are counted, and the merge itself fails if
-        none survived.
-        """
+        """Merge repeat calls, dropping failed ones before the vote."""
         usable = [r for r in results if r.get("parsed", True)]
         if not usable:
             statuses = {r.get("status", "unparseable") for r in results}
@@ -323,15 +283,19 @@ class VisualModelClassifier(VisionAPIClient):
         return VisualModelClassifier._reconcile(entry)
 
     @staticmethod
-    def _reconcile(entry: dict[str, Any]) -> dict[str, Any]:
-        """Make ``primary`` consistent with the flags it is drawn from.
+    def _vote_agreement(results: list[dict[str, Any]], merged: dict[str, Any]) -> dict[str, Any]:
+        """Record each vote and its agreement with the merged labels."""
+        usable = [r for r in results if r.get("parsed", True)]
+        share = lambda field: (round(sum(r.get(field) == merged.get(field) for r in usable)  # noqa: E731
+                                     / len(usable), 3) if usable else None)
+        return {"vote_types": [r.get("visual_type") for r in results],
+                "vote_functions": [r.get("function") for r in results],
+                "type_agreement": share("visual_type"),
+                "function_agreement": share("function")}
 
-        The model can name a primary type it did not flag True, or flag types
-        and then name one outside the typology. Either way the primary column
-        and the flag columns disagree about the same image, and a model using
-        both reads a contradiction. The named type wins - it is the more
-        considered judgment - and its flag is raised to match.
-        """
+    @staticmethod
+    def _reconcile(entry: dict[str, Any]) -> dict[str, Any]:
+        """Make ``primary`` consistent with the flags it is drawn from."""
         primary = entry.get("visual_type")
         if primary in visual_models and not entry[primary]:
             entry[primary] = True

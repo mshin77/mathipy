@@ -17,13 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class MultimodalAnalyzer:
-    """Run every analyzer over one unit and return a flat ``prefix_*`` dict.
-
-    Readability, math-content, and cognitive-load features come from
-    ``text``; visual features are extracted per image and aggregated to
-    the item level (mean for continuous, sum for counts, max for
-    dimensions, mode for complexity level).
-    """
+    """Run every analyzer over one unit and return a flat ``prefix_*`` dict."""
 
     def __init__(self):
         self._read = ReadabilityAnalyzer()
@@ -47,8 +41,7 @@ class MultimodalAnalyzer:
 
         Returns:
             Flat dict with ``readability_*``, ``math_*``, ``cognitive_*``,
-            and ``visual_*`` keys.
-        """
+            and ``visual_*`` keys."""
         row: dict[str, Any] = {}
 
         rd = self._read.analyze(text)

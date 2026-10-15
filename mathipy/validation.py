@@ -1,9 +1,4 @@
-"""Sampling, coding sheets, and rater agreement for validating extraction output.
-
-Closes the loop between automated extraction and human verification: draw a
-stratified sample, emit a coding sheet or a Label Studio task file, then score
-agreement between two raters. Depends only on the standard library.
-"""
+"""Sampling, coding sheets, and rater agreement for validating extraction output."""
 
 from __future__ import annotations
 
@@ -56,8 +51,7 @@ def stratified_sample(
         min_per_stratum: Smallest number taken from any non-empty stratum.
 
     Returns:
-        Selected rows, each with a ``stratum`` key added.
-    """
+        Selected rows, each with a ``stratum`` key added."""
     if not records:
         return []
 
@@ -398,13 +392,7 @@ def write_coding_app(
     image_base: str = "images/",
     rules: dict[str, str] | None = None,
 ) -> Path:
-    """Write one offline page listing every item, for a coder to fill in and export.
-
-    The whole task sits on one page rather than advancing one item at a time, because
-    coding consistently depends on being able to scan neighbours, compare, and revise
-    an earlier decision. Nothing leaves the machine the page is opened on, progress
-    survives a closed tab, and the exported columns match ``score_agreement``.
-    """
+    """Write one offline page listing every item, for a coder to fill in and export."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     keep = list(carry) if carry else [k for k in (records[0] if records else {})]

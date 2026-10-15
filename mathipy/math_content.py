@@ -62,12 +62,7 @@ def _match_unit_abbreviations(text: str) -> dict[str, int]:
 
 
 class MathContentAnalyzer:
-    """Analyze math content and classify by Common Core State Standards domain.
-
-    Detects math patterns (equations, fractions, operations), counts symbols,
-    extracts numbers and vocabulary, and classifies the primary math domain
-    (arithmetic, algebra, geometry, statistics, calculus, fractions).
-    """
+    """Analyze math content and classify by Common Core State Standards domain."""
 
     def __init__(self):
         self._init_patterns()
@@ -186,8 +181,7 @@ class MathContentAnalyzer:
 
         Returns:
             Dictionary with ``pattern_matches``, ``symbol_counts``, ``numbers``,
-            ``vocabulary``, ``domain_classification``, and ``math_density``.
-        """
+            ``vocabulary``, ``domain_classification``, and ``math_density``."""
         if not text or not text.strip():
             return self._empty_analysis()
 

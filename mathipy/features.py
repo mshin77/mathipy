@@ -1,13 +1,4 @@
-"""Redundancy structure of the extracted feature set.
-
-A composite is the exact sum of its components; carrying both makes a
-correlation matrix singular. The dependencies are declared here so an analysis
-can drop them programmatically rather than from a hand-maintained list.
-
-``compositional_sets`` records shares that sum to a constant, where no single
-column is the redundant one. ``near_duplicates`` records pairs that overlap in
-practice rather than by algebra.
-"""
+"""Redundancy structure of the extracted feature set."""
 
 composite_features = {
     "num_total": (
@@ -55,21 +46,13 @@ near_duplicates = (
 
 
 def drop_composites(columns):
-    """Columns with every composite removed, keeping its components.
-
-    Use when a correlation matrix is about to be formed - factor analysis,
-    clustering, or any shrinkage prior over the full set.
-    """
+    """Columns with every composite removed, keeping its components."""
     return [c for c in columns if c not in composite_features]
 
 
 def drop_components(columns):
     """Columns with the components removed, keeping each composite whose
-    components were all present.
-
-    The opposite reduction: use when the total is the quantity of interest
-    and the breakdown is not.
-    """
+    components were all present."""
     absorbed = {
         part
         for composite, parts in composite_features.items()
@@ -80,11 +63,7 @@ def drop_components(columns):
 
 
 def dependent_sets(columns):
-    """Every composite in ``columns`` whose components are also present.
-
-    Reports the linear dependencies actually realised in a given column set,
-    so a caller can see what would make the matrix singular before it does.
-    """
+    """Every composite in ``columns`` whose components are also present."""
     return {
         composite: parts
         for composite, parts in composite_features.items()
@@ -93,13 +72,7 @@ def dependent_sets(columns):
 
 
 def saturated_sets(columns):
-    """Compositional sets in ``columns`` that are present in full.
-
-    A set of shares summing to a constant is singular when every member is
-    included, and no single column can be named as the redundant one - which
-    is why these are reported separately from ``composite_features`` rather
-    than folded into it. The caller chooses which part to leave out.
-    """
+    """Compositional sets in ``columns`` that are present in full."""
     return {
         name: parts
         for name, parts in compositional_sets.items()

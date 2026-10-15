@@ -1,11 +1,4 @@
-"""Split a multi-item document into per-item records.
-
-Released test documents place many items in one file, marked by an identifier
-line. Whether that line precedes or follows the block it names varies by
-publisher, and both readings parse without error, so a wrong choice is silent.
-``check_alignment`` measures which reading is right before an analysis depends
-on it.
-"""
+"""Split a multi-item document into per-item records."""
 
 from __future__ import annotations
 
@@ -106,14 +99,7 @@ def paragraph_text(para) -> str:
 
 
 def body_paragraphs(doc) -> list:
-    """Every paragraph in document order, including those inside tables.
-
-    ``doc.paragraphs`` yields only the top-level ``w:p`` children of the body, so
-    any paragraph nested in a ``w:tbl`` is invisible to it. A document that lays
-    an item out in a table therefore segments as if that content were absent -
-    silently, because the item still exists and still carries whatever sits
-    outside the table.
-    """
+    """Every paragraph in document order, including those inside tables."""
     from docx.oxml.ns import qn
     from docx.table import Table
     from docx.text.paragraph import Paragraph
@@ -179,8 +165,7 @@ def segment_docx(
 
     Returns:
         One dict per identifier, holding ``item_id``, ``text``, ``images``, and
-        any named sections, in document order.
-    """
+        any named sections, in document order."""
     if label_position not in label_positions:
         raise ValueError(f"label_position must be one of {label_positions}")
     if not docx_available:
@@ -274,15 +259,10 @@ def check_alignment(
 ) -> dict[str, Any]:
     """Report whether each item's content matches its own reference text.
 
-    Compares every item against the reference for itself, the item before, and
-    the item after. A majority matching a neighbour means the identifiers are
-    offset by one position.
-
     Returns:
         Counts and proportions for ``own``, ``next``, and ``previous``, plus a
         ``verdict`` of ``"aligned"``, ``"shifted_next"``, ``"shifted_previous"``,
-        or ``"undetermined"``.
-    """
+        or ``"undetermined"``."""
     ids = [it.get(id_key) for it in items]
     tallies = {"own": 0, "next": 0, "previous": 0}
     compared = 0

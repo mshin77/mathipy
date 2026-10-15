@@ -21,12 +21,7 @@ _operator = re.compile(r"(?<=[\w)\]}%])\s*(?:<=|>=|!=|[-+*/^=<>×÷−·≤≥�
 
 
 def count_operations(text: str) -> int:
-    """Operator symbols that stand between two operands.
-
-    Rule lines, word hyphens (two-digit, x-axis), and the slash of a numeric
-    fraction are removed first, and a sign with no left operand is not an
-    operation; <=, >= and != count once.
-    """
+    """Operator symbols that stand between two operands."""
     text = _rule_line.sub(" ", text or "")
     text = _fraction_slash.sub(" ", text)
     text = _word_join.sub(" ", text)
@@ -41,12 +36,7 @@ def plural(term: str) -> str:
 
 
 def inflections(term: str) -> set[str]:
-    """Base form plus its regular plural and verb inflections.
-
-    Generated per term rather than matched with an optional-suffix group,
-    because a suffix group cannot express the spelling changes: divide ->
-    dividing drops the e, multiply -> multiplied turns y to i.
-    """
+    """Base form plus its regular plural and verb inflections."""
     forms = {term}
     forms.add(term + "es" if term.endswith(_sibilant_endings) else term + "s")
     if term.endswith("e"):
@@ -59,11 +49,7 @@ def inflections(term: str) -> set[str]:
 
 
 class CognitiveLoadEstimator:
-    """Estimate cognitive load components for math assessment items.
-
-    Computes intrinsic (item complexity), extraneous (linguistic demand),
-    and germane (schema-building) load from text features.
-    """
+    """Estimate cognitive load components for math assessment items."""
 
     math_keywords = {
         "add", "subtract", "multiply", "divide", "sum", "difference",
@@ -93,9 +79,6 @@ class CognitiveLoadEstimator:
     ) -> dict[str, Any]:
         """Extract raw cognitive load indicators from text.
 
-        Returns raw counts and ratios only — no composite scores or
-        scaling constants. Weights should be determined empirically.
-
         Args:
             text: Input text to analyze.
             readability_grade: Optional Flesch-Kincaid grade level.
@@ -103,8 +86,7 @@ class CognitiveLoadEstimator:
                 always comes from the inflected keyword match.
 
         Returns:
-            Dictionary with raw element counts and ratios.
-        """
+            Dictionary with raw element counts and ratios."""
         if not text or not text.strip():
             return self._empty_estimate()
 

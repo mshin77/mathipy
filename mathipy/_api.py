@@ -28,14 +28,22 @@ def _optional_import(name: str, install_hint: str | None = None):
 
 
 httpx, httpx_available = _optional_import("httpx")
+anthropic_sdk, anthropic_available = _optional_import("anthropic", "anthropic")
 
 gemini_api_url = "https://generativelanguage.googleapis.com/v1beta"
 openai_api_url = "https://api.openai.com/v1"
+anthropic_api_url = "https://api.anthropic.com"
 
 default_models = {
     "gemini": "gemini-2.5-flash",
-    "openai": "gpt-4o",
+    "openai": "gpt-4o-2024-08-06",
+    "anthropic": "claude-opus-5-5",
 }
+default_urls = {"gemini": gemini_api_url, "openai": openai_api_url, "anthropic": anthropic_api_url}
+api_key_vars = {"gemini": "GEMINI_API_KEY", "openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}
+# models that refuse sampling settings take None for both
+default_sampling = {"gemini": (0.0, 0), "openai": (0.0, 0), "anthropic": (None, None)}
+_unset = object()
 
 image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
 
@@ -174,25 +182,32 @@ class VisionAPIClient:
         api_key: str | None = None,
         timeout: int = 120,
         base_url: str | None = None,
+        temperature: float | None = _unset,
+        seed: int | None = _unset,
     ):
-        if provider not in ("gemini", "openai"):
-            raise ValueError(f"Unsupported provider: {provider}. Use 'gemini' or 'openai'.")
+        if provider not in default_models:
+            raise ValueError(f"Unsupported provider: {provider}. Use one of {sorted(default_models)}.")
 
         _load_dotenv()
 
         self.provider = provider
         self.model = model or default_models[provider]
         self.timeout = timeout
+        self.temperature = default_sampling[provider][0] if temperature is _unset else temperature
+        self.seed = default_sampling[provider][1] if seed is _unset else seed
+        self.served: dict[str, str | None] = {}
         self._api_key_override = api_key
-        self.base_url = base_url or (
-            gemini_api_url if provider == "gemini" else openai_api_url
-        )
+        self.base_url = base_url or default_urls[provider]
 
     def provenance(self) -> dict[str, str]:
-        """Return the provider, model, and UTC timestamp for the current call."""
+        """Return the provider, model, sampling settings, and UTC timestamp."""
         return {
             "provider": self.provider,
             "model": self.model,
+            "served_model": self.served.get("model"),
+            "system_fingerprint": self.served.get("fingerprint"),
+            "temperature": self.temperature,
+            "seed": self.seed,
             "base_url": self.base_url,
             "extracted_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         }
@@ -201,13 +216,9 @@ class VisionAPIClient:
         if self._api_key_override:
             return self._api_key_override
 
-        if self.provider == "gemini":
-            key = os.getenv("GEMINI_API_KEY")
-        else:
-            key = os.getenv("OPENAI_API_KEY")
-
+        env_var = api_key_vars[self.provider]
+        key = os.getenv(env_var)
         if not key:
-            env_var = "GEMINI_API_KEY" if self.provider == "gemini" else "OPENAI_API_KEY"
             raise ValueError(
                 f"API key not found. Set {env_var} in the .env file or pass api_key parameter."
             )
@@ -318,7 +329,9 @@ class VisionAPIClient:
 
         body = {
             "contents": contents,
-            "generationConfig": {"temperature": 0.1, "maxOutputTokens": max_output_tokens},
+            "generationConfig": {"maxOutputTokens": max_output_tokens}
+                                | ({"temperature": self.temperature} if self.temperature is not None else {})
+                                | ({"seed": self.seed} if self.seed is not None else {}),
         }
         if json_output:
             body["generationConfig"]["responseMimeType"] = "application/json"
@@ -340,6 +353,7 @@ class VisionAPIClient:
             raise error(f"Gemini API error: {_error_message(response)}")
 
         data = _json_body(response, "Gemini")
+        self.served = {"model": data.get("modelVersion"), "fingerprint": None}
         blocked = (data.get("promptFeedback") or {}).get("blockReason")
         candidates = data.get("candidates") or []
         if blocked or not candidates:
@@ -384,9 +398,9 @@ class VisionAPIClient:
         body = {
             "model": self.model,
             "messages": messages,
-            "temperature": 0.1,
-            "max_tokens": max_output_tokens,
-        }
+            # api.openai.com takes max_completion_tokens; compatible servers take max_tokens
+            ("max_completion_tokens" if self.base_url == openai_api_url else "max_tokens"): max_output_tokens,
+        } | ({"temperature": self.temperature} if self.temperature is not None else {})           | ({"seed": self.seed} if self.seed is not None else {})
         if json_output:
             body["response_format"] = {"type": "json_object"}
 
@@ -405,6 +419,7 @@ class VisionAPIClient:
             raise error(f"OpenAI API error: {_error_message(response)}")
 
         data = _json_body(response, "OpenAI")
+        self.served = {"model": data.get("model"), "fingerprint": data.get("system_fingerprint")}
         choice = (data.get("choices") or [{}])[0] or {}
         message = choice.get("message") or {}
         content = message.get("content")
@@ -414,3 +429,43 @@ class VisionAPIClient:
             raise (RuntimeError if refused else ProviderUnavailableError)(
                 f"OpenAI API error: empty reply ({reason})")
         return content.strip()
+
+    def _call_anthropic(
+        self,
+        image_b64: str,
+        mime_type: str,
+        system_prompt: str = "",
+        user_prompt: str = "",
+        json_output: bool = False,
+        max_output_tokens: int = 8192,
+    ) -> str:
+        if not anthropic_available:
+            raise ImportError("anthropic is required. Install with: pip install mathipy[ocr]")
+        sdk = anthropic_sdk
+        client = sdk.Anthropic(api_key=self._resolve_api_key(), base_url=self.base_url,
+                               timeout=self.timeout, max_retries=_RETRY_ATTEMPTS)
+        content = [{"type": "image", "source": {"type": "base64", "media_type": mime_type, "data": image_b64}},
+                   {"type": "text", "text": user_prompt}]
+        try:
+            response = client.messages.create(
+                model=self.model, max_tokens=max_output_tokens, system=system_prompt,
+                messages=[{"role": "user", "content": content}],
+                **({"temperature": self.temperature} if self.temperature is not None else {}))
+        except (sdk.APIConnectionError, sdk.RateLimitError, sdk.InternalServerError,
+                sdk.AuthenticationError, sdk.PermissionDeniedError, sdk.NotFoundError) as err:
+            raise ProviderUnavailableError(f"Anthropic API error: {_sanitize_error(str(err))}") from err
+        except sdk.APIStatusError as err:
+            raise RuntimeError(f"Anthropic API error: {_sanitize_error(str(err))}") from err
+
+        self.served = {"model": response.model, "fingerprint": None}
+        if response.stop_reason == "refusal":
+            raise RuntimeError("Anthropic API error: empty reply (refusal)")
+        text = "".join(b.text for b in response.content if b.type == "text").strip()
+        if not text:
+            raise ProviderUnavailableError(f"Anthropic API error: empty reply ({response.stop_reason})")
+        return text
+
+    def _call(self, *args, **kwargs) -> str:
+        """Send one vision request to the configured provider."""
+        return {"gemini": self._call_gemini, "openai": self._call_openai,
+                "anthropic": self._call_anthropic}[self.provider](*args, **kwargs)
