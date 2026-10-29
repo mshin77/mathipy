@@ -11,7 +11,7 @@ from typing import Any
 transcript_formats = ("plain", "vtt", "srt", "csv")
 
 _speaker_line = re.compile(
-    r"^\s*(?:[\[(\-–]\s*)?([^\W\d_][^:\n\])]{0,39})[\])]?(?!(?<=\d):\d):\s*(.*)$")
+    r"^\s*(?:[\[(\-–]\s*)?([^\W\d_][^:\n\])]{0,39})[\])]?(?!(?<=\d):\d):(?!//)\s*(.*)$")
 _timestamp = re.compile(r"\d{1,2}:\d{2}(:\d{2})?[.,]?\d*\s*-->")
 _stopwords = set(
     "a an the of to in for is are and or on with it its that this you i we he "
@@ -37,18 +37,68 @@ def _from_plain(lines: Sequence[str], unlabeled: str | None = None) -> list[tupl
     return [(s, t) for s, t in turns if t]
 
 
-def _from_captions(lines: Sequence[str]) -> list[tuple[str, str]]:
-    body = [ln for ln in lines
-            if ln.strip() and not _timestamp.search(ln)
-            and not ln.strip().isdigit() and ln.strip() != "WEBVTT"]
-    return _from_plain(body, unlabeled="Unknown")
+_voice = re.compile(r"^<v(?:\.[^\s>]*)?\s+([^>]+)>(.*)$")
+_cue_tag = re.compile(r"</?[^>]+>")
+
+
+_vtt_block = re.compile(r"^(?:NOTE|STYLE|REGION)(?:\s|$)")
+_dash_turn = re.compile(r"^[-–]\s+")  # "- Yes." marks a new speaker; "-3" is a number
+
+
+def _from_captions(lines: Sequence[str], continue_speaker: bool = False
+                   ) -> list[tuple[str, str]]:
+    """Read cues as turns; each labeled line or "- " line starts a turn.
+
+    ``lines`` keep their blank lines, which end cues and NOTE/STYLE/REGION blocks; a
+    line between a blank line and a timing line is a cue identifier and is dropped.
+    An unlabeled cue is "Unknown" unless ``continue_speaker`` credits it to the
+    previous speaker, for captions that name a speaker only when the speaker changes."""
+    lines = [ln.strip() for ln in lines]
+    timed = any(_timestamp.search(ln) for ln in lines)
+    cues, cue, seen, skipping = [], [], False, False
+    for i, line in enumerate(lines):
+        if _timestamp.search(line):
+            if seen:
+                cues.append(cue)
+            cue, seen, skipping = [], True, False
+        elif not line:
+            skipping = False
+        elif _vtt_block.match(line) and (i == 0 or not lines[i - 1]):
+            skipping = True
+        elif skipping or (timed and not seen):
+            continue
+        elif (i + 1 < len(lines) and _timestamp.search(lines[i + 1])
+              and (i == 0 or not lines[i - 1] or line.isdigit())):
+            continue
+        else:
+            cue.append(line)
+    cues.append(cue)
+
+    turns = []
+    for cue in cues:
+        for j, line in enumerate(cue):
+            voice = _voice.match(line)
+            match = None if voice else _speaker_line.match(line)
+            if voice:
+                speaker, text = voice.group(1).strip(), voice.group(2)
+            elif match:
+                speaker, text = match.group(1).strip(), match.group(2)
+            elif _dash_turn.match(line):
+                speaker, text = "Unknown", _dash_turn.sub("", line, count=1)
+            elif turns and (j > 0 or (continue_speaker and turns[-1][0] != "Unknown")):
+                turns[-1][1] += " " + _cue_tag.sub("", line).strip()
+                continue
+            else:
+                speaker, text = "Unknown", line
+            turns.append([speaker, _cue_tag.sub("", text).strip()])
+    return [(s, t) for s, t in turns if t]
 
 
 def _from_csv(path: Path, speaker_key: str, text_key: str) -> list[tuple[str, str]]:
     with open(path, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
-    return [(r.get(speaker_key, "").strip(), r.get(text_key, "").strip())
-            for r in rows if r.get(text_key, "").strip()]
+    return [((r.get(speaker_key) or "").strip(), (r.get(text_key) or "").strip())
+            for r in rows if (r.get(text_key) or "").strip()]
 
 
 def segment_turns(
@@ -59,36 +109,36 @@ def segment_turns(
     text: str | None = None,
     separator: str | None = None,
     strip_pattern: str | None = None,
+    continue_speaker: bool = False,
 ) -> list[dict[str, Any]]:
-    """Split a transcript into speaker turns, from a file or an in-memory string."""
+    """Split a transcript into speaker turns, from a file or an in-memory string.
+
+    For ``vtt`` and ``srt``, an unlabeled cue is an "Unknown" turn; set
+    ``continue_speaker`` to credit it to the previous speaker instead."""
     if transcript_format not in transcript_formats:
         raise ValueError(f"transcript_format must be one of {transcript_formats}")
     if text is None and source is None:
         raise ValueError("provide either source or text")
+    if text is not None and transcript_format == "csv":
+        raise ValueError("csv format requires a file path, not text")
+
+    def parse(body: str) -> list[tuple[str, str]]:
+        body = re.sub(strip_pattern, "", body) if strip_pattern else body
+        lines = [ln.strip() for ln in (body.split(separator) if separator else body.splitlines())]
+        if transcript_format == "plain":
+            return _from_plain([ln for ln in lines if ln])
+        return _from_captions(lines, continue_speaker)
 
     if text is not None:
-        if transcript_format == "csv":
-            raise ValueError("csv format requires a file path, not text")
-        body = re.sub(strip_pattern, "", text) if strip_pattern else text
-        lines = body.split(separator) if separator else body.splitlines()
-        lines = [ln.strip() for ln in lines if ln.strip()]
-        pairs = _from_plain(lines) if transcript_format == "plain" else _from_captions(lines)
-        return [{"turn": i, "speaker": s, "text": t, "word_count": len(t.split())}
-                for i, (s, t) in enumerate(pairs)]
-
-    path = Path(source)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-
-    if transcript_format == "csv":
-        pairs = _from_csv(path, speaker_key, text_key)
+        pairs = parse(text)
     else:
-        raw = path.read_text(encoding="utf-8")
-        if strip_pattern:
-            raw = re.sub(strip_pattern, "", raw)
-        lines = raw.split(separator) if separator else raw.splitlines()
-        lines = [ln.strip() for ln in lines if ln.strip()]
-        pairs = _from_plain(lines) if transcript_format == "plain" else _from_captions(lines)
+        path = Path(source)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
+        if transcript_format == "csv":
+            pairs = _from_csv(path, speaker_key, text_key)
+        else:
+            pairs = parse(path.read_text(encoding="utf-8"))
 
     return [{"turn": i, "speaker": s, "text": t, "word_count": len(t.split())}
             for i, (s, t) in enumerate(pairs)]

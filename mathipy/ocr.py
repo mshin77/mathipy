@@ -16,7 +16,12 @@ from mathipy._api import (
     _sanitize_error,
     max_file_size,
 )
-from mathipy.utils import extract_math_expressions, extract_numbers, extract_variables
+from mathipy.utils import (
+    _option_value_run,
+    extract_math_expressions,
+    extract_numbers,
+    extract_variables,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -144,13 +149,60 @@ def _parse_response(response_text: str) -> dict[str, Any]:
 
 
 
+_choice_label = (r"(?:(?<![^\s(])(?<![Pp]art )\(?([A-E])[.)](?:[ \t]+|(?=[-\d$(]))"
+                 r"|^[ \t]*([A-E])[ \t]+(?=[-\d$.]))")
+_choice_pattern = re.compile(
+    rf"{_choice_label}([^\n]+?)(?=[ \t]+(?:{_choice_label})|[ \t]*(?:\n|\Z))", re.MULTILINE)
+
+
 def _extract_answer_choices(text: str) -> dict[str, str]:
-    choices = {}
-    choice_pattern = r"([A-E])[.)\s]+(.+?)(?=[A-E][.)\s]|$)"
-    matches = re.findall(choice_pattern, text, re.MULTILINE | re.DOTALL)
-    for letter, content in matches:
-        choices[letter] = content.strip()
-    return choices
+    """Read labeled options, so the article "A" opening a sentence is not taken as one.
+
+    A bare letter with no "." or ")" ("A 12") counts only alongside another bare
+    letter or next to a marked one, so "A $20 shirt is on sale." is a sentence, not
+    option A, while "A 7  B 8" and "A 12 / B) 15" are options.
+
+    Labels split into candidate lists: a new list starts at each "A" and wherever a
+    letter repeats. The options are the list of two or more whose letters run from A
+    with no gap, then the longest, then the one with most labels starting a line. So
+    "...through point A. Which is it? A. 3 B. 4" and "Points B. and C. are shown."
+    above the options do not replace them, a two-column "A. 2  C. 4 / B. 3  D. 5"
+    stays one list, and "Plot the point labeled B." alone has no options."""
+    text = (text or "").replace("−", "-")
+    matches = list(_choice_pattern.finditer(text))
+
+    lists = []
+    for m in matches:
+        letter = m.group(1) or m.group(2)
+        if not lists or letter == "A" or letter in {x.group(1) or x.group(2) for x in lists[-1]}:
+            lists.append([m])
+        else:
+            lists[-1].append(m)
+
+    def starts_line(m):
+        return not text[text.rfind("\n", 0, m.start()) + 1:m.start()].strip(" \t(")
+
+    def rank(i_options):
+        i, options = i_options
+        letters = {m.group(1) or m.group(2) for m in options}
+        from_a = letters == {chr(ord("A") + k) for k in range(len(letters))}
+        return (from_a, len(options), sum(map(starts_line, options)), i)
+
+    candidates = [(i, options) for i, options in enumerate(lists) if len(options) > 1]
+    chosen = max(candidates, key=rank)[1] if candidates else []
+    marked, bare = {}, {}
+    for m in chosen:
+        if m.group(1):
+            marked.setdefault(m.group(1), m.group(3).strip())
+        else:
+            bare.setdefault(m.group(2), m.group(3).strip())
+    for run in _option_value_run.finditer(text):
+        for letter, value in re.findall(r"(?<!\S)([A-E])\s+(-?[\d$.]\S*)", run.group(0)):
+            bare[letter] = value
+    if len(bare) < 2:
+        bare = {k: v for k, v in bare.items()
+                if chr(ord(k) - 1) in marked or chr(ord(k) + 1) in marked}
+    return dict(sorted({**bare, **marked}.items()))
 
 
 def _empty_result() -> dict[str, Any]:
@@ -282,7 +334,15 @@ class MultimodalOCR(VisionAPIClient):
 
         doc = DocxDocument(str(path))
 
-        paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+        from mathipy.documents import _M, paragraph_text
+
+        def text_of(p):
+            # paragraph_text recovers equations but reads line breaks as spaces, so keep
+            # p.text, whose breaks separate answer choices, for paragraphs without math.
+            has_math = next(p._p.iter(_M + "oMath"), None) is not None
+            return paragraph_text(p) if has_math else p.text
+
+        paragraphs = [t for t in (text_of(p) for p in doc.paragraphs) if t.strip()]
         table_rows = []
         for table in doc.tables:
             for row in table.rows:
@@ -423,10 +483,10 @@ class MultimodalOCR(VisionAPIClient):
         all_descriptions = ([existing_desc] if existing_desc else []) + descriptions
         base["image_description"] = "\n".join(all_descriptions)
 
-        math_set = set(base.get("math_expressions", []))
-        labels_set = set(base.get("labels", []))
-        numbers_set = set(base.get("numbers_found", []))
-        variables_set = set(base.get("variables_found", []))
+        math_set = dict.fromkeys(base.get("math_expressions", []))
+        labels_set = dict.fromkeys(base.get("labels", []))
+        numbers_set = dict.fromkeys(base.get("numbers_found", []))
+        variables_set = dict.fromkeys(base.get("variables_found", []))
         data_elements = list(base.get("data_elements", []))
 
         def as_list(value):
@@ -441,10 +501,10 @@ class MultimodalOCR(VisionAPIClient):
         if not isinstance(base.get("answer_choices"), dict):
             base["answer_choices"] = {}
         for img_result in image_results:
-            math_set.update(as_list(img_result.get("math_expressions")))
-            labels_set.update(as_list(img_result.get("labels")))
-            numbers_set.update(as_list(img_result.get("numbers_found")))
-            variables_set.update(as_list(img_result.get("variables_found")))
+            math_set.update(dict.fromkeys(as_list(img_result.get("math_expressions"))))
+            labels_set.update(dict.fromkeys(as_list(img_result.get("labels"))))
+            numbers_set.update(dict.fromkeys(as_list(img_result.get("numbers_found"))))
+            variables_set.update(dict.fromkeys(as_list(img_result.get("variables_found"))))
             data_elements.extend(img_result.get("data_elements") or []
                                  if isinstance(img_result.get("data_elements"), list) else [])
             choices = img_result.get("answer_choices")

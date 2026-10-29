@@ -41,6 +41,38 @@ _mean_verb = re.compile(r"\b(?:do|does|did|will|would|could|can|might|may)"
 _even_adverb = re.compile(r"(?<!\bis )(?<!\bare )(?<!\bbe )\beven\b(?!\s+(?:numbers?|integers?)\b)")
 _count_words = r"\d[\d,.]*|per|many|few|several|one|two|three|four|five|six|seven|eight|nine|ten|twelve"
 _time_word = re.compile(r"(\b(?:" + _count_words + r")\s+)?\b(?:second|day|week|month|year)s?\b")
+_clock = r"(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?"
+# A clock time needs a time cue: "at/by/until 10:30", a clock that "shows" or "reads"
+# it, "9:15 to 10:00", "between 3:15 and 4:00", or am/pm; "about 1:20" and
+# "from 4:12" stay ratios.
+_clock_time = re.compile(
+    rf"\b(?:at|by|until|till|before|after|shows?|showed|reads?|time\s+is)\s+{_clock}"
+    rf"(?:\s*(?:to|until|and|-|–)\s*{_clock})?\b"
+    rf"|\b{_clock}\s*(?:to|until|-|–)\s*{_clock}\b"
+    rf"|\bbetween\s+{_clock}\s+and\s+{_clock}\b"
+    rf"|\b{_clock}\s*(?:[ap]\.?m\b\.?|o'clock)", re.I)
+# A pair named as a scale or ratio right beside it, on the same line, stays a ratio
+# even after a time cue: "built at 1:24 scale", "The map scale shows 1:50", "the ratio
+# 10:15 to 2:30". A ratio word before "at/by/until..." does not count ("read the scale
+# at 10:30" is a time), and a pair followed by am/pm or o'clock is always a time.
+_ratio_word = r"(?:scale|ratios?|proportions?|odds)"
+_ratio_before = re.compile(rf"\b{_ratio_word}[ \t]+(?:(?:is|was|of|shows?|reads?)[ \t]+)?$",
+                           re.I)
+_ratio_after = re.compile(rf"[ \t]*{_ratio_word}\b", re.I)
+_am_pm = re.compile(r"[ap]\.?m\b|o'clock", re.I)
+_am_pm_after = re.compile(r"[ \t]*(?:[ap]\.?m\b|o'clock)", re.I)
+_time_preposition = re.compile(r"(?:at|by|until|till|before|after|between)\b", re.I)
+
+
+def _strip_clock_times(text: str) -> str:
+    def strip(m):
+        if _am_pm.search(m.group(0)) or _am_pm_after.match(text, m.end()):
+            return " "
+        named_after = _ratio_after.match(text, m.end())
+        named_before = (not _time_preposition.match(m.group(0))
+                        and _ratio_before.search(text, 0, m.start()))
+        return m.group(0) if named_after or named_before else " "
+    return _clock_time.sub(strip, text)
 
 
 def _drop_everyday_senses(text: str) -> str:
@@ -89,7 +121,7 @@ class MathContentAnalyzer:
                 r"|\b\d+\s+to\s+\d+\s+ratio"
                 r"|\bfor\s+every\s+\d+", re.I),
             "scientific_notation": re.compile(r"\d+\.?\d*\s*[×x]\s*10\^[-]?\d+"),
-            "derivative": re.compile(r"d/dx|f'|\\frac\{d\}\{dx\}"),
+            "derivative": re.compile(r"d/dx|(?<![A-Za-z])[fgh]['′](?![a-z])|\\frac\{d\}\{dx\}"),
             "integral": re.compile(r"∫|\\int"),
             "limit": re.compile(r"\\lim|lim_"),
             "summation": re.compile(r"∑|\\sum"),
@@ -216,8 +248,9 @@ class MathContentAnalyzer:
         }
 
     def _match_patterns(self, text: str) -> dict[str, int]:
+        untimed = _strip_clock_times(text)  # "at 10:30" is a time, not a ratio
         counts = {n: len(m) for n, p in self.patterns.items()
-                  if n != "variable" and (m := p.findall(text))}
+                  if n != "variable" and (m := p.findall(untimed if n == "ratio" else text))}
         variables = set(extract_variables(text))
         hits = sum(1 for v in self.patterns["variable"].findall(text) if v in variables)
         return {**counts, **({"variable": hits} if hits else {})}

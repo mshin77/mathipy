@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from mathipy._api import _optional_import
+from mathipy.notation import _group
 
 _docx_mod, docx_available = _optional_import("docx", "python-docx")
 DocxDocument = getattr(_docx_mod, "Document", None)
@@ -43,6 +44,18 @@ def _fuse(parts) -> str:
     return joined
 
 
+def _delimiters(el) -> tuple[str, str, str]:
+    """A delimiter's opening, separator, and closing characters (OMML defaults: ( | ))."""
+    chars = {"begChr": "(", "sepChr": "|", "endChr": ")"}
+    for pr in el:
+        if pr.tag == _M + "dPr":
+            for c in pr:
+                name = c.tag[len(_M):]
+                if name in chars:
+                    chars[name] = c.get(_M + "val", "")
+    return chars["begChr"], chars["sepChr"], chars["endChr"]
+
+
 def _omml_child(el, name: str) -> str:
     return "".join(_omml_text(c) for c in el if c.tag == _M + name)
 
@@ -55,7 +68,7 @@ def _omml_text(el) -> str:
     if tag == "t":
         return el.text or ""
     if tag == "f":
-        return f"{_omml_child(el, 'num')}/{_omml_child(el, 'den')}"
+        return f"{_group(_omml_child(el, 'num'))}/{_group(_omml_child(el, 'den'))}"
     if tag == "sSup":
         return f"{_omml_child(el, 'e')}^{_omml_child(el, 'sup')}"
     if tag == "sSub":
@@ -66,7 +79,8 @@ def _omml_text(el) -> str:
     if tag == "rad":
         return f"sqrt({_omml_child(el, 'e')})"
     if tag == "d":
-        return f"({_omml_child(el, 'e')})"
+        begin, sep, end = _delimiters(el)
+        return begin + sep.join(_omml_text(c) for c in el if c.tag == _M + "e") + end
     if tag == "nary":
         return (f"{_omml_child(el, 'sub')}..{_omml_child(el, 'sup')} "
                 f"{_omml_child(el, 'e')}")
@@ -77,7 +91,7 @@ def paragraph_text(para) -> str:
     """Paragraph text including equation objects, which ``Paragraph.text`` omits."""
     from docx.oxml.ns import qn
 
-    run_tags = {qn(t) for t in ("w:r", "w:hyperlink", "w:ins", "w:smartTag")}
+    run_tags = {qn(t) for t in ("w:r", "w:hyperlink", "w:ins", "w:smartTag", "w:sdt")}
     math, para_math, text_tag = _M + "oMath", _M + "oMathPara", qn("w:t")
     break_tags = (qn("w:br"), qn("w:cr"), qn("w:tab"))
     parts = []

@@ -46,6 +46,7 @@ default_sampling = {"gemini": (0.0, 0), "openai": (0.0, 0), "anthropic": (None, 
 _unset = object()
 
 image_extensions = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
+_nat64 = ipaddress.ip_network("64:ff9b::/96")
 
 max_file_size = 20 * 1024 * 1024  # 20 MB
 min_image_px = 512
@@ -120,6 +121,16 @@ def _json_body(response, provider: str) -> dict:
     return data
 
 
+def _dotenv_value(raw: str) -> str:
+    """The value of a .env line: the text inside matching quotes, otherwise the text
+    before an inline `` #`` comment."""
+    raw = raw.strip()
+    quoted = re.fullmatch(r"""(['"])(.*?)\1(?:\s+#.*)?""", raw)
+    if quoted:
+        return quoted.group(2)
+    return re.split(r"\s+#", raw, maxsplit=1)[0].strip()
+
+
 def _load_dotenv():
     env_path = Path(".env")
     if env_path.exists():
@@ -129,8 +140,8 @@ def _load_dotenv():
                     line = line.strip()
                     if line and not line.startswith("#") and "=" in line:
                         key, value = line.split("=", 1)
-                        key = key.strip()
-                        value = value.strip().strip('"').strip("'")
+                        key = re.sub(r"^export\s+", "", key.strip())
+                        value = _dotenv_value(value)
                         if key and key not in os.environ:
                             os.environ[key] = value
         except Exception as e:
@@ -138,32 +149,52 @@ def _load_dotenv():
 
 
 def _upscale_small(data: bytes) -> tuple[bytes, str]:
-    """Enlarge an image whose long side falls below ``min_image_px``."""
+    """Enlarge an image whose short side falls below ``min_image_px``, and re-encode
+    formats the vision APIs reject as PNG. Returns the bytes and their MIME type, or
+    "" for the type when the image cannot be decoded."""
     try:
         from PIL import Image
     except ImportError:
-        return data, "image/jpeg"
+        return data, ""
     try:
         image = Image.open(io.BytesIO(data))
         image.load()
     except Exception:
-        return data, "image/jpeg"
+        return data, ""
 
     fmt = {"PNG": "image/png", "JPEG": "image/jpeg", "GIF": "image/gif",
-           "WEBP": "image/webp", "BMP": "image/bmp"}.get(
-        (image.format or "").upper(), "image/jpeg")
+           "WEBP": "image/webp"}.get((image.format or "").upper())
+    try:
+        from PIL import ImageOps
+        image = ImageOps.exif_transpose(image)  # a re-encoded copy carries no EXIF rotation
+    except Exception:
+        pass
     short_side, long_side = min(image.size), max(image.size)
-    if not short_side or short_side >= min_image_px:
+    scale = min(min_image_px / short_side, max_image_px / long_side) if short_side else 1
+    upscale = 0 < short_side < min_image_px and scale > 1
+    if fmt and not upscale:
         return data, fmt
-
-    scale = min(min_image_px / short_side, max_image_px / long_side)
-    if scale <= 1:
-        return data, fmt
+    # Formats the vision APIs reject (TIFF, BMP, ...) are re-encoded as PNG, shrunk
+    # toward max_image_px on the long side (an uncompressed scan can be very large)
+    # but never below min_image_px on the short side.
+    if not upscale:
+        scale = max(min(1, max_image_px / long_side), min(1, min_image_px / short_side)) \
+            if short_side else 1
     size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
     if image.mode in ("RGBA", "LA") or (image.mode == "P" and "transparency" in image.info):
         rgba = image.convert("RGBA")
         image = Image.new("RGB", rgba.size, "white")
         image.paste(rgba, mask=rgba.getchannel("A"))
+    elif image.mode.startswith("I;16") or image.mode in ("I", "F"):
+        # convert("RGB") clips these to 0-255; rescale so a 16-bit scan keeps its contrast.
+        import numpy as np
+        values = np.nan_to_num(np.asarray(image, dtype=np.float64))
+        peak = float(values.max()) if values.size else 0.0
+        if image.mode == "F":
+            top = 1.0 if peak <= 1.0 else max(peak, 255.0)
+        else:
+            top = 65535.0 if image.mode.startswith("I;16") or peak > 255 else 255.0
+        image = Image.fromarray((np.clip(values, 0, top) * 255.0 / top).round().astype(np.uint8))
     elif image.mode not in ("RGB", "L"):
         image = image.convert("RGB")
     buffer = io.BytesIO()
@@ -227,7 +258,7 @@ class VisionAPIClient:
     def _prepare_image(self, source: str | Path | bytes) -> tuple:
         if isinstance(source, bytes):
             data, mime_type = _upscale_small(source)
-            return base64.b64encode(data).decode("utf-8"), mime_type
+            return base64.b64encode(data).decode("utf-8"), mime_type or "image/jpeg"
 
         source_str = str(source)
 
@@ -255,12 +286,13 @@ class VisionAPIClient:
         mime_type = mime_map.get(path.suffix.lower(), "image/jpeg")
 
         with open(path, "rb") as f:
-            data, upscaled_mime = _upscale_small(f.read())
-        if upscaled_mime == "image/png":
-            mime_type = upscaled_mime
+            data, detected_mime = _upscale_small(f.read())
+        mime_type = detected_mime or mime_type
         return base64.b64encode(data).decode("utf-8"), mime_type
 
-    def _validate_image_url(self, url: str) -> None:
+    def _validate_image_url(self, url: str) -> str:
+        """Check every address the host resolves to and return the first, so the fetch
+        connects to an address that was checked rather than resolving the name again."""
         parsed = urlparse(url)
         if parsed.scheme != "https":
             raise ValueError(f"Only https:// URLs allowed, got scheme: {parsed.scheme}")
@@ -270,31 +302,51 @@ class VisionAPIClient:
             addr_info = socket.getaddrinfo(parsed.hostname, None)
         except socket.gaierror as e:
             raise ValueError(f"Cannot resolve host: {e}") from None
-        for _af, _kind, _proto, _canon, sockaddr in addr_info:
-            ip = ipaddress.ip_address(sockaddr[0])
-            if (ip.is_private or ip.is_loopback or ip.is_link_local
-                    or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
+        addresses = [ipaddress.ip_address(info[4][0].split("%")[0]) for info in addr_info]
+        if not addresses:
+            raise ValueError("Cannot resolve host: no addresses")
+        for address in addresses:
+            ip = address
+            if ip.version == 6 and ip.ipv4_mapped:
+                ip = ip.ipv4_mapped
+            if ip.version == 6 and ip in _nat64:
+                ip = ipaddress.IPv4Address(int(ip) & 0xFFFFFFFF)
+            if (ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
+                    or ip.is_multicast or ip.is_unspecified or not ip.is_global):
                 raise ValueError(f"URL resolves to disallowed address: {ip}")
+        return str(addresses[0])
 
     def _fetch_image_url(self, url: str) -> tuple:
         if not httpx_available:
             raise ImportError(
                 "httpx is required for URL fetching. Install with: pip install mathipy[ocr]"
             )
-        self._validate_image_url(url)
+        address = self._validate_image_url(url)
+        request_url, headers, extensions = url, {}, {}
+        if address:
+            parsed = urlparse(url)
+            host = f"[{address}]" if ":" in address else address
+            netloc = f"{host}:{parsed.port}" if parsed.port else host
+            request_url = parsed._replace(netloc=netloc).geturl()
+            headers = {"Host": parsed.netloc.rsplit("@", 1)[-1]}
+            extensions = {"sni_hostname": parsed.hostname}
+        too_large = ValueError(f"Image too large (max {max_file_size // 1024 // 1024} MB)")
         with httpx.Client(timeout=self.timeout, follow_redirects=False) as client:
-            resp = client.get(url)
-            resp.raise_for_status()
-        declared = int(resp.headers.get("content-length", "0") or 0)
-        if declared > max_file_size or len(resp.content) > max_file_size:
-            raise ValueError(
-                f"Image too large (max {max_file_size // 1024 // 1024} MB)"
-            )
-        content_type = resp.headers.get("content-type", "image/jpeg")
-        mime_type = content_type.split(";")[0].strip()
-        if not mime_type.startswith("image/"):
-            mime_type = "image/jpeg"
-        return base64.b64encode(resp.content).decode("utf-8"), mime_type
+            with client.stream("GET", request_url, headers=headers,
+                               extensions=extensions) as resp:
+                resp.raise_for_status()
+                if int(resp.headers.get("content-length", "0") or 0) > max_file_size:
+                    raise too_large
+                chunks, size = [], 0
+                for chunk in resp.iter_bytes():
+                    size += len(chunk)
+                    if size > max_file_size:
+                        raise too_large
+                    chunks.append(chunk)
+        content, detected = _upscale_small(b"".join(chunks))
+        mime_type = resp.headers.get("content-type", "").split(";")[0].strip()
+        mime_type = detected or (mime_type if mime_type.startswith("image/") else "image/jpeg")
+        return base64.b64encode(content).decode("utf-8"), mime_type
 
     def _call_gemini(
         self,
@@ -355,12 +407,15 @@ class VisionAPIClient:
         data = _json_body(response, "Gemini")
         self.served = {"model": data.get("modelVersion"), "fingerprint": None}
         blocked = (data.get("promptFeedback") or {}).get("blockReason")
-        candidates = data.get("candidates") or []
+        candidates = data.get("candidates")
+        candidates = candidates if isinstance(candidates, list) else []
         if blocked or not candidates:
             raise RuntimeError(f"Gemini API error: no candidates ({blocked or 'empty'})")
 
         candidate = candidates[0] if isinstance(candidates[0], dict) else {}
-        content_parts = (candidate.get("content") or {}).get("parts") or []
+        content = candidate.get("content")
+        content_parts = content.get("parts") if isinstance(content, dict) else None
+        content_parts = content_parts if isinstance(content_parts, list) else []
         text = "".join(p.get("text") or "" for p in content_parts if isinstance(p, dict)).strip()
         if not text:
             reason = candidate.get("finishReason") or "no content"
@@ -420,9 +475,17 @@ class VisionAPIClient:
 
         data = _json_body(response, "OpenAI")
         self.served = {"model": data.get("model"), "fingerprint": data.get("system_fingerprint")}
-        choice = (data.get("choices") or [{}])[0] or {}
-        message = choice.get("message") or {}
+        choices = data.get("choices")
+        choice = choices[0] if isinstance(choices, list) and choices else {}
+        choice = choice if isinstance(choice, dict) else {}
+        message = choice.get("message")
+        message = message if isinstance(message, dict) else {}
         content = message.get("content")
+        if isinstance(content, list):  # some compatible servers return content parts
+            content = "".join(part.get("text") or "" for part in content
+                              if isinstance(part, dict))
+        if not isinstance(content, str):
+            content = ""
         if not content:
             reason = message.get("refusal") or choice.get("finish_reason") or "no content"
             refused = message.get("refusal") or reason in _REFUSAL_REASONS

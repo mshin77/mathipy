@@ -75,6 +75,8 @@ class ReadabilityAnalyzer:
             return self._empty_metrics()
 
         normalized = self._normalize_for_readability(text)
+        if not any(re.search(r"[^\W\d_]", w) and w != "MATH" for w in normalized.split()):
+            return self._empty_metrics()  # "3 + 4 = 7" has no words to read
         word_count = len(normalized.split())
         low_confidence = word_count < 20
 
@@ -110,23 +112,23 @@ class ReadabilityAnalyzer:
             return self._estimate_metrics(text, True)
 
     def _estimate_metrics(self, text: str, low_confidence: bool) -> dict[str, Any]:
-        words = text.split()
+        words = [w for w in text.split() if re.search(r"[A-Za-z0-9]", w)]
         word_count = len(words)
+        if not word_count:
+            return self._empty_metrics()
 
-        sentences = re.split(r"[.!?]+", text)
+        sentences = re.split(r"[.!?]+(?=\s|$)", text)
         sentences = [s for s in sentences if s.strip()]
         sentence_count = max(len(sentences), 1)
 
         total_syllables = sum(self._count_syllables(w) for w in words)
-        avg_syllables = total_syllables / word_count if word_count else 0
-
-        avg_word_length = sum(len(w) for w in words) / word_count if word_count else 0
+        avg_syllables = total_syllables / word_count
         avg_sentence_length = word_count / sentence_count
 
-        estimated_grade = (avg_word_length * 1.5) + (avg_sentence_length * 0.3) - 3
-        estimated_grade = max(1, min(16, estimated_grade))
+        fk_grade = 0.39 * avg_sentence_length + 11.8 * avg_syllables - 15.59
+        estimated_grade = float(max(1, min(16, fk_grade)))
 
-        flesch = max(0, min(100, 206.835 - 1.015 * avg_sentence_length - 84.6 * avg_syllables))
+        flesch = float(max(0, min(100, 206.835 - 1.015 * avg_sentence_length - 84.6 * avg_syllables)))
 
         return {
             "flesch_reading_ease": flesch,
@@ -144,26 +146,33 @@ class ReadabilityAnalyzer:
 
     def _count_syllables(self, word: str) -> int:
         """Uses CMU dictionary if available, falls back to vowel-counting heuristic."""
-        word = word.lower().strip()
-        if not word:
+        token = word.lower().strip()
+        if not token:
             return 0
+        word = re.sub(r"[^a-z']", "", token).strip("'")
+        if not word:
+            return 1
 
         if self._cmu_dict and word in self._cmu_dict:
             pronunciation = self._cmu_dict[word][0]
             return len([p for p in pronunciation if p[-1].isdigit()])
 
-        vowels = "aeiou"
+        vowels = "aeiouy"
         count = 0
         prev_vowel = False
 
-        for char in word:
-            is_vowel = char in vowels
+        for i, char in enumerate(word):
+            is_vowel = char in vowels and not (char == "y" and i == 0)
             if is_vowel and not prev_vowel:
                 count += 1
             prev_vowel = is_vowel
 
-        if word.endswith("e") and count > 1:
-            count -= 1
+        count += len(re.findall(r"(?<![cstg])ia", word))
+        if count > 1:
+            if word.endswith("e") and not re.search(r"[^aeiouy]le$", word):
+                count -= 1
+            elif re.search(r"[^aeiouystdxzcg](?:es|ed)$", word):
+                count -= 1
 
         return max(1, count)
 

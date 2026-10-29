@@ -11,6 +11,7 @@ from typing import Any
 import numpy as np
 
 from mathipy._api import _optional_import
+from mathipy.geometry import _read_image, as_bgr8
 from mathipy.utils import safe_get
 
 _WORK_SCALE = 1000
@@ -163,11 +164,14 @@ def trim_margin(image: np.ndarray | bytes, margin: int = _TRIM_MARGIN
     if not cv2_available:
         return image
     if isinstance(image, (bytes, bytearray)):
-        decoded = cv2.imdecode(np.frombuffer(bytes(image), np.uint8), cv2.IMREAD_COLOR)
+        decoded = _read_image(image)
         if decoded is None:
             return image
         image = decoded
-    gray = image if image.ndim == 2 else cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = as_bgr8(image)
+    if image is None or image.size == 0:
+        return image
+    gray = image if image.ndim == 2 else cv2.cvtColor(image[:, :, :3], cv2.COLOR_BGR2GRAY)
     _, ink = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
     rows, cols = np.where(ink > 0)
     if not len(cols):
@@ -184,12 +188,12 @@ def crop_to_box(image: np.ndarray | bytes, box: Sequence[float] | None
     if box is None or not cv2_available:
         return image, "frame"
     if isinstance(image, (bytes, bytearray)):
-        decoded = cv2.imdecode(np.frombuffer(bytes(image), np.uint8), cv2.IMREAD_COLOR)
+        decoded = _read_image(image)
         if decoded is None:
             return image, "frame"
         image = decoded
     h, w = image.shape[:2]
-    left, top, right, bottom = box
+    left, top, right, bottom = (min(1.0, max(0.0, float(v))) for v in box)
     x0, x1 = int(round(left * w)), int(round(right * w))
     y0, y1 = int(round(top * h)), int(round(bottom * h))
     if x1 - x0 < 8 or y1 - y0 < 8:
@@ -246,7 +250,7 @@ class VisualFeatureExtractor:
             Dictionary with ``dimensions``, ``pixel_statistics``, ``edge_metrics``,
             ``structural_elements``, and ``frequency_domain``."""
         image = self._load_image(image_source)
-        if image is None:
+        if image is None or image.size == 0:
             return self._empty_features()
 
         features = {
@@ -321,20 +325,16 @@ class VisualFeatureExtractor:
 
     def _load_image(self, source: str | Path | bytes | np.ndarray) -> np.ndarray | None:
         if isinstance(source, np.ndarray):
-            return source
+            return as_bgr8(source)
 
         if not pillow_available and not cv2_available:
             logger.error("Cannot load image - no image library available")
             return None
 
         if isinstance(source, (bytes, bytearray)):
-            data = np.frombuffer(bytes(source), dtype=np.uint8)
             if cv2_available:
-                return cv2.imdecode(data, cv2.IMREAD_COLOR)
-            pil_image = Image.open(io.BytesIO(bytes(source)))
-            if pil_image.mode != "RGB":
-                pil_image = pil_image.convert("RGB")
-            return np.array(pil_image)[:, :, ::-1]
+                return _read_image(source)
+            return self._open_pil(io.BytesIO(bytes(source)))
 
         path = Path(source) if isinstance(source, str) else source
         if not path.exists():
@@ -342,17 +342,37 @@ class VisualFeatureExtractor:
             return None
 
         if cv2_available:
-            image = cv2.imread(str(path))
+            image = _read_image(path)
             if image is None:
                 logger.error(f"Image unreadable: {path}")
             return image
         elif pillow_available:
-            pil_image = Image.open(path)
-            if pil_image.mode != "RGB":
-                pil_image = pil_image.convert("RGB")
-            return np.array(pil_image)[:, :, ::-1]  # RGB to BGR
+            return self._open_pil(path)
 
         return None
+
+    def _open_pil(self, source) -> np.ndarray | None:
+        try:
+            return self._from_pil(Image.open(source))
+        except Exception as e:
+            logger.error(f"Image unreadable: {e}")
+            return None
+
+    @staticmethod
+    def _from_pil(pil_image) -> np.ndarray:
+        """BGR array, compositing any transparency onto white."""
+        if pil_image.mode.startswith("I;16") or pil_image.mode in ("I", "F"):
+            values = np.asarray(pil_image)
+            if pil_image.mode != "F":
+                # 16-bit unless an "I" image never exceeds 8-bit values
+                wide = pil_image.mode.startswith("I;16") or (values.size and values.max() > 255)
+                values = np.clip(values, 0, 65535 if wide else 255).astype(
+                    np.uint16 if wide else np.uint8)
+            return as_bgr8(values)
+        has_alpha = pil_image.mode in ("RGBA", "LA", "PA") or "transparency" in pil_image.info
+        array = np.array(pil_image.convert("RGBA" if has_alpha else "RGB"))
+        array = array[:, :, [2, 1, 0, 3]] if has_alpha else array[:, :, ::-1]
+        return as_bgr8(array)
 
     def _extract_dimensions(self, image: np.ndarray) -> dict[str, Any]:
         h, w = image.shape[:2]
@@ -368,8 +388,9 @@ class VisualFeatureExtractor:
 
     def _to_gray(self, image: np.ndarray) -> np.ndarray:
         """One greyscale definition for every metric in this class."""
+        image = as_bgr8(image)
         if image.ndim == 2:
-            return image if image.dtype == np.uint8 else image.astype(np.uint8)
+            return image
         image = image[:, :, :3]
         if cv2_available:
             return cv2.cvtColor(np.ascontiguousarray(image), cv2.COLOR_BGR2GRAY)
@@ -377,6 +398,8 @@ class VisualFeatureExtractor:
 
     def _resize_to_work_scale(self, gray: np.ndarray) -> np.ndarray:
         """Put every image on one pixel scale before counting anything."""
+        if not cv2_available:
+            return gray
         h, w = gray.shape[:2]
         longest = max(h, w)
         if longest == 0:
@@ -402,6 +425,8 @@ class VisualFeatureExtractor:
         }
 
     def _extract_edge_metrics(self, gray: np.ndarray) -> dict[str, float]:
+        if not cv2_available:
+            return {}
         edges = cv2.Canny(gray, *_CANNY_THRESHOLDS)
 
         edge_pixels = np.sum(edges > 0)

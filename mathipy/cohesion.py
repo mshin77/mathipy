@@ -40,14 +40,18 @@ _function_words = pronouns | set(
 )
 
 
-_abbreviations = {"mr", "mrs", "ms", "dr", "st", "vs", "fig", "approx", "in", "no",
-                  "e.g", "i.e", "etc", "ft", "cm", "mm", "km", "lb", "oz"}
+# Units and times end a sentence when a capital follows ("4 cm. What..."), but not
+# before a lowercase word ("6 yd. long").
+_units = {"in", "no", "ft", "cm", "mm", "km", "lb", "oz", "yd", "mi", "min", "hr", "hrs",
+          "sec", "kg", "mg", "ml", "pt", "qt", "gal", "tsp", "tbsp", "a.m", "p.m"}
+_abbreviations = {"mr", "mrs", "ms", "dr", "st", "vs", "fig", "approx",
+                  "e.g", "i.e", "etc"} | _units
 _answer_label = re.compile(r"^[A-E]$")
 
 
 def split_sentences(text: str) -> list[str]:
     """Split text into sentences on terminal punctuation."""
-    text = text.strip()
+    text = (text or "").strip()
     for _, end in option_label_spans(text):
         text = text[:end - 1] + ("\x00" if text[end - 1] == "." else text[end - 1]) + text[end:]
     parts = [p.strip().replace("\x00", ".")
@@ -58,7 +62,7 @@ def split_sentences(text: str) -> list[str]:
         last = tail[-1] if tail else ""
         continues = not part[0].isupper()
         label = bool(_answer_label.match(last)) and (previous == f"{last}." or continues)
-        abbreviation = last.lower() in _abbreviations and (last.lower() not in {"in", "no"} or continues)
+        abbreviation = last.lower() in _abbreviations and (last.lower() not in _units or continues)
         if merged and (abbreviation or label):
             merged[-1] = f"{merged[-1]} {part}"
             continue
@@ -145,6 +149,7 @@ def negation_density(text: str) -> dict[str, float]:
 
 def cohesion_features(source: str | Sequence[str]) -> dict[str, Any]:
     """Return all cohesion measures for a text or a sequence of units."""
+    source = "" if source is None else source
     if isinstance(source, str):
         units = split_sentences(source)
         text = source

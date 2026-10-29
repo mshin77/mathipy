@@ -7,7 +7,7 @@ import re
 from typing import Any
 
 from mathipy.cohesion import split_sentences
-from mathipy.utils import extract_numbers, extract_variables, strip_option_labels
+from mathipy.utils import extract_numbers, extract_variables, strip_option_labels, strip_ranges
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ _operator = re.compile(r"(?<=[\w)\]}%])\s*(?:<=|>=|!=|[-+*/^=<>×÷−·≤≥�
 
 def count_operations(text: str) -> int:
     """Operator symbols that stand between two operands."""
-    text = _rule_line.sub(" ", text or "")
+    text = _rule_line.sub(" ", strip_ranges(text))
     text = _fraction_slash.sub(" ", text)
     text = _word_join.sub(" ", text)
     return len(_operator.findall(text))

@@ -6,10 +6,14 @@ import re
 from collections.abc import Sequence
 from typing import Any
 
+# A minus is a sign after "(", "=", a space before a digit, or the start; after ")",
+# "]" or "%" it is subtraction: "(x+2)-3" is minus 3, not -3.
+_sign = r"(?:(?<![\w\s)\]%])-|(?<=^)-|(?<=[(\s])-(?=\d))?"
 _number_pattern = re.compile(
-    r"(?<![\w.])\d+\s*/\s*\d+"
-    r"|(?<![\w.,])\d{1,3}(?:,\d{3})+(?:\.\d+)?(?!\d|,\d)"
-    r"|(?:(?<![\w\s])-|(?<=^)-|(?<=[(\s])-(?=\d))?(?<![\w.])\d+\.?\d*")
+    rf"{_sign}(?<![\w.])\d+\s*/\s*\d+"
+    rf"|{_sign}(?<![\w.,])\d{{1,3}}(?:,\d{{3}})+(?:\.\d+)?(?!\d|,\d)"
+    rf"|{_sign}(?<![\w.])\d+\.?\d*"
+    rf"|{_sign}(?<![\w.])\.\d+")
 _letter_edge = r"A-Za-z'’_"
 _lower_variable = re.compile(
     rf"(?<![{_letter_edge}])(?!a(?![{_letter_edge}]))(?!(?<=\d)s\b)[a-z](?![{_letter_edge}])")
@@ -20,6 +24,9 @@ _math_after = re.compile(rf"\s*(?:[{_math_operators}]|-(?![A-Za-z]))")
 _answer_label_line = re.compile(r"(?m)^\s*[A-E][.)](?:\s+|$)")
 _option_value_run = re.compile(r"(?<![A-Za-z])A\s+-?[\d$.]\S*(?:\s+[B-E]\s+-?[\d$.]\S*)+")
 _article = re.compile(r"A\s+[a-z]")
+# Letters of a.m./p.m., i.e., e.g. are not variables.
+_abbreviation_letters = re.compile(r"(?<![A-Za-z])(?:[ap]\.\s?m\.?|i\.\s?e\.|e\.\s?g\.)"
+                                   r"|(?<=\d)\s?[ap]m\b", re.I)
 _label_candidate = re.compile(r"(?<![\w.])([A-E])[.)](?=\s|$)")
 
 _latex_patterns = [
@@ -61,6 +68,7 @@ def extract_numbers(text: str) -> list[float]:
 def extract_variables(text: str) -> list[str]:
     """Extract single-letter variable names (e.g., x, y, n) from text."""
     text = _option_value_run.sub(" ", (text or "").replace("−", "-"))
+    text = _abbreviation_letters.sub(" ", text)
     upper = [m.group() for m in _upper_candidate.finditer(text)
              if not _option_label.match(text, m.start())
              and not _article.match(text, m.start())
@@ -74,9 +82,9 @@ def extract_math_expressions(text: str) -> list[str]:
     """Extract LaTeX expressions and equations from text."""
     expressions = []
     for pattern in _latex_patterns:
-        expressions.extend(pattern.findall(text))
+        expressions.extend(pattern.findall(text or ""))
     equation_pattern = r"[^=\s]+\s*=\s*[^=\s]+"
-    expressions.extend(re.findall(equation_pattern, text))
+    expressions.extend(re.findall(equation_pattern, text or ""))
     return sorted(set(expressions))
 
 
@@ -119,6 +127,18 @@ def option_label_spans(text: str) -> list[tuple[int, int]]:
     return spans
 
 
+_range = re.compile(
+    r"\b((?:pages?|pp\.?|ages?|grades?|chapters?|ch\.|years?|problems?|questions?|items?"
+    r"|lessons?|units?|exercises?)\s+\d+)[-–](\d+)\b(?!\s*[-+*/=×÷−])", re.I)
+
+
+def strip_ranges(text: str) -> str:
+    """Rewrite a labeled number range ("pages 5-10") as "pages 5 to 10", so its dash
+    is not counted as subtraction. A spaced dash ("Problem 5 - 3") or one followed by
+    another operator ("ages 3-5 = ") stays subtraction."""
+    return _range.sub(r"\1 to \2", text or "")
+
+
 def strip_option_labels(text: str) -> str:
     """Remove ordered answer-label runs and line-initial labels, leaving the option content."""
     for start, end in reversed(option_label_spans(text)):
@@ -148,13 +168,15 @@ def compute_interrater_reliability(
         coder2: Sequence of ratings from coder 2 (same length).
 
     Returns:
-        ``{"agreement": float, "kappa": float, "n": int}``"""
+        ``{"agreement": float, "kappa": float, "n": int}``; ``kappa`` is NaN when
+        both raters gave every item the same single label, and both are NaN when
+        there are no items, since neither is defined then."""
     c1, c2 = list(coder1), list(coder2)
     n = len(c1)
     if n != len(c2):
         raise ValueError("coder1 and coder2 must have the same length")
     if n == 0:
-        return {"agreement": 0.0, "kappa": 0.0, "n": 0}
+        return {"agreement": float("nan"), "kappa": float("nan"), "n": 0}
 
     agreement = sum(a == b for a, b in zip(c1, c2)) / n
 
@@ -162,6 +184,7 @@ def compute_interrater_reliability(
     p_e = sum(
         (c1.count(k) / n) * (c2.count(k) / n) for k in labels
     )
-    kappa = (agreement - p_e) / (1 - p_e) if p_e < 1 else 0.0
+    # With one label used by both raters, chance agreement is 1 and kappa is undefined.
+    kappa = (agreement - p_e) / (1 - p_e) if p_e < 1 else float("nan")
 
     return {"agreement": round(agreement, 4), "kappa": round(kappa, 4), "n": n}

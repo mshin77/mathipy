@@ -1,3 +1,9 @@
+# mathipy 0.4.16
+
+- Masks names, dates, and IDs that de-identification missed, without masking common words.
+- Reads negative numbers, LaTeX fractions, answer choices, captions, and units correctly.
+- Reads transparent and 16-bit images, and reports undefined rater agreement as NaN.
+
 # mathipy 0.4.15
 
 - Makes visual classification reproducible across runs.

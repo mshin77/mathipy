@@ -55,6 +55,8 @@ def stratified_sample(
     if not records:
         return []
 
+    if isinstance(strata, str):
+        strata = [strata]
     label = strata if callable(strata) else (lambda r: stratum_label(r, strata))
     tagged = [dict(r, stratum=label(r)) for r in records]
     counts = Counter(r["stratum"] for r in tagged)
@@ -120,9 +122,9 @@ def label_studio_tasks(
     """Convert sampled records into Label Studio task dictionaries."""
     tasks = []
     for r in records:
-        data = {id_key: r.get(id_key, ""), "text": r.get(text_key, "")}
+        data = {id_key: r.get(id_key, ""), text_key: r.get(text_key, "")}
         if r.get(image_key):
-            data["image"] = r[image_key]
+            data[image_key] = r[image_key]
         for extra in ("stratum", "provider", "model", "base_url", "extracted_at"):
             if r.get(extra):
                 data[extra] = r[extra]
@@ -136,15 +138,16 @@ def label_studio_config(
     text_key: str = "text",
 ) -> str:
     """Return a Label Studio labeling-interface XML config for the rubric."""
+    attr = html.escape
     blocks = [
-        f'  <Image name="img" value="${image_key}"/>',
-        f'  <Text name="extracted" value="${text_key}"/>',
+        f'  <Image name="img" value="${attr(image_key)}"/>',
+        f'  <Text name="extracted" value="${attr(text_key)}"/>',
     ]
     for field, options in rubric.items():
-        choices = "".join(f'\n      <Choice value="{o}"/>' for o in options)
+        choices = "".join(f'\n      <Choice value="{attr(str(o))}"/>' for o in options)
         blocks.append(
-            f'  <Header value="{field}"/>\n'
-            f'  <Choices name="{field}" toName="img" choice="single" showInLine="true">'
+            f'  <Header value="{attr(field)}"/>\n'
+            f'  <Choices name="{attr(field)}" toName="img" choice="single" showInLine="true">'
             f"{choices}\n  </Choices>"
         )
     return "<View>\n" + "\n".join(blocks) + "\n</View>\n"
@@ -172,6 +175,17 @@ def write_label_studio(
     return tasks_path, config_path
 
 
+def _code(row: dict[str, Any], field: str) -> str:
+    value = row.get(field)
+    return "" if value is None else str(value).strip()
+
+
+def _matched(rows_a, rows_b, id_key):
+    by_id_b = {r[id_key]: r for r in rows_b if r.get(id_key) is not None}
+    return [(a, by_id_b[a[id_key]]) for a in rows_a
+            if a.get(id_key) is not None and a[id_key] in by_id_b]
+
+
 def score_agreement(
     rows_a: Sequence[dict[str, Any]],
     rows_b: Sequence[dict[str, Any]],
@@ -179,19 +193,13 @@ def score_agreement(
     id_key: str = "item_id",
 ) -> dict[str, dict[str, Any]]:
     """Compute agreement and Cohen's kappa per rubric field over matched rows."""
-    by_id_b = {r[id_key]: r for r in rows_b if r.get(id_key) is not None}
-    matched = [(a, by_id_b[a[id_key]]) for a in rows_a
-               if a.get(id_key) is not None and a[id_key] in by_id_b]
-
+    matched = _matched(rows_a, rows_b, id_key)
     scored = {}
     for field in fields:
-        pairs = [
-            (a.get(field), b.get(field))
-            for a, b in matched
-            if str(a.get(field, "")).strip() and str(b.get(field, "")).strip()
-        ]
+        pairs = [(_code(a, field), _code(b, field)) for a, b in matched
+                 if _code(a, field) and _code(b, field)]
         if not pairs:
-            scored[field] = {"agreement": 0.0, "kappa": 0.0, "n": 0}
+            scored[field] = compute_interrater_reliability([], [])
             continue
         first, second = zip(*pairs)
         scored[field] = compute_interrater_reliability(first, second)
@@ -203,15 +211,18 @@ def disagreements(
     rows_b: Sequence[dict[str, Any]],
     fields: Sequence[str],
     id_key: str = "item_id",
+    include_blank: bool = False,
 ) -> list[dict[str, Any]]:
-    """Return rows where the two raters differ on at least one rubric field."""
-    by_id_b = {r.get(id_key): r for r in rows_b}
+    """Return rows where both raters coded a field and their codes differ, matching
+    the pairs ``score_agreement`` scores. With ``include_blank``, a field only one
+    rater coded is listed too, so unfinished coding can be found."""
+    def differs(a, b, f):
+        x, y = _code(a, f), _code(b, f)
+        return x != y and ((x and y) or (include_blank and (x or y)))
+
     out = []
-    for a in rows_a:
-        b = by_id_b.get(a.get(id_key))
-        if b is None:
-            continue
-        differing = [f for f in fields if a.get(f) != b.get(f)]
+    for a, b in _matched(rows_a, rows_b, id_key):
+        differing = [f for f in fields if differs(a, b, f)]
         if differing:
             out.append({
                 id_key: a.get(id_key),
@@ -284,7 +295,8 @@ let onlyTodo = false, query = "";
 
 document.getElementById("who").textContent = rater;
 
-const esc = s => String(s).replace(/[<>&]/g, c => ({"<": "&lt;", ">": "&gt;", "&": "&amp;"}[c]));
+const esc = s => String(s).replace(/[<>&"']/g, c =>
+  ({"<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;"}[c]));
 const pretty = s => { const t = String(s).replace(/_/g, " "); return t.charAt(0).toUpperCase() + t.slice(1); };
 const save = () => localStorage.setItem(store, JSON.stringify(answers));
 const isDone = r => Boolean((answers[String(r.__id)] || {})[fields[0]]);
@@ -305,7 +317,7 @@ function build() {
     html += shown.map(f => '<div class="body">' + esc(rec[f]) + '</div>').join("");
     if (imageBase && rec.__images) {
       html += rec.__images.split(";").filter(s => s.trim())
-        .map(s => '<img loading="lazy" src="' + imageBase + s.trim() + '" alt="">').join("");
+        .map(s => '<img loading="lazy" src="' + esc(imageBase + s.trim()) + '" alt="">').join("");
     }
     for (const f of fields) {
       html += '<div class="field"><label>' + esc(f) + '</label><select data-f="' + esc(f) + '">' +

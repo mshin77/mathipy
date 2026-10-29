@@ -12,6 +12,51 @@ from mathipy._api import _optional_import
 
 cv2, cv2_available = _optional_import("cv2", "opencv-python-headless")
 
+
+def as_bgr8(image: np.ndarray | None) -> np.ndarray | None:
+    """8-bit grey or BGR, with any alpha composited onto white so a transparent
+    background reads as paper rather than ink."""
+    if image is None or image.size == 0:
+        return image
+    if image.dtype == np.bool_:
+        image = image.astype(np.uint8) * 255
+    elif image.dtype != np.uint8:
+        if np.issubdtype(image.dtype, np.floating):
+            finite = image[np.isfinite(image)]
+            scale = 255.0 if finite.size and finite.max() <= 1.0 else 1.0
+            image = np.clip(np.nan_to_num(image, posinf=255.0 / scale, neginf=0.0) * scale, 0, 255)
+        elif image.dtype == np.uint16:
+            image = image / 257.0
+        image = np.clip(image, 0, 255).astype(np.uint8)
+    if image.ndim == 3 and image.shape[2] == 1:
+        image = image[:, :, 0]
+    if image.ndim == 3 and image.shape[2] in (2, 4):
+        alpha = image[:, :, -1:].astype(np.float32) / 255.0
+        colour = image[:, :, :-1].astype(np.float32)
+        image = (colour * alpha + 255.0 * (1 - alpha)).round().astype(np.uint8)
+        if image.shape[2] == 1:
+            image = image[:, :, 0]
+    return image
+
+
+def _read_image(source: str | Path | bytes | bytearray) -> np.ndarray | None:
+    """Decode keeping alpha; without alpha, decode normally so EXIF rotation applies.
+
+    Files are read as bytes, because cv2.imread cannot open a non-ASCII path on Windows."""
+    if not isinstance(source, (bytes, bytearray)):
+        try:
+            source = Path(source).read_bytes()
+        except OSError:
+            return None
+    if not source:
+        return None
+    buffer = np.frombuffer(bytes(source), dtype=np.uint8)
+    image = cv2.imdecode(buffer, cv2.IMREAD_UNCHANGED)
+    if image is not None and not (image.ndim == 3 and image.shape[2] in (2, 4)):
+        image = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
+    return as_bgr8(image)
+
+
 _SIDE_TOL = 0.05       # relative tolerance for "equal length" (triangles, quadrilaterals)
 
 _ANGLE_TOL_DEG = 7.0
@@ -300,13 +345,10 @@ def classify_shapes(image_source: str | Path | np.ndarray) -> dict[str, int]:
         return dict(_empty)
 
     if isinstance(image_source, np.ndarray):
-        image = image_source
-    elif isinstance(image_source, (bytes, bytearray)):
-        image = cv2.imdecode(np.frombuffer(bytes(image_source), dtype=np.uint8),
-                             cv2.IMREAD_COLOR)
+        image = as_bgr8(image_source)
     else:
-        image = cv2.imread(str(image_source))
-    if image is None:
+        image = _read_image(image_source)
+    if image is None or image.size == 0:
         return dict(_empty)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image

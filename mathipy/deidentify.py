@@ -8,22 +8,41 @@ from typing import Any
 
 patterns = {
     "email": r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b",
-    "phone": r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b",
+    "phone": r"(?:\b|(?<![\w(+])(?=[(+]))(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b",
     "url": r"\bhttps?://\S+|\bwww\.\S+",
     "ssn": r"\b\d{3}-\d{2}-\d{4}\b",
-    "student_id": r"\b(?:id|student\s*(?:id|number))\s*[:#]?\s*\d{4,}\b",
-    "date": r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}\b",
+    "student_id": r"\b(?:(?:id|student\s*(?:id|number|no\.?))(?:\s*(?:number|no\.?))?"
+                  r"\s*[:#]*\s*\d{4,}"
+                  r"|student\s*[:#]?\s*\d{5,})\b",
+    "date": r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}"
+            r"(?:st|nd|rd|th)?,?\s+\d{4}\b"
+            r"|\b(?:0?[1-9]|1[0-2])/(?:0?[1-9]|[12]\d|3[01])/(?:19|20)\d{2}\b"
+            r"|\b(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[12]\d|3[01])-(?:19|20)\d{2}\b"
+            r"|\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b",
 }
-
 _titles = r"(?:Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Coach|Principal)"
-_title_name = rf"\b{_titles}\.?\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?"
+# A capitalized word in Latin or Cyrillic script, with inner capitals, apostrophes, or
+# hyphens: McDonald, O'Neil, García, Smith-Jones, Ольга. Greek capitals are left out
+# because in math text they are symbols (Δx, ΔABC), not names.
+_name_word = r"[A-ZÀ-ÖØ-ÞĀ-ſЀ-Я](?:[^\W\d_]|['’-](?=[^\W\d_]))+"
+_particle = r"(?:(?:de|del|della|der|den|di|da|dos|du|la|le|van|von|bin|al|el|ibn)\s+)*"
+_title_name = rf"\b{_titles}\.?\s+{_particle}{_name_word}(?:\s+{_particle}{_name_word})?"
 
-_greetings = r"(?:Hi|Hello|Hey|Welcome|Thanks|Thank you|Good job|Well done|Great job)"
-_vocative = rf"\b{_greetings},?\s+([A-Z][a-z]{{2,}})\b"
+_greeting_words = ("hi", "hello", "hey", "welcome", "thanks", "thank you", "good job",
+                   "well done", "great job", "good morning", "good afternoon")
+_greetings = "(?:" + "|".join(f"[{w[0].upper()}{w[0]}]{w[1:]}" for w in _greeting_words) + ")"
+_vocative = rf"(?<!\w){_greetings}\b,?\s+({_name_word})"
 _vocative_skip = {"Thanks", "Thank", "Hello", "Hi", "Hey", "Great", "Good", "Well",
                   "Yes", "Okay", "Sure", "Right", "Correct", "Nice", "Perfect",
                   "Awesome", "Excellent", "You", "Your", "That", "This", "What",
-                  "How", "Why", "Can", "Could", "Would", "Let", "Now", "So"}
+                  "How", "Why", "Can", "Could", "Would", "Let", "Now", "So",
+                  "Everyone", "Everybody", "All", "Class", "Team", "Guys", "Folks",
+                  "Friends", "Kids", "Boys", "Girls", "Students", "There", "Again",
+                  "Back", "Today", "Ladies", "Gentlemen",
+                  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+                  "Sunday", "January", "February", "March", "September", "October",
+                  "November", "December", "Math", "Science", "English", "History"}
+# Months and subjects that are also given names (April, June, Art...) stay maskable.
 
 _role_words = {"teacher", "teachers", "student", "students", "instructor",
                "tutor", "unknown", "speaker"}
@@ -39,12 +58,32 @@ replacements = {
 }
 
 
-def _mask_names(text: str, names: Sequence[str]) -> tuple[str, int]:
-    count = 0
-    for name in sorted(set(names), key=len, reverse=True):
-        if not name.strip():
+def _name_patterns(names: Sequence[str], exact: Sequence[str] = ()) -> list[re.Pattern]:
+    """A pattern per full name (any case) and per capitalized part of a multi-word
+    name, so "Maria" alone is masked but the verb "will" is not for "Will Smith".
+    ``exact`` names, picked up after a greeting, match only as written, so
+    "Hello Mark" does not mask the verb "mark"."""
+    full, parts = set(), set()
+    for name in names:
+        name = name.strip()
+        if not name:
             continue
-        pattern = re.compile(rf"\b{re.escape(name.strip())}\b", re.IGNORECASE)
+        full.add(name)
+        words = re.findall(r"[^\W\d_](?:[^\W\d_]|['’-])+", name)
+        if len(words) > 1:
+            parts.update(w[0].upper() + w[1:] for w in words
+                         if w.lower() not in _role_words and not re.fullmatch(_titles, w))
+    lowered = {n.lower() for n in full}
+    forms = ([(n, re.IGNORECASE) for n in full]
+             + [(p, 0) for p in (parts | set(exact)) if p.lower() not in lowered])
+    forms.sort(key=lambda f: len(f[0]), reverse=True)
+    return [re.compile(rf"\b{re.escape(n)}\b", flags) for n, flags in forms]
+
+
+def _mask_names(text: str, names: Sequence[str], exact: Sequence[str] = ()
+                ) -> tuple[str, int]:
+    count = 0
+    for pattern in _name_patterns(names, exact):
         text, n = pattern.subn(replacements["name"], text)
         count += n
     return text, count
@@ -59,9 +98,25 @@ def _is_name_label(label: str | None) -> bool:
     return bool(label) and not _code_label.fullmatch(label) and not words <= _role_words
 
 
+def _in_number_list(m: re.Match) -> bool:
+    """A space-only "phone number" inside a run of numbers ("345 678 1234 9") is a list;
+    one written with "-", "." or "(" is a phone number wherever it sits."""
+    if re.search(r"[-.()]", m.group(0)):
+        return False
+    before, after = m.string[max(0, m.start() - 2):m.start()], m.string[m.end():m.end() + 2]
+    return bool(re.fullmatch(r"\d ", before) or re.fullmatch(r" \d", after))
+
+
+def _opens_clause(text: str, start: int) -> bool:
+    """A greeting opens a sentence or clause ("Okay, thanks Maria", "(laughs) Hello
+    Maria"), so "well done Friday" after a word in mid-sentence is not one."""
+    before = text[:start].rstrip(" \t ")
+    return not before or before[-1] in "\r\n" or not before[-1].isalnum()
+
+
 def _vocative_names(text: str) -> list[str]:
     return [m.group(1) for m in re.finditer(_vocative, text)
-            if m.group(1) not in _vocative_skip]
+            if m.group(1) not in _vocative_skip and _opens_clause(text, m.start())]
 
 
 def deidentify(
@@ -69,27 +124,41 @@ def deidentify(
     names: Sequence[str] = (),
     keep: Sequence[str] = (),
     detect_vocatives: bool = True,
+    greeted: Sequence[str] = (),
 ) -> dict[str, Any]:
-    """Mask identifiers in text, returning the result and per-category counts."""
+    """Mask identifiers in text, returning the result and per-category counts.
+
+    Emails, URLs, dates, and numbers are masked before names, so a name inside an
+    address, or a greeted name that is also a month ("Hello May"), does not break
+    them apart. ``greeted`` adds names found after greetings elsewhere,
+    such as in other turns of the same transcript."""
     counts = {}
-    cleaned = text
+    cleaned = text or ""
 
-    found = list(names)
-    if detect_vocatives:
-        found += _vocative_names(text)
-    cleaned, counts["name"] = _mask_names(cleaned, found)
+    def replace(label, m):
+        if label == "phone" and _in_number_list(m):
+            return m.group(0)
+        counts[label] += 1
+        return replacements[label]
 
-    titled = re.compile(_title_name)
-    cleaned, n = titled.subn(replacements["name"], cleaned)
-    counts["name"] += n
-
-    for label, pattern in patterns.items():
-        if label in keep:
+    def mask(labels):
+        nonlocal cleaned
+        for label in labels:
             counts[label] = 0
-            continue
-        cleaned, n = re.subn(pattern, replacements[label], cleaned, flags=re.IGNORECASE)
-        counts[label] = n
+            if label not in keep:
+                cleaned = re.sub(patterns[label], lambda m, label=label: replace(label, m),
+                                 cleaned, flags=re.IGNORECASE)
 
+    mask(patterns)
+    if "name" in keep:
+        counts["name"] = 0
+    else:
+        exact = list(greeted) + (_vocative_names(cleaned) if detect_vocatives else [])
+        cleaned, n = re.subn(_title_name, replacements["name"], cleaned)
+        cleaned, counts["name"] = _mask_names(cleaned, names, exact)
+        counts["name"] += n
+
+    counts = {label: counts[label] for label in ("name", *patterns)}
     return {"text": cleaned, "counts": counts, "total": sum(counts.values())}
 
 
@@ -98,9 +167,11 @@ def deidentify_turns(
     keep: Sequence[str] = (),
     pseudonymize_speakers: bool = True,
 ) -> list[dict[str, Any]]:
-    """Mask identifiers across turns, using speaker labels as names to remove."""
+    """Mask identifiers across turns, using speaker labels, and names greeted in any
+    turn, as names to remove from every turn."""
     labels = [t.get("speaker", "") for t in turns]
     names = [label for label in labels if _is_name_label(label)]
+    greeted = [n for t in turns for n in _vocative_names(t.get("text") or "")]
     aliases = {}
     for label in labels:
         if label and label not in aliases:
@@ -108,7 +179,7 @@ def deidentify_turns(
 
     cleaned = []
     for turn in turns:
-        result = deidentify(turn.get("text", ""), names=names, keep=keep)
+        result = deidentify(turn.get("text") or "", names=names, keep=keep, greeted=greeted)
         row = dict(turn)
         row["text"] = result["text"]
         row["deidentified"] = result["counts"]
@@ -120,14 +191,8 @@ def deidentify_turns(
 
 def scan(text: str, names: Sequence[str] = ()) -> dict[str, Any]:
     """Report identifiers found without modifying the text."""
-    found = {}
-    for label, pattern in patterns.items():
-        found[label] = len(re.findall(pattern, text, flags=re.IGNORECASE))
-    found["name"] = len(re.findall(_title_name, text))
-    found["name"] += len(_vocative_names(text))
-    for name in set(names):
-        if name.strip():
-            found["name"] += len(re.findall(rf"\b{re.escape(name.strip())}\b", text, re.IGNORECASE))
+    text = text or ""
+    found = deidentify(text, names=names)["counts"]
 
     total = sum(found.values())
     capitalized = {w for w in re.findall(r"\b[A-Z][a-z]{2,}\b", text)} - _vocative_skip
