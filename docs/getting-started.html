@@ -6,8 +6,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta content="Install mathipy and analyze a first math item." name="description" />
 
-    <title>Getting Started &#8212; mathipy  documentation</title>
+    <title>Getting Started &#8212; mathipy</title>
   
   
   
@@ -26,23 +27,24 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="_static/styles/theme.css" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bf69dc6d" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="_static/scripts/fontawesome.js"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js" />
 
-    <script src="_static/documentation_options.js?v=7f41d439"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting-started';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://mshin77.github.io/mathipy/getting-started.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Analyzing Math Items" href="vignettes/item-analysis.html" />
@@ -122,8 +124,8 @@
       
     
     
-    <img src="_static/logo.svg" class="logo__image only-light" alt="mathipy  documentation - Home"/>
-    <img src="_static/logo.svg" class="logo__image only-dark pst-js-only" alt="mathipy  documentation - Home"/>
+    <img src="_static/logo.svg" class="logo__image only-light" alt="mathipy - Home"/>
+    <img src="_static/logo.svg" class="logo__image only-dark pst-js-only" alt="mathipy - Home"/>
   
   
 </a></div>
@@ -425,9 +427,9 @@
                 <article class="bd-article">
                   
   <section id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>mathipy
 </pre></div>
 </div>
@@ -454,9 +456,9 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 </div>
 </section>
 <section id="basic-usage">
-<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">#</a></h2>
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
 <section id="readability-analysis">
-<h3>Readability Analysis<a class="headerlink" href="#readability-analysis" title="Link to this heading">#</a></h3>
+<h3>Readability Analysis<a class="headerlink" href="#readability-analysis" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadabilityAnalyzer</span>
 
 <span class="n">analyzer</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span>
@@ -468,7 +470,7 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 </div>
 </section>
 <section id="math-content-analysis">
-<h3>Math Content Analysis<a class="headerlink" href="#math-content-analysis" title="Link to this heading">#</a></h3>
+<h3>Math Content Analysis<a class="headerlink" href="#math-content-analysis" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MathContentAnalyzer</span>
 
 <span class="n">analyzer</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span>
@@ -480,7 +482,7 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 </div>
 </section>
 <section id="cognitive-load-estimation">
-<h3>Cognitive Load Estimation<a class="headerlink" href="#cognitive-load-estimation" title="Link to this heading">#</a></h3>
+<h3>Cognitive Load Estimation<a class="headerlink" href="#cognitive-load-estimation" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span>
 
 <span class="n">estimator</span> <span class="o">=</span> <span class="n">CognitiveLoadEstimator</span><span class="p">()</span>
@@ -492,7 +494,7 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 </div>
 </section>
 <section id="visual-feature-extraction">
-<h3>Visual Feature Extraction<a class="headerlink" href="#visual-feature-extraction" title="Link to this heading">#</a></h3>
+<h3>Visual Feature Extraction<a class="headerlink" href="#visual-feature-extraction" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
 
 <span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
@@ -504,7 +506,7 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 </div>
 </section>
 <section id="multimodal-ocr">
-<h3>Multimodal OCR<a class="headerlink" href="#multimodal-ocr" title="Link to this heading">#</a></h3>
+<h3>Multimodal OCR<a class="headerlink" href="#multimodal-ocr" title="Link to this heading"></a></h3>
 <p>Requires a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
 
@@ -517,7 +519,7 @@ pip<span class="w"> </span>install<span class="w"> </span>mathipy<span class="o"
 </div>
 </section>
 <section id="visual-model-classification">
-<h3>Visual Model Classification<a class="headerlink" href="#visual-model-classification" title="Link to this heading">#</a></h3>
+<h3>Visual Model Classification<a class="headerlink" href="#visual-model-classification" title="Link to this heading"></a></h3>
 <p>Assigns each image one flag per representation type, a primary type, and an
 instructional function label. Requires the same API key as OCR.</p>
 <p>OCR and classification transmit image data to the configured provider; every
@@ -561,7 +563,7 @@ classifier prompt and any human coding of the same images can share it:</p>
 </div>
 </section>
 <section id="certificate-errors-on-vision-calls">
-<h3>Certificate Errors on Vision Calls<a class="headerlink" href="#certificate-errors-on-vision-calls" title="Link to this heading">#</a></h3>
+<h3>Certificate Errors on Vision Calls<a class="headerlink" href="#certificate-errors-on-vision-calls" title="Link to this heading"></a></h3>
 <p>Antivirus HTTPS scanning and corporate proxies intercept TLS and re-sign
 traffic with a root certificate that Python’s bundled certificate list does not
 carry, producing <code class="docutils literal notranslate"><span class="pre">CERTIFICATE_VERIFY_FAILED</span></code> on the first OCR or classification
@@ -602,8 +604,8 @@ changes.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="_static/scripts/bootstrap.js"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
