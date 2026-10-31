@@ -387,7 +387,7 @@ class VisualFeatureExtractor:
         }
 
     def _to_gray(self, image: np.ndarray) -> np.ndarray:
-        """One greyscale definition for every metric in this class."""
+        """One grayscale definition for every metric in this class."""
         image = as_bgr8(image)
         if image.ndim == 2:
             return image

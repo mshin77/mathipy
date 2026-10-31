@@ -14,7 +14,7 @@ cv2, cv2_available = _optional_import("cv2", "opencv-python-headless")
 
 
 def as_bgr8(image: np.ndarray | None) -> np.ndarray | None:
-    """8-bit grey or BGR, with any alpha composited onto white so a transparent
+    """8-bit gray or BGR, with any alpha composited onto white so a transparent
     background reads as paper rather than ink."""
     if image is None or image.size == 0:
         return image
@@ -32,8 +32,8 @@ def as_bgr8(image: np.ndarray | None) -> np.ndarray | None:
         image = image[:, :, 0]
     if image.ndim == 3 and image.shape[2] in (2, 4):
         alpha = image[:, :, -1:].astype(np.float32) / 255.0
-        colour = image[:, :, :-1].astype(np.float32)
-        image = (colour * alpha + 255.0 * (1 - alpha)).round().astype(np.uint8)
+        color = image[:, :, :-1].astype(np.float32)
+        image = (color * alpha + 255.0 * (1 - alpha)).round().astype(np.uint8)
         if image.shape[2] == 1:
             image = image[:, :, 0]
     return image
