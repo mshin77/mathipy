@@ -8,7 +8,8 @@ from typing import Any
 
 patterns = {
     "email": r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b",
-    "phone": r"(?:\b|(?<![\w(+])(?=[(+]))(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b",
+    "phone": r"(?<![\d.,])(?:\b|(?<![\w(+])(?=[(+]))(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}"
+             r"[-.\s]?\d{4}\b(?![.,]?\d)",
     "url": r"\bhttps?://\S+|\bwww\.\S+",
     "ssn": r"\b\d{3}-\d{2}-\d{4}\b",
     "student_id": r"\b(?:(?:id|student\s*(?:id|number|no\.?))(?:\s*(?:number|no\.?))?"
@@ -20,7 +21,7 @@ patterns = {
             r"|\b(?:0?[1-9]|1[0-2])-(?:0?[1-9]|[12]\d|3[01])-(?:19|20)\d{2}\b"
             r"|\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b",
 }
-_titles = r"(?:Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Coach|Principal)"
+_titles = r"(?:Mr|Mrs|Ms|Miss|Dr|Prof|Professor|Coach)"
 # A capitalized word in Latin or Cyrillic script, with inner capitals, apostrophes, or
 # hyphens: McDonald, O'Neil, García, Smith-Jones, Ольга. Greek capitals are left out
 # because in math text they are symbols (Δx, ΔABC), not names.
@@ -45,7 +46,15 @@ _vocative_skip = {"Thanks", "Thank", "Hello", "Hi", "Hey", "Great", "Good", "Wel
 # Months and subjects that are also given names (April, June, Art...) stay maskable.
 
 _role_words = {"teacher", "teachers", "student", "students", "instructor",
-               "tutor", "unknown", "speaker"}
+               "tutor", "unknown", "speaker", "class", "group", "all", "interviewer",
+               "researcher", "observer", "parent", "principal"}
+
+# Names that are also everyday words: as a speaker label, only "Mark" is masked, not "mark".
+_word_names = {"mark", "will", "grace", "hope", "joy", "faith", "rose", "may", "june",
+               "april", "bill", "art", "pat", "frank", "grant", "dawn", "rich", "ray",
+               "rob", "chase", "drew", "dean", "page", "reed", "wade", "ivy", "iris",
+               "lily", "penny", "ruby", "amber", "cliff", "summer", "max", "sue", "jean",
+               "gene", "glen", "eve"}
 
 replacements = {
     "email": "[EMAIL]",
@@ -94,7 +103,7 @@ _code_label = re.compile(r"[A-Z]\d*|[A-Z]{1,2}\d+")
 
 def _is_name_label(label: str | None) -> bool:
     label = (label or "").strip()
-    words = set(re.findall(r"[a-z]+", label.lower()))
+    words = set(re.findall(r"[a-z]{2,}", label.lower()))  # "Student A", "Group 1" are codes
     return bool(label) and not _code_label.fullmatch(label) and not words <= _role_words
 
 
@@ -136,7 +145,7 @@ def deidentify(
     cleaned = text or ""
 
     def replace(label, m):
-        if label == "phone" and _in_number_list(m):
+        if label == "phone" and (_in_number_list(m) or m.group(0).isdigit()):
             return m.group(0)
         counts[label] += 1
         return replacements[label]
@@ -170,8 +179,10 @@ def deidentify_turns(
     """Mask identifiers across turns, using speaker labels, and names greeted in any
     turn, as names to remove from every turn."""
     labels = [t.get("speaker", "") for t in turns]
-    names = [label for label in labels if _is_name_label(label)]
-    greeted = [n for t in turns for n in _vocative_names(t.get("text") or "")]
+    named = [label.strip() for label in labels if _is_name_label(label)]
+    names = [n for n in named if n.lower() not in _word_names]
+    greeted = ([n[0].upper() + n[1:] for n in named if n.lower() in _word_names]
+               + [n for t in turns for n in _vocative_names(t.get("text") or "")])
     aliases = {}
     for label in labels:
         if label and label not in aliases:

@@ -59,7 +59,8 @@ _secret_pattern = re.compile(
 
 _RETRY_STATUS = {429, 500, 502, 503, 504}
 _UNAVAILABLE_STATUS = _RETRY_STATUS | {401, 403, 404}
-_REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "content_filter"}
+_REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION",
+                    "content_filter"}
 
 
 class ProviderUnavailableError(RuntimeError):
@@ -172,16 +173,21 @@ def _upscale_small(data: bytes) -> tuple[bytes, str]:
     short_side, long_side = min(image.size), max(image.size)
     scale = min(min_image_px / short_side, max_image_px / long_side) if short_side else 1
     upscale = 0 < short_side < min_image_px and scale > 1
-    if fmt and not upscale:
+    has_alpha = (image.mode in ("RGBA", "LA", "PA")
+                 or (image.mode == "P" and "transparency" in image.info))
+    if fmt and not upscale and not has_alpha:
         return data, fmt
     # Formats the vision APIs reject (TIFF, BMP, ...) are re-encoded as PNG, shrunk
     # toward max_image_px on the long side (an uncompressed scan can be very large)
-    # but never below min_image_px on the short side.
-    if not upscale:
+    # but never below min_image_px on the short side. An accepted format re-encoded
+    # only to flatten its alpha keeps its size.
+    if fmt and not upscale:
+        scale = 1
+    elif not upscale:
         scale = max(min(1, max_image_px / long_side), min(1, min_image_px / short_side)) \
             if short_side else 1
     size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
-    if image.mode in ("RGBA", "LA") or (image.mode == "P" and "transparency" in image.info):
+    if has_alpha:
         rgba = image.convert("RGBA")
         image = Image.new("RGB", rgba.size, "white")
         image.paste(rgba, mask=rgba.getchannel("A"))
@@ -515,6 +521,7 @@ class VisionAPIClient:
                 messages=[{"role": "user", "content": content}],
                 **({"temperature": self.temperature} if self.temperature is not None else {}))
         except (sdk.APIConnectionError, sdk.RateLimitError, sdk.InternalServerError,
+                getattr(sdk, "OverloadedError", sdk.InternalServerError),  # 529
                 sdk.AuthenticationError, sdk.PermissionDeniedError, sdk.NotFoundError) as err:
             raise ProviderUnavailableError(f"Anthropic API error: {_sanitize_error(str(err))}") from err
         except sdk.APIStatusError as err:

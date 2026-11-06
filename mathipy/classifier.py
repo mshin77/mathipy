@@ -166,8 +166,10 @@ class VisualModelClassifier(VisionAPIClient):
 
         Args:
             source: Image file path, URL, or bytes.
-            votes: Number of independent classification calls; results are
-                merged by majority (flags) and mode (primary, function).
+            votes: Number of classification calls; results are merged by
+                majority (flags) and mode (primary, function). Vote ``i`` sends
+                ``seed + i`` to providers that take a seed (Gemini, OpenAI), so
+                votes can differ while a run stays reproducible.
             item_text: Item text. The function label compares image content
                 against it; without it the label rests on the image alone.
             position: Where the image sits. A key of ``image_positions`` adds its
@@ -183,9 +185,9 @@ class VisualModelClassifier(VisionAPIClient):
         image_b64, mime_type = self._prepare_image(source)
 
         results, refused, failed = [], None, None
-        for _ in range(max(1, votes)):
+        for i in range(max(1, votes)):
             try:
-                results.append(self._classify_once(image_b64, mime_type, item_text, position))
+                results.append(self._seeded_vote(i, image_b64, mime_type, item_text, position))
             except ProviderUnavailableError as err:
                 failed = err
                 logger.warning("vote dropped: %s", err)
@@ -194,9 +196,9 @@ class VisualModelClassifier(VisionAPIClient):
                 logger.warning("vote dropped: %s", err)
         withheld = False
         if not results and item_text and refused is not None:
-            for _ in range(max(1, votes)):
+            for i in range(max(1, votes)):
                 try:
-                    results.append(self._classify_once(image_b64, mime_type, None, position))
+                    results.append(self._seeded_vote(i, image_b64, mime_type, None, position))
                 except ProviderUnavailableError as err:
                     failed = err
                 except RuntimeError as err:
@@ -211,6 +213,16 @@ class VisualModelClassifier(VisionAPIClient):
         return (merged | self.provenance() | self._vote_agreement(results, merged)
                 | {"votes": max(1, votes), "vote_raw": raws, "prompt_hash": prompt_hash,
                    "text_withheld": withheld, "position": position})
+
+    def _seeded_vote(self, vote: int, *args) -> dict[str, Any]:
+        """One vote, sent with ``seed + vote`` so repeat votes can differ reproducibly."""
+        base_seed = self.seed
+        if base_seed is not None:
+            self.seed = base_seed + vote
+        try:
+            return self._classify_once(*args)
+        finally:
+            self.seed = base_seed
 
     def _classify_once(self, image_b64: str, mime_type: str,
                        item_text: str | None = None,
@@ -262,10 +274,15 @@ class VisualModelClassifier(VisionAPIClient):
         entry: dict[str, Any] = {
             m: sum(r[m] for r in usable) * 2 > n for m in visual_models
         }
-        entry["visual_type"] = Counter(r.get("visual_type") for r in usable).most_common(1)[0][0]
+        def mode(rows, field):
+            # an unrecognized (None) label never outvotes a real one
+            labels = Counter(r.get(field) for r in rows if r.get(field) is not None)
+            return labels.most_common(1)[0][0] if labels else None
+
+        entry["visual_type"] = mode(usable, "visual_type")
         same_type = [r for r in usable if r.get("visual_type") == entry["visual_type"]]
         for field in ("function", "visual_subtype"):
-            entry[field] = Counter(r.get(field) for r in same_type).most_common(1)[0][0]
+            entry[field] = mode(same_type, field)
         entry["model_count"] = sum(entry[m] for m in visual_models)
         boxes = [r["figure_box"] for r in usable if r.get("figure_box")]
         entry["figure_box"] = ([sorted(c)[len(c) // 2] for c in zip(*boxes)]

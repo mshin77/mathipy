@@ -6,7 +6,7 @@ from mathipy.utils import strip_ranges
 
 _number = r"(?<![\d.])\d+(?:\.\d+)?"
 
-_operand = rf"(?:{_number}|[a-z]\b)"
+_operand = rf"(?:[-−]?{_number}|[a-z]\b)"
 
 _patterns = {
     "sym_addition": re.compile(rf"{_number}\s*\+\s*(?={_number})"),
@@ -17,7 +17,7 @@ _patterns = {
     "sym_comparison": re.compile(
         rf"(?:{_number}|[a-z])\s*(?:[<>]=?|[≤≥])\s*(?={_operand})", re.I),
     "sym_equality": re.compile(r"(?<![=<>!])=(?!=)"),
-    "sym_exponent": re.compile(rf"(?:{_number}|[a-z])\s*\^\s*(?:{_number}|[a-z])", re.I),
+    "sym_exponent": re.compile(rf"(?:{_number}|[a-z])\s*\^\s*(?:[-−]?{_number}|[a-z])", re.I),
 }
 
 channel_pairs = {

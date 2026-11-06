@@ -105,15 +105,43 @@ def _as_text(value: Any) -> str:
     return str(value).strip() if value else ""
 
 
+def _choices_from_list(items: list) -> dict[str, str]:
+    """Answer choices returned as a list ("A. 4" or {"label": "A", "text": "4"}) as the
+    letter-keyed dict used elsewhere; an unlabeled entry takes the letter of its place."""
+    choices: dict[str, str] = {}
+    for i, item in enumerate(items):
+        label = None
+        if isinstance(item, dict):
+            label = item.get("label", item.get("letter"))
+            text = item.get("text", item.get("value"))
+            if label is None and text is None and len(item) == 1:
+                ((label, text),) = item.items()
+        else:
+            text = item
+        if text is None:
+            continue
+        text = str(text).strip()
+        if label is None:
+            marked = re.match(r"\(?([A-Z])[.):]\s*(.*)", text, re.DOTALL)
+            label, text = marked.groups() if marked else (chr(ord("A") + i), text)
+        choices.setdefault(str(label).strip().strip("().:").upper(), text.strip())
+    return choices
+
+
 def _parse_response(response_text: str) -> dict[str, Any]:
     cleaned = re.sub(r"```(?:json)?\s*", "", response_text).strip()
-    json_match = re.search(r"\{[\s\S]*\}", cleaned)
     parsed = None
-    if json_match:
+    # strict=False accepts a raw line break inside a string, as multi-line item text often has
+    decoder = json.JSONDecoder(strict=False)
+    # decode from each "{" in turn, so braces in surrounding prose do not break the object
+    for start in (m.start() for m in re.finditer(r"\{", cleaned)):
         try:
-            parsed = json.loads(json_match.group())
+            candidate, _ = decoder.raw_decode(cleaned, start)
         except json.JSONDecodeError:
-            parsed = None
+            continue
+        if isinstance(candidate, dict):
+            parsed = candidate
+            break
 
     if parsed is not None:
         for key in ("full_text", "image_description", "question_text"):
@@ -126,6 +154,14 @@ def _parse_response(response_text: str) -> dict[str, Any]:
                 else "text_only" if has_text
                 else "image_only"
             )
+        if isinstance(parsed.get("answer_choices"), list):
+            parsed["answer_choices"] = _choices_from_list(parsed["answer_choices"])
+        if not parsed.get("answer_choices") and parsed["full_text"]:
+            parsed["answer_choices"] = _extract_answer_choices(parsed["full_text"])
+        if "numbers_found" not in parsed and parsed["full_text"]:
+            parsed["numbers_found"] = extract_numbers(parsed["full_text"])
+        for key, default in _empty_result().items():
+            parsed.setdefault(key, default)
         parsed["parsed"] = True
         return parsed
 

@@ -100,7 +100,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -197,14 +197,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -249,7 +249,7 @@
       
       
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
@@ -313,14 +313,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -399,7 +399,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Analyzing Math Items</span></li>
@@ -440,7 +440,7 @@
 <h2>Text features<a class="headerlink" href="#text-features" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">CognitiveLoadEstimator</span><span class="p">,</span> <span class="n">MathContentAnalyzer</span><span class="p">,</span> <span class="n">ReadabilityAnalyzer</span>
 
-<span class="n">text</span> <span class="o">=</span> <span class="s2">"A garden is 8 feet long and 5 feet wide. What is its area in square feet?"</span>
+<span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;A garden is 8 feet long and 5 feet wide. What is its area in square feet?&quot;</span>
 
 <span class="n">readability</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 <span class="n">math_content</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -450,7 +450,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">MultimodalOCR</span></code> reads item text from an image and requires a Gemini or OpenAI API key:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
 
-<span class="n">text</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">"gemini"</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"item_id"</span><span class="p">])))[</span><span class="s2">"full_text"</span><span class="p">]</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_id&quot;</span><span class="p">])))[</span><span class="s2">&quot;full_text&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -458,7 +458,7 @@
 <h2>Visual features<a class="headerlink" href="#visual-features" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
 
-<span class="n">features</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"item_id"</span><span class="p">])))</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_id&quot;</span><span class="p">])))</span>
 </pre></div>
 </div>
 </section>
@@ -467,9 +467,9 @@
 <p>Requires a Gemini or OpenAI API key.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualModelClassifier</span><span class="p">,</span> <span class="n">flags_by_representation</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">"gemini"</span><span class="p">)</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
-    <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"item_id"</span><span class="p">])),</span> <span class="n">position</span><span class="o">=</span><span class="s2">"stem"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">"visual_type"</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">"function"</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
+    <span class="nb">str</span><span class="p">(</span><span class="n">get_sample_image</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;item_id&quot;</span><span class="p">])),</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;stem&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;visual_type&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">flags_by_representation</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -526,7 +526,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>

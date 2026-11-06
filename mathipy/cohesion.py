@@ -26,12 +26,16 @@ connectives = {
 negations = {
     "not", "no", "never", "none", "neither", "nor", "without", "cannot",
     "can't", "don't", "doesn't", "isn't", "aren't", "won't", "didn't",
+    "wasn't", "weren't", "hasn't", "haven't", "hadn't", "couldn't", "shouldn't",
+    "wouldn't", "mustn't",
 }
 
 pronouns = {
     "i", "me", "my", "mine", "we", "us", "our", "ours", "you", "your", "yours",
     "he", "him", "his", "she", "her", "hers", "it", "its", "they", "them",
     "their", "theirs", "this", "that", "these", "those", "who", "which",
+    "i'm", "i've", "i'll", "i'd", "it's", "we're", "we've", "they're", "they've",
+    "you're", "you've", "he's", "she's",
 }
 
 _function_words = pronouns | set(
@@ -62,7 +66,8 @@ def split_sentences(text: str) -> list[str]:
         last = tail[-1] if tail else ""
         continues = not part[0].isupper()
         label = bool(_answer_label.match(last)) and (previous == f"{last}." or continues)
-        abbreviation = last.lower() in _abbreviations and (last.lower() not in _units or continues)
+        abbreviation = last.lower() in _abbreviations and (
+            last.lower() not in _units | {"etc"} or continues)
         if merged and (abbreviation or label):
             merged[-1] = f"{merged[-1]} {part}"
             continue
@@ -74,7 +79,7 @@ _word_re = re.compile(r"[a-z]+'?[a-z]*|\d+(?:[./]\d+)*")
 
 
 def _words(text: str) -> list[str]:
-    return _word_re.findall(text.lower())
+    return _word_re.findall(text.lower().replace("’", "'"))
 
 
 def _content(text: str) -> set[str]:

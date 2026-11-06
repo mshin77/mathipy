@@ -20,7 +20,7 @@ ordinal_words = ["first", "second", "third", "fourth", "fifth", "sixth", "sevent
                  "last", "next"]
 
 fraction_words = ["half", "halves", "third", "fourth", "quarter", "fifth",
-                  "sixth", "eighth", "tenth", "hundredth"]
+                  "sixth", "seventh", "eighth", "ninth", "tenth", "twelfth", "hundredth"]
 
 polysemous_words = ["table", "mean", "product", "power", "base", "root", "plane", "right",
             "odd", "even", "volume", "face", "degree", "times", "difference",

@@ -37,7 +37,8 @@ _not_a_series = ("answer", "question", "step", "figure", "table", "graph",
                  "write", "explain", "show", "circle", "solve", "estimate",
                  "compare", "round", "count", "give", "list", "name", "place",
                  "select", "choose", "mark", "label", "complete", "there", "each",
-                 "what", "which", "how", "the", "this", "that", "these", "those")
+                 "what", "which", "how", "the", "this", "that", "these", "those",
+                 "problem", "lesson", "unit", "chapter", "exercise", "day", "week", "level")
 
 _label_ref = re.compile(
     r"\b(?i:" + "|".join(_label_elements) + r")\s+[A-Z]{1,4}\b"

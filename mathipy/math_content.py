@@ -109,9 +109,10 @@ class MathContentAnalyzer:
             "variable": re.compile(r"(?<![A-Za-z'’_])[a-zA-Z](?![A-Za-z'’_])"),
             "equation": re.compile(r"(?<![<>!=])=(?!=)"),
             "inequality": re.compile(r"\S+\s*[<>≤≥]=?\s*\S+"),
-            "exponent": re.compile(r"\w+\^[\w\d{}]+|\w+\*\*[\w\d{}]+"),
+            "exponent": re.compile(r"(?:\w+|\))\^[\w\d{}]+|\w+\*\*[\w\d{}]+"),
             "function": re.compile(r"\b[a-zA-Z]+\([^)]+\)"),
-            "polynomial": re.compile(r"(?<![A-Za-z])[a-z]\^?\d*\s*[+\-]\s*[a-z]\^?\d*(?![A-Za-z])"),
+            "polynomial": re.compile(
+                r"(?<![A-Za-z])[a-z]\^?\d*\s*[+\-−]\s*\d*[a-z]\^?\d*(?![A-Za-z])"),
             "fraction": re.compile(r"\d+/\d+|\\frac\{\d+\}\{\d+\}"),
             "decimal": re.compile(r"\d+\.\d+"),
             "percentage": re.compile(r"\d+\.?\d*\s*(?:%|percent\b)", re.I),
@@ -120,7 +121,7 @@ class MathContentAnalyzer:
                 r"|\bratios?\s+of\s+\d+\s+to\s+\d+"
                 r"|\b\d+\s+to\s+\d+\s+ratio"
                 r"|\bfor\s+every\s+\d+", re.I),
-            "scientific_notation": re.compile(r"\d+\.?\d*\s*[×x]\s*10\^[-]?\d+"),
+            "scientific_notation": re.compile(r"\d+\.?\d*\s*[×x]\s*10\^[-−]?\d+"),
             "derivative": re.compile(r"d/dx|(?<![A-Za-z])[fgh]['′](?![a-z])|\\frac\{d\}\{dx\}"),
             "integral": re.compile(r"∫|\\int"),
             "limit": re.compile(r"\\lim|lim_"),

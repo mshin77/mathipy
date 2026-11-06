@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import re
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -24,14 +25,28 @@ def _tokens(text: str) -> set[str]:
             if len(w) > 2 and w not in _stopwords}
 
 
+_clock = r"\d{1,2}:\d{2}(?::\d{2})?(?:[.,]\d+)?"
+_lead_clock = re.compile(rf"^\s*(?:\[{_clock}\]|\({_clock}\)|{_clock})\s*")
+_label_clock = re.compile(
+    rf"^(\s*[^\W\d_][^:\n\[\]()]{{0,39}}?)\s*(?:\[{_clock}\]|\({_clock}\))\s*:")
+
+
+def _untimed(line: str) -> str:
+    """Drop a timestamp before a label ("[00:01:23] Teacher: ...") or between a label
+    and its colon ("Teacher (00:01:23): ..."); a line that is not then labeled is kept."""
+    stripped = _label_clock.sub(r"\1:", _lead_clock.sub("", line, count=1), count=1)
+    return stripped if _speaker_line.match(stripped) else line
+
+
 def _from_plain(lines: Sequence[str], unlabeled: str | None = None) -> list[tuple[str, str]]:
     turns = []
     for line in lines:
+        line = _untimed(line)
         match = _speaker_line.match(line)
         if match:
             turns.append([match.group(1).strip(), match.group(2).strip()])
         elif turns and line.strip():
-            turns[-1][1] += " " + line.strip()
+            turns[-1][1] = f"{turns[-1][1]} {line.strip()}".strip()
         elif unlabeled and line.strip():
             turns.append([unlabeled, line.strip()])
     return [(s, t) for s, t in turns if t]
@@ -86,7 +101,7 @@ def _from_captions(lines: Sequence[str], continue_speaker: bool = False
             elif _dash_turn.match(line):
                 speaker, text = "Unknown", _dash_turn.sub("", line, count=1)
             elif turns and (j > 0 or (continue_speaker and turns[-1][0] != "Unknown")):
-                turns[-1][1] += " " + _cue_tag.sub("", line).strip()
+                turns[-1][1] = f"{turns[-1][1]} {_cue_tag.sub('', line).strip()}".strip()
                 continue
             else:
                 speaker, text = "Unknown", line
@@ -123,11 +138,17 @@ def segment_turns(
         raise ValueError("csv format requires a file path, not text")
 
     def parse(body: str) -> list[tuple[str, str]]:
+        body = body.lstrip("\ufeff")
         body = re.sub(strip_pattern, "", body) if strip_pattern else body
         lines = [ln.strip() for ln in (body.split(separator) if separator else body.splitlines())]
         if transcript_format == "plain":
-            return _from_plain([ln for ln in lines if ln])
-        return _from_captions(lines, continue_speaker)
+            pairs = _from_plain([ln for ln in lines if ln])
+        else:
+            pairs = _from_captions(lines, continue_speaker)
+        if not pairs and any(lines):
+            warnings.warn("no speaker turns found in a non-empty transcript; "
+                          "check the speaker label format", stacklevel=3)
+        return pairs
 
     if text is not None:
         pairs = parse(text)

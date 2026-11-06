@@ -100,7 +100,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -197,14 +197,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -249,7 +249,7 @@
       
       
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
@@ -313,14 +313,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -486,7 +486,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">API Reference</span></li>
@@ -516,7 +516,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadabilityAnalyzer</span>
 
 <span class="n">analyzer</span> <span class="o">=</span> <span class="n">ReadabilityAnalyzer</span><span class="p">()</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="s2">"Solve for x: 2x + 5 = 15"</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="s2">&quot;Solve for x: 2x + 5 = 15&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Returns a dictionary with:</p>
@@ -555,7 +555,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MathContentAnalyzer</span>
 
 <span class="n">analyzer</span> <span class="o">=</span> <span class="n">MathContentAnalyzer</span><span class="p">()</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="s2">"What is the area of a triangle with base 6 and height 4?"</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="s2">&quot;What is the area of a triangle with base 6 and height 4?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Returns a dictionary with:</p>
@@ -620,7 +620,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualFeatureExtractor</span>
 
 <span class="n">extractor</span> <span class="o">=</span> <span class="n">VisualFeatureExtractor</span><span class="p">()</span>
-<span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">"item_image.png"</span><span class="p">)</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Accepts a file path, <code class="docutils literal notranslate"><span class="pre">Path</span></code> object, or numpy array. Returns a dictionary with:</p>
@@ -646,8 +646,8 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <p>Requires: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mathipy[ocr]</span></code> and a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalOCR</span>
 
-<span class="n">ocr</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">"gemini"</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">ocr</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">"item_image.png"</span><span class="p">)</span>
+<span class="n">ocr</span> <span class="o">=</span> <span class="n">MultimodalOCR</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">ocr</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Parameters:</p>
@@ -693,11 +693,11 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <p>Requires: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mathipy[ocr]</span></code> and a <code class="docutils literal notranslate"><span class="pre">GEMINI_API_KEY</span></code> or <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">VisualModelClassifier</span>
 
-<span class="n">classifier</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">"gemini"</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">"item_image.png"</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">"item_image.png"</span><span class="p">,</span> <span class="n">votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">"item_image.png"</span><span class="p">,</span> <span class="n">item_text</span><span class="o">=</span><span class="s2">"A store sells 3 apples for $2..."</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">"item_scan.png"</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s2">"page_scan"</span><span class="p">)</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">VisualModelClassifier</span><span class="p">(</span><span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gemini&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">,</span> <span class="n">votes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_image.png&quot;</span><span class="p">,</span> <span class="n">item_text</span><span class="o">=</span><span class="s2">&quot;A store sells 3 apples for $2...&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;item_scan.png&quot;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;page_scan&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Parameters:</p>
@@ -722,7 +722,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <h3><code class="docutils literal notranslate"><span class="pre">visual_function_definitions</span></code><a class="headerlink" href="#visual-function-definitions" title="Link to this heading"></a></h3>
 <p>Dictionary with a one-line decision rule for each instructional function. The same rules appear in the classifier prompt, so human coders and the model work from a single codebook. A figure is <code class="docutils literal notranslate"><span class="pre">essential</span></code> when the student must read from it a value, relation, or configuration that neither the text nor any text answer choice states (Berends &amp; van Lieshout, 2009). A figure that restates the text, a blank response workspace, or a pictured supplied tool is <code class="docutils literal notranslate"><span class="pre">non_essential</span></code>. The rules hold for any image position; a study decides which positions it codes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_function_definitions</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">visual_function_definitions</span><span class="p">[</span><span class="s2">"essential"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_function_definitions</span><span class="p">[</span><span class="s2">&quot;essential&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
@@ -730,7 +730,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <h3><code class="docutils literal notranslate"><span class="pre">visual_model_definitions</span></code><a class="headerlink" href="#visual-model-definitions" title="Link to this heading"></a></h3>
 <p>Dictionary with a one-line decision rule for each type. The same rules appear in the classifier prompt, so human coders and the model work from a single codebook.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_definitions</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_definitions</span><span class="p">[</span><span class="s2">"box_plot"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_definitions</span><span class="p">[</span><span class="s2">&quot;box_plot&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
@@ -738,7 +738,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <h3><code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code><a class="headerlink" href="#visual-model-groups" title="Link to this heading"></a></h3>
 <p>Dictionary mapping each visual model type to a broader category.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_groups</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_groups</span><span class="p">[</span><span class="s2">"number_line"</span><span class="p">])</span>  <span class="c1"># "quantity_model"</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_groups</span><span class="p">[</span><span class="s2">&quot;number_line&quot;</span><span class="p">])</span>  <span class="c1"># &quot;quantity_model&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -748,10 +748,10 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">flags_by_group</span><span class="p">,</span> <span class="n">group_names</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">group_names</span><span class="p">)</span>
-<span class="c1"># ['coordinate', 'data_display', 'depictive', 'figural', 'no_visual', 'quantity_model', 'relational', 'sequential', 'symbolic']</span>
+<span class="c1"># [&#39;coordinate&#39;, &#39;data_display&#39;, &#39;depictive&#39;, &#39;figural&#39;, &#39;no_visual&#39;, &#39;quantity_model&#39;, &#39;relational&#39;, &#39;sequential&#39;, &#39;symbolic&#39;]</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">flags_by_group</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
-<span class="c1"># {'visual_group_data_display': 1, 'visual_group_geometric': 0, ...}</span>
+<span class="c1"># {&#39;visual_group_data_display&#39;: 1, &#39;visual_group_geometric&#39;: 0, ...}</span>
 </pre></div>
 </div>
 <p>Keys other than the type names are ignored, so a full classification result can be passed directly.</p>
@@ -761,7 +761,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <p>The 27 types are the unit of classification. Three mappings collapse them: <code class="docutils literal notranslate"><span class="pre">visual_model_groups</span></code>, <code class="docutils literal notranslate"><span class="pre">visual_model_signs</span></code>, and <code class="docutils literal notranslate"><span class="pre">visual_model_representations</span></code>. Pick one per analysis.</p>
 <p>Dictionary mapping each type to a representation category: <code class="docutils literal notranslate"><span class="pre">quantity_model</span></code>, <code class="docutils literal notranslate"><span class="pre">tabular</span></code>, <code class="docutils literal notranslate"><span class="pre">coordinate_graph</span></code>, <code class="docutils literal notranslate"><span class="pre">data_display</span></code>, <code class="docutils literal notranslate"><span class="pre">geometric_figure</span></code>, <code class="docutils literal notranslate"><span class="pre">measurement_tool</span></code>, <code class="docutils literal notranslate"><span class="pre">pictorial</span></code>, <code class="docutils literal notranslate"><span class="pre">other</span></code>, and <code class="docutils literal notranslate"><span class="pre">no_visual</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_model_representations</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_representations</span><span class="p">[</span><span class="s2">"line_graph"</span><span class="p">])</span>  <span class="c1"># "coordinate_graph"</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_model_representations</span><span class="p">[</span><span class="s2">&quot;line_graph&quot;</span><span class="p">])</span>  <span class="c1"># &quot;coordinate_graph&quot;</span>
 </pre></div>
 </div>
 </section>
@@ -770,8 +770,8 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <p>Collapses the per-type flags into one key per representation, under a chosen prefix.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">flags_by_representation</span><span class="p">,</span> <span class="n">representation_names</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">flags_by_representation</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"stem_representation"</span><span class="p">))</span>
-<span class="c1"># {'stem_representation_coordinate_graph': 0, 'stem_representation_data_display': 1, ...}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">flags_by_representation</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;stem_representation&quot;</span><span class="p">))</span>
+<span class="c1"># {&#39;stem_representation_coordinate_graph&#39;: 0, &#39;stem_representation_data_display&#39;: 1, ...}</span>
 </pre></div>
 </div>
 </section>
@@ -779,7 +779,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <h3><code class="docutils literal notranslate"><span class="pre">visual_subtypes</span></code><a class="headerlink" href="#visual-subtypes" title="Link to this heading"></a></h3>
 <p>Dictionary of named variants per type, such as <code class="docutils literal notranslate"><span class="pre">double_number_line</span></code> under <code class="docutils literal notranslate"><span class="pre">number_line</span></code> and <code class="docutils literal notranslate"><span class="pre">ratio_table</span></code> under <code class="docutils literal notranslate"><span class="pre">table</span></code>. A subtype is descriptive and never changes the type.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">visual_subtypes</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">visual_subtypes</span><span class="p">[</span><span class="s2">"table"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">visual_subtypes</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
@@ -792,7 +792,7 @@ rule lines, word hyphens, and the slash of a numeric fraction excluded</p>
 <code class="docutils literal notranslate"><span class="pre">ItemFeatureExtractor</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultimodalAnalyzer</span>
 
-<span class="n">row</span> <span class="o">=</span> <span class="n">MultimodalAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">"Which fraction is larger, 2/3 or 3/4?"</span><span class="p">)</span>
+<span class="n">row</span> <span class="o">=</span> <span class="n">MultimodalAnalyzer</span><span class="p">()</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s2">&quot;Which fraction is larger, 2/3 or 3/4?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -885,19 +885,19 @@ gives the rule for each.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">segment_docx</span><span class="p">,</span> <span class="n">check_alignment</span>
 
 <span class="n">items</span> <span class="o">=</span> <span class="n">segment_docx</span><span class="p">(</span>
-    <span class="s2">"released-test.docx"</span><span class="p">,</span>
-    <span class="n">marker</span><span class="o">=</span><span class="s2">"Question ID:"</span><span class="p">,</span>
-    <span class="n">label_position</span><span class="o">=</span><span class="s2">"trailing"</span><span class="p">,</span>
-    <span class="n">skip_prefixes</span><span class="o">=</span><span class="p">[</span><span class="s2">"_____"</span><span class="p">,</span> <span class="s2">"Item Detail"</span><span class="p">],</span>
-    <span class="n">section_markers</span><span class="o">=</span><span class="p">{</span><span class="s2">"Item Detail - Question Description"</span><span class="p">:</span> <span class="s2">"description"</span><span class="p">},</span>
+    <span class="s2">&quot;released-test.docx&quot;</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;Question ID:&quot;</span><span class="p">,</span>
+    <span class="n">label_position</span><span class="o">=</span><span class="s2">&quot;trailing&quot;</span><span class="p">,</span>
+    <span class="n">skip_prefixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_____&quot;</span><span class="p">,</span> <span class="s2">&quot;Item Detail&quot;</span><span class="p">],</span>
+    <span class="n">section_markers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Item Detail - Question Description&quot;</span><span class="p">:</span> <span class="s2">&quot;description&quot;</span><span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">label_position</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;leading&quot;</span></code> when the marker introduces the block below it, <code class="docutils literal notranslate"><span class="pre">&quot;trailing&quot;</span></code> when it names the block above. <code class="docutils literal notranslate"><span class="pre">section_markers</span></code> routes text under a named header into its own field, so descriptive metadata does not contaminate the item body. Each record holds <code class="docutils literal notranslate"><span class="pre">item_id</span></code>, <code class="docutils literal notranslate"><span class="pre">text</span></code>, <code class="docutils literal notranslate"><span class="pre">images</span></code>, and any named sections.</p>
 <p>Confirm the reading before an analysis depends on it:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">check_alignment</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="p">{</span><span class="n">item_id</span><span class="p">:</span> <span class="n">expected_description</span><span class="p">})</span>
-<span class="c1"># {'own': 1180, 'next': 84, 'previous': 6, 'compared': 1270,</span>
-<span class="c1">#  'proportions': {...}, 'verdict': 'aligned'}</span>
+<span class="c1"># {&#39;own&#39;: 1180, &#39;next&#39;: 84, &#39;previous&#39;: 6, &#39;compared&#39;: 1270,</span>
+<span class="c1">#  &#39;proportions&#39;: {...}, &#39;verdict&#39;: &#39;aligned&#39;}</span>
 </pre></div>
 </div>
 <p>A verdict of <code class="docutils literal notranslate"><span class="pre">shifted_next</span></code> means identifiers lag the content by one position — switch <code class="docutils literal notranslate"><span class="pre">label_position</span></code> and re-check. Comparing image counts between the two readings is a second signal: the wrong reading silently drops content that precedes the first marker.</p>
@@ -915,11 +915,11 @@ every paragraph in document order including those inside tables,
 <p>Discourse measures for extended writing and dialogue, where readability formulas do not apply. Deterministic, standard library only, no network call.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohesion_features</span>
 
-<span class="n">cohesion_features</span><span class="p">(</span><span class="s2">"The slope rises. However it falls later. Therefore it was checked."</span><span class="p">)</span>
-<span class="c1"># {'connective_additive': 0, 'connective_causal': 1, 'connective_conditional': 0,</span>
-<span class="c1">#  'connective_adversative': 1, 'connective_total': 2, 'connective_per_100w': 20.0,</span>
-<span class="c1">#  'overlap_adjacent_mean': 0.0, 'lexical_diversity': 1.0,</span>
-<span class="c1">#  'pronoun_per_100w': 20.0, 'negation_count': 0, 'unit_count': 3}</span>
+<span class="n">cohesion_features</span><span class="p">(</span><span class="s2">&quot;The slope rises. However it falls later. Therefore it was checked.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;connective_additive&#39;: 0, &#39;connective_causal&#39;: 1, &#39;connective_conditional&#39;: 0,</span>
+<span class="c1">#  &#39;connective_adversative&#39;: 1, &#39;connective_total&#39;: 2, &#39;connective_per_100w&#39;: 20.0,</span>
+<span class="c1">#  &#39;overlap_adjacent_mean&#39;: 0.0, &#39;lexical_diversity&#39;: 1.0,</span>
+<span class="c1">#  &#39;pronoun_per_100w&#39;: 20.0, &#39;negation_count&#39;: 0, &#39;unit_count&#39;: 3}</span>
 </pre></div>
 </div>
 <p>Accepts a string, split into sentences, or a sequence of units such as turns from <code class="docutils literal notranslate"><span class="pre">segment_turns</span></code>.</p>
@@ -927,17 +927,17 @@ every paragraph in document order including those inside tables,
 </section>
 <section id="de-identification">
 <h2>De-identification<a class="headerlink" href="#de-identification" title="Link to this heading"></a></h2>
-<p>Classroom transcripts and student writing carry names and contact details. Run this before anything else touches the data. Local and deterministic — nothing is transmitted.</p>
+<p>Before importing classroom transcripts or student writing, check that they hold no student names or other private information. The functions below are optional helpers for that check: <code class="docutils literal notranslate"><span class="pre">scan</span></code> reports what it finds without changing anything, and <code class="docutils literal notranslate"><span class="pre">deidentify</span></code> returns a masked copy. Local and deterministic — nothing is transmitted.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deidentify</span><span class="p">,</span> <span class="n">deidentify_turns</span><span class="p">,</span> <span class="n">scan</span><span class="p">,</span> <span class="n">segment_turns</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">deidentify</span><span class="p">(</span><span class="s2">"Thanks, Maria. Email me at a.lee@school.org."</span><span class="p">)</span>
-<span class="c1"># result["text"] masks the name and the email; result["counts"] tallies each category</span>
-
-<span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">"lesson.vtt"</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">"vtt"</span><span class="p">)</span>
-<span class="n">clean</span> <span class="o">=</span> <span class="n">deidentify_turns</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
-<span class="c1"># speaker labels become "Speaker 1", "Speaker 2"; names in text become [NAME]</span>
-
 <span class="n">scan</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>   <span class="c1"># report what is present without changing anything</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">deidentify</span><span class="p">(</span><span class="s2">&quot;Thanks, Maria. Email me at a.lee@school.org.&quot;</span><span class="p">)</span>
+<span class="c1"># result[&quot;text&quot;] masks the name and the email; result[&quot;counts&quot;] tallies each category</span>
+
+<span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">&quot;lesson.vtt&quot;</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">&quot;vtt&quot;</span><span class="p">)</span>
+<span class="n">clean</span> <span class="o">=</span> <span class="n">deidentify_turns</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
+<span class="c1"># speaker labels become &quot;Speaker 1&quot;, &quot;Speaker 2&quot;; names in text become [NAME]</span>
 </pre></div>
 </div>
 <p>Masks emails, phone numbers, URLs, social security numbers, student IDs, dates, and titled names such as <code class="docutils literal notranslate"><span class="pre">Ms.</span> <span class="pre">Rivera</span></code>. <code class="docutils literal notranslate"><span class="pre">deidentify_turns</span></code> also removes speaker names from the body text, since speakers address each other by name. Pass <code class="docutils literal notranslate"><span class="pre">names=[...]</span></code> to <code class="docutils literal notranslate"><span class="pre">deidentify</span></code> to remove additional names, and <code class="docutils literal notranslate"><span class="pre">keep=[&quot;url&quot;]</span></code> to retain a category.</p>
@@ -948,19 +948,19 @@ every paragraph in document order including those inside tables,
 <p>Splits a transcript into speaker turns and reports turn-level measures. Runs locally with no network call, so transcripts are never transmitted.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">segment_turns</span><span class="p">,</span> <span class="n">turn_measures</span><span class="p">,</span> <span class="n">check_speakers</span>
 
-<span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">"lesson.vtt"</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">"vtt"</span><span class="p">)</span>
+<span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span><span class="s2">&quot;lesson.vtt&quot;</span><span class="p">,</span> <span class="n">transcript_format</span><span class="o">=</span><span class="s2">&quot;vtt&quot;</span><span class="p">)</span>
 <span class="n">turn_measures</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
-<span class="c1"># {'turns': 42, 'speakers': 3, 'talk_share': {'Teacher': 0.61, ...},</span>
-<span class="c1">#  'mean_turn_words': 14.3, 'uptake_mean': 0.18}</span>
+<span class="c1"># {&#39;turns&#39;: 42, &#39;speakers&#39;: 3, &#39;talk_share&#39;: {&#39;Teacher&#39;: 0.61, ...},</span>
+<span class="c1">#  &#39;mean_turn_words&#39;: 14.3, &#39;uptake_mean&#39;: 0.18}</span>
 </pre></div>
 </div>
 <p>Formats: <code class="docutils literal notranslate"><span class="pre">plain</span></code> for <code class="docutils literal notranslate"><span class="pre">Speaker:</span> <span class="pre">text</span></code> lines, <code class="docutils literal notranslate"><span class="pre">vtt</span></code> and <code class="docutils literal notranslate"><span class="pre">srt</span></code> for captions, <code class="docutils literal notranslate"><span class="pre">csv</span></code> with <code class="docutils literal notranslate"><span class="pre">speaker_key</span></code> and <code class="docutils literal notranslate"><span class="pre">text_key</span></code>. <code class="docutils literal notranslate"><span class="pre">uptake_mean</span></code> is the lexical overlap between adjacent turns by different speakers.</p>
 <p>In captions, each cue is a turn and a cue with no speaker label is <code class="docutils literal notranslate"><span class="pre">Unknown</span></code>; pass <code class="docutils literal notranslate"><span class="pre">continue_speaker=True</span></code> for captions that name a speaker only when the speaker changes.</p>
 <p>Pass <code class="docutils literal notranslate"><span class="pre">text=</span></code> to segment an in-memory string, with <code class="docutils literal notranslate"><span class="pre">separator</span></code> for turns that are not newline-delimited and <code class="docutils literal notranslate"><span class="pre">strip_pattern</span></code> to drop inline annotations:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">turns</span> <span class="o">=</span> <span class="n">segment_turns</span><span class="p">(</span>
-    <span class="n">text</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">"conversation"</span><span class="p">],</span>
-    <span class="n">separator</span><span class="o">=</span><span class="s2">"|EOM|"</span><span class="p">,</span>
-    <span class="n">strip_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"\((?:generic|focus|probing|telling)\)"</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;conversation&quot;</span><span class="p">],</span>
+    <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;|EOM|&quot;</span><span class="p">,</span>
+    <span class="n">strip_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\((?:generic|focus|probing|telling)\)&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -975,15 +975,15 @@ every paragraph in document order including those inside tables,
     <span class="n">score_agreement</span><span class="p">,</span> <span class="n">disagreements</span><span class="p">,</span> <span class="n">ocr_rubric</span><span class="p">,</span> <span class="n">visual_rubric</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">sample</span> <span class="o">=</span> <span class="n">stratified_sample</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="p">[</span><span class="s2">"tier"</span><span class="p">,</span> <span class="s2">"band"</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2026</span><span class="p">)</span>
-<span class="n">write_coding_sheets</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">ocr_rubric</span><span class="p">,</span> <span class="s2">"output/validation"</span><span class="p">,</span> <span class="n">carry</span><span class="o">=</span><span class="p">[</span><span class="s2">"item_id"</span><span class="p">,</span> <span class="s2">"image"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">])</span>
-<span class="n">write_label_studio</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">visual_rubric</span><span class="p">,</span> <span class="s2">"output/validation"</span><span class="p">)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">stratified_sample</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;tier&quot;</span><span class="p">,</span> <span class="s2">&quot;band&quot;</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2026</span><span class="p">)</span>
+<span class="n">write_coding_sheets</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">ocr_rubric</span><span class="p">,</span> <span class="s2">&quot;output/validation&quot;</span><span class="p">,</span> <span class="n">carry</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;item_id&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">])</span>
+<span class="n">write_label_studio</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">visual_rubric</span><span class="p">,</span> <span class="s2">&quot;output/validation&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">stratified_sample</span></code> allocates proportionally with a floor per stratum, so rare categories are not lost. <code class="docutils literal notranslate"><span class="pre">write_coding_sheets</span></code> writes one blank sheet per rater plus the rubric. <code class="docutils literal notranslate"><span class="pre">write_label_studio</span></code> writes a task file and a labeling-interface config for <a class="reference external" href="https://labelstud.io/">Label Studio</a>, carrying provenance fields into each task.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stratified_sample</span></code> allocates proportionally with a floor per stratum, so rare categories are not lost. <code class="docutils literal notranslate"><span class="pre">write_coding_sheets</span></code> writes one blank sheet per rater plus the rubric. <code class="docutils literal notranslate"><span class="pre">write_label_studio</span></code> writes a task file and a labeling-interface config for <a class="reference external" href="https://labelstud.io/">Label Studio</a>, carrying provenance fields into each task. <code class="docutils literal notranslate"><span class="pre">write_coding_app</span></code> writes one offline page listing every item, for a coder to fill in and export, and <code class="docutils literal notranslate"><span class="pre">coding_sheet</span></code> returns the rows of one blank sheet.</p>
 <p>Score the completed sheets:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">score_agreement</span><span class="p">(</span><span class="n">rows_a</span><span class="p">,</span> <span class="n">rows_b</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">ocr_rubric</span><span class="p">))</span>
-<span class="c1"># {'hallucinated_content': {'agreement': 0.96, 'kappa': 0.71, 'n': 135}, ...}</span>
+<span class="c1"># {&#39;hallucinated_content&#39;: {&#39;agreement&#39;: 0.96, &#39;kappa&#39;: 0.71, &#39;n&#39;: 135}, ...}</span>
 
 <span class="n">disagreements</span><span class="p">(</span><span class="n">rows_a</span><span class="p">,</span> <span class="n">rows_b</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">ocr_rubric</span><span class="p">))</span>   <span class="c1"># rows needing adjudication</span>
 </pre></div>
@@ -1033,7 +1033,7 @@ every paragraph in document order including those inside tables,
 <span class="nb">print</span><span class="p">(</span><span class="n">data_directory</span><span class="p">())</span>
 <span class="n">images</span> <span class="o">=</span> <span class="n">list_sample_images</span><span class="p">()</span>          <span class="c1"># [] when the directory holds no PNGs</span>
 <span class="n">csv_path</span> <span class="o">=</span> <span class="n">get_sample_csv</span><span class="p">()</span>            <span class="c1"># path only; may not exist</span>
-<span class="n">image_path</span> <span class="o">=</span> <span class="n">get_sample_image</span><span class="p">(</span><span class="s2">"demo-g4-algebra"</span><span class="p">)</span>
+<span class="n">image_path</span> <span class="o">=</span> <span class="n">get_sample_image</span><span class="p">(</span><span class="s2">&quot;demo-g4-algebra&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The functions return paths without requiring the files to exist, so check <code class="docutils literal notranslate"><span class="pre">Path.exists()</span></code> before reading. <code class="docutils literal notranslate"><span class="pre">get_sample_image</span></code> rejects item IDs containing path separators or characters outside <code class="docutils literal notranslate"><span class="pre">A-Z</span> <span class="pre">a-z</span> <span class="pre">0-9</span> <span class="pre">_</span> <span class="pre">-</span> <span class="pre">space</span> <span class="pre">#</span></code>.</p>
@@ -1048,9 +1048,9 @@ names, and whether an everyday word is being used in its mathematical sense.</p>
 <h3><code class="docutils literal notranslate"><span class="pre">register_features</span></code><a class="headerlink" href="#register-features" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_features</span>
 
-<span class="n">register_features</span><span class="p">(</span><span class="s2">"Ann has 5 less than Ben. The table shows 1/2."</span><span class="p">)</span>
-<span class="c1"># {'rel_comparison': 1, 'rel_order_reversed': 1, 'rel_partitive': 0, ...</span>
-<span class="c1">#  'num_fraction': 1, 'polysemy_count': 1, 'polysemy_unique': 1}</span>
+<span class="n">register_features</span><span class="p">(</span><span class="s2">&quot;Ann has 5 less than Ben. The table shows 1/2.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;rel_comparison&#39;: 1, &#39;rel_order_reversed&#39;: 1, &#39;rel_partitive&#39;: 0, ...</span>
+<span class="c1">#  &#39;num_fraction&#39;: 1, &#39;polysemy_count&#39;: 1, &#39;polysemy_unique&#39;: 1}</span>
 </pre></div>
 </div>
 <p>Returns every measure below in one dictionary.</p>
@@ -1064,8 +1064,8 @@ the comparative as in <em>five less than Ben</em>. The operands then appear in t
 reverse of the order the operation needs (Lewis &amp; Mayer, 1987).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">relational_features</span>
 
-<span class="n">relational_features</span><span class="p">(</span><span class="s2">"Ann has 5 less than Ben."</span><span class="p">)</span>
-<span class="c1"># {'rel_comparison': 1, 'rel_order_reversed': 1, 'rel_total': 1, ...}</span>
+<span class="n">relational_features</span><span class="p">(</span><span class="s2">&quot;Ann has 5 less than Ben.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;rel_comparison&#39;: 1, &#39;rel_order_reversed&#39;: 1, &#39;rel_total&#39;: 1, ...}</span>
 </pre></div>
 </div>
 </section>
@@ -1075,8 +1075,8 @@ reverse of the order the operation needs (Lewis &amp; Mayer, 1987).</p>
 identify an object (Woodin et al., 2024). <code class="docutils literal notranslate"><span class="pre">num_round</span></code> counts values that signal approximation.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">number_features</span>
 
-<span class="n">number_features</span><span class="p">(</span><span class="s2">"The 3rd bus carries 40 people and 1/2 of the seats are free."</span><span class="p">)</span>
-<span class="c1"># {'num_cardinal': 1, 'num_ordinal': 1, 'num_fraction': 1, 'num_round': 1, ...}</span>
+<span class="n">number_features</span><span class="p">(</span><span class="s2">&quot;The 3rd bus carries 40 people and 1/2 of the seats are free.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;num_cardinal&#39;: 1, &#39;num_ordinal&#39;: 1, &#39;num_fraction&#39;: 1, &#39;num_round&#39;: 1, ...}</span>
 </pre></div>
 </div>
 </section>
@@ -1087,8 +1087,8 @@ identify an object (Woodin et al., 2024). <code class="docutils literal notransl
 choose between the two senses (Schleppegrell, 2007).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mathipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">polysemy_features</span>
 
-<span class="n">polysemy_features</span><span class="p">(</span><span class="s2">"The table shows the mean and the range."</span><span class="p">)</span>
-<span class="c1"># {'polysemy_count': 3, 'polysemy_unique': 3}</span>
+<span class="n">polysemy_features</span><span class="p">(</span><span class="s2">&quot;The table shows the mean and the range.&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;polysemy_count&#39;: 3, &#39;polysemy_unique&#39;: 3}</span>
 </pre></div>
 </div>
 </section>
@@ -1144,7 +1144,7 @@ choose between the two senses (Schleppegrell, 2007).</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>

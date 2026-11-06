@@ -1,3 +1,9 @@
+# mathipy 0.4.17
+
+- Fixes transcript, Word, and OCR reading.
+- Fixes math notation and text-feature counts.
+- Seeds each classifier vote separately and flattens transparent images.
+
 # mathipy 0.4.16
 
 - Masks names, dates, and IDs that de-identification missed, without masking common words.

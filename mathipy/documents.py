@@ -87,18 +87,56 @@ def _omml_text(el) -> str:
     return _fuse(_omml_text(c) for c in el)
 
 
+# Adobe Symbol encoding for the characters math items use; other ASCII codes are as is.
+_symbol_font = {
+    **dict(zip(range(0x41, 0x5B), "ΑΒΧΔΕΦΓΗΙϑΚΛΜΝΟΠΘΡΣΤΥςΩΞΨΖ")),
+    **dict(zip(range(0x61, 0x7B), "αβχδεφγηιϕκλμνοπθρστυϖωξψζ")),
+    0x22: "∀", 0x24: "∃", 0x27: "∋", 0x2A: "∗", 0x2D: "−", 0x40: "≅", 0x5C: "∴",
+    0x5E: "⊥", 0x7E: "∼", 0xA2: "′", 0xA3: "≤", 0xA5: "∞", 0xAB: "↔", 0xAC: "←",
+    0xAD: "↑", 0xAE: "→", 0xAF: "↓", 0xB0: "°", 0xB1: "±", 0xB2: "″", 0xB3: "≥",
+    0xB4: "×", 0xB5: "∝", 0xB6: "∂", 0xB7: "•", 0xB8: "÷", 0xB9: "≠", 0xBA: "≡",
+    0xBB: "≈", 0xBC: "…", 0xC4: "⊗", 0xC5: "⊕", 0xC6: "∅", 0xC7: "∩", 0xC8: "∪",
+    0xC9: "⊃", 0xCA: "⊇", 0xCB: "⊄", 0xCC: "⊂", 0xCD: "⊆", 0xCE: "∈", 0xCF: "∉",
+    0xD0: "∠", 0xD1: "∇", 0xD5: "∏", 0xD6: "√", 0xD7: "⋅", 0xD8: "¬", 0xD9: "∧",
+    0xDA: "∨", 0xDB: "⇔", 0xDC: "⇐", 0xDD: "⇑", 0xDE: "⇒", 0xDF: "⇓", 0xE5: "∑",
+    0xF2: "∫",
+}
+
+
+def _symbol(el) -> str:
+    """Text for a ``w:sym`` character: Symbol-font codes through the Adobe Symbol
+    encoding, other fonts' codes as Unicode unless they are private-use."""
+    from docx.oxml.ns import qn
+
+    try:
+        code = int(el.get(qn("w:char"), ""), 16)
+    except ValueError:
+        return ""
+    if (el.get(qn("w:font")) or "").strip().lower() == "symbol":
+        code = code - 0xF000 if 0xF020 <= code <= 0xF0FF else code
+        if code in _symbol_font:
+            return _symbol_font[code]
+        return chr(code) if 0x20 <= code < 0x7F else ""
+    return "" if code < 0x20 or 0xE000 <= code <= 0xF8FF or code > 0x10FFFF else chr(code)
+
+
 def paragraph_text(para) -> str:
     """Paragraph text including equation objects, which ``Paragraph.text`` omits."""
     from docx.oxml.ns import qn
 
     run_tags = {qn(t) for t in ("w:r", "w:hyperlink", "w:ins", "w:smartTag", "w:sdt")}
     math, para_math, text_tag = _M + "oMath", _M + "oMathPara", qn("w:t")
+    sym_tag = qn("w:sym")
     break_tags = (qn("w:br"), qn("w:cr"), qn("w:tab"))
+    # A text box is stored twice, as mc:Choice and an mc:Fallback copy; read it once.
+    fallback = "{http://schemas.openxmlformats.org/markup-compatibility/2006}Fallback"
     parts = []
     for child in para._p:
         if child.tag in run_tags:
-            text = "".join(t.text or "" if t.tag == text_tag else " "
-                           for t in child.iter(text_tag, *break_tags))
+            text = "".join(t.text or "" if t.tag == text_tag
+                           else _symbol(t) if t.tag == sym_tag else " "
+                           for t in child.iter(text_tag, sym_tag, *break_tags)
+                           if not any(a.tag == fallback for a in t.iterancestors()))
             spaced = False
         elif child.tag in (math, para_math):
             text, spaced = _omml_text(child), True
@@ -232,6 +270,7 @@ def segment_docx(
         if text.startswith(marker):
             item_id = text[len(marker):].strip()
             if label_position == "trailing":
+                buffer_images.extend(para_images.get(i, []))
                 flush(item_id)
             else:
                 if pending_id is not None:
@@ -240,6 +279,7 @@ def segment_docx(
                     buffer_text, buffer_images, buffer_section = [], [], None
                 pending_id = item_id
                 record(item_id)
+                buffer_images.extend(para_images.get(i, []))
             continue
 
         matched = next(((prefix, name) for prefix, name in sections.items()
@@ -249,9 +289,11 @@ def segment_docx(
             inline = text[len(matched[0]):].strip(" :-–")
             if inline:
                 buffer_text.append((buffer_section, inline))
+            buffer_images.extend(para_images.get(i, []))
             continue
 
         if skip_prefixes and text.startswith(tuple(skip_prefixes)):
+            buffer_images.extend(para_images.get(i, []))
             continue
 
         if text:

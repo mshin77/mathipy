@@ -1,6 +1,6 @@
 """mathipy - Multimodal item feature extraction for K-12 math assessment."""
 
-__version__ = "0.4.16"
+__version__ = "0.4.17"
 __author__ = "Mikyung Shin"
 __email__ = "shin.mikyung@gmail.com"
 
@@ -48,11 +48,13 @@ from mathipy.register import (
 from mathipy.symbolic import channel_pairs, symbolic_features
 from mathipy.utils import compute_interrater_reliability, safe_get
 from mathipy.validation import (
+    coding_sheet,
     disagreements,
     ocr_rubric,
     score_agreement,
     stratified_sample,
     visual_rubric,
+    write_coding_app,
     write_coding_sheets,
     write_label_studio,
 )
@@ -136,6 +138,8 @@ __all__ = [
     "stratified_sample",
     "write_coding_sheets",
     "write_label_studio",
+    "write_coding_app",
+    "coding_sheet",
     "score_agreement",
     "disagreements",
     "ocr_rubric",

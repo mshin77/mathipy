@@ -3,7 +3,7 @@
 import re
 from math import gcd
 
-_fraction = re.compile(r"(?<![\w.])(\d+)\s*[/⁄]\s*(\d+)(?!\w|\.\d)")
+_fraction = re.compile(r"(?<![\w./⁄])(\d+)\s*[/⁄]\s*(\d+)(?!\w|\.\d|\s*[/⁄]\s*\d)")
 
 _vulgar = {
     "½": (1, 2), "⅓": (1, 3), "⅔": (2, 3), "¼": (1, 4), "¾": (3, 4),
@@ -23,7 +23,7 @@ _word_denominators = {
 }
 _word_fraction = re.compile(
     r"\b(" + "|".join(_word_numerators) + r")[\s-]+("
-    + "|".join(_word_denominators) + r")s?\b", re.IGNORECASE)
+    + "|".join(_word_denominators) + r")(s?)\b", re.IGNORECASE)
 _article_fraction = re.compile(
     r"\ban?[\s-]+(" + "|".join(_word_denominators) + r")\b", re.IGNORECASE)
 _article_context = re.compile(
@@ -44,10 +44,10 @@ _empty = {
 def _word_pairs(text: str) -> list[tuple[int, int]]:
     """Fractions written in words, as (numerator, denominator)."""
     pairs = []
-    for num, den in _word_fraction.findall(text):
+    for num, den, s in _word_fraction.findall(text):
         n = _word_numerators[num.lower()]
         d = _word_denominators[den.lower()]
-        if n == 1 and den.lower().endswith("s") and den.lower() != "halves":
+        if n == 1 and s:
             continue
         pairs.append((n, d))
     pairs += [(1, _word_denominators[m.group(1).lower()]) for m in _article_fraction.finditer(text)

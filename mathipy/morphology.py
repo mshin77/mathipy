@@ -40,8 +40,9 @@ _not_nominalizations = {
     "cushion", "cushions", "fashion", "fashions", "mention", "mentions",
     "city", "cities", "quantity", "quantities", "entity", "entities",
     "moment", "moments", "element", "elements", "comment", "comments",
-    "witness", "business",
+    "witness", "business", "question", "questions",
 }
+_not_geometric = {"dragon", "dragons", "oregon", "paragon", "paragons", "wagon", "wagons"}
 
 _word = re.compile(r"[a-z]+", re.I)
 
@@ -60,7 +61,7 @@ def morphology_features(text: str) -> dict[str, float]:
 
     numeric = [v for w in words if (v := _lookup(w, numeric_prefix_words)) is not None]
     metric = [v for w in words if (v := _lookup(w, metric_prefix_words)) is not None]
-    geometric = _geometric_suffix.findall(text)
+    geometric = [m for m in _geometric_suffix.findall(text) if m.lower() not in _not_geometric]
     nominal = [m for m in _nominalization.findall(text)
                if m.lower() not in _not_nominalizations]
 

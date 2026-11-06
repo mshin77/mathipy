@@ -389,6 +389,13 @@ build();
 """
 
 
+def _binary(value: Any) -> bool:
+    """Bytes, or a list of them such as ``segment_docx`` images, which JSON cannot hold."""
+    if isinstance(value, (list, tuple)):
+        return any(isinstance(v, (bytes, bytearray)) for v in value)
+    return isinstance(value, (bytes, bytearray))
+
+
 def _script_json(value: Any) -> str:
     return json.dumps(value).replace("<", "\\u003c")
 
@@ -408,13 +415,16 @@ def write_coding_app(
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     keep = list(carry) if carry else [k for k in (records[0] if records else {})]
+    keep = [k for k in keep if not any(_binary(r.get(k)) for r in records)]
 
     prepared = []
-    for row in records:
+    for n, row in enumerate(records):
         entry = {k: row.get(k, "") for k in keep}
-        entry["__id"] = row.get(id_field, "")
+        entry["__id"] = next((row[k] for k in (id_field, "item_id")
+                              if row.get(k) not in (None, "")), n)
         if image_field:
-            entry["__images"] = row.get(image_field, "")
+            images = row.get(image_field, "")
+            entry["__images"] = "" if _binary(images) else images
         prepared.append(entry)
 
     values = {

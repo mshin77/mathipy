@@ -17,6 +17,7 @@ _number_pattern = re.compile(
 _letter_edge = r"A-Za-z'’_"
 _lower_variable = re.compile(
     rf"(?<![{_letter_edge}])(?!a(?![{_letter_edge}]))(?!(?<=\d)s\b)[a-z](?![{_letter_edge}])")
+_lower_a = re.compile(rf"(?<![{_letter_edge}])a(?![{_letter_edge}])")
 _upper_candidate = re.compile(rf"(?<![{_letter_edge}])(?![IO])[A-Z](?![{_letter_edge}])")
 _option_label = re.compile(r"[A-E][.)]")
 _math_operators = "=+−×÷*/<>≤≥^"
@@ -28,6 +29,7 @@ _article = re.compile(r"A\s+[a-z]")
 _abbreviation_letters = re.compile(r"(?<![A-Za-z])(?:[ap]\.\s?m\.?|i\.\s?e\.|e\.\s?g\.)"
                                    r"|(?<=\d)\s?[ap]m\b", re.I)
 _label_candidate = re.compile(r"(?<![\w.])([A-E])[.)](?=\s|$)")
+_times_x = re.compile(r"(?<=\d)\s*[xX](?=\s*\d)")  # "3 x 4" is a product, not a variable
 
 _latex_patterns = [
     re.compile(r"\$\$[\s\S]*?\$\$"),
@@ -69,13 +71,18 @@ def extract_variables(text: str) -> list[str]:
     """Extract single-letter variable names (e.g., x, y, n) from text."""
     text = _option_value_run.sub(" ", (text or "").replace("−", "-"))
     text = _abbreviation_letters.sub(" ", text)
+    text = _times_x.sub(" ", text)
     upper = [m.group() for m in _upper_candidate.finditer(text)
              if not _option_label.match(text, m.start())
              and not _article.match(text, m.start())
              and (_math_after.match(text, m.end())
                   or text[max(0, m.start() - 1):m.start()].isdigit()
                   or _previous_char(text, m.start(), " \t\r\n") in set(_math_operators + "-"))]
-    return sorted(set(_lower_variable.findall(text)) | set(upper))
+    # "a" is usually the article; it is a variable only beside an operator ("a + b").
+    lower_a = [m.group() for m in _lower_a.finditer(text)
+               if _math_after.match(text, m.end())
+               or _previous_char(text, m.start(), " \t\r\n") in set(_math_operators + "-")]
+    return sorted(set(_lower_variable.findall(text)) | set(upper) | set(lower_a))
 
 
 def extract_math_expressions(text: str) -> list[str]:
